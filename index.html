@@ -1,45 +1,480 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Track My Tracks</title>
+
     <link rel="stylesheet" href="css/styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 </head>
+
 <body>
 
-    <nav>
-        <h1>Track My Tracks</h1>
+    <nav class="navbar">
 
-        <div>
-            <a href="index.html">Home</a>
-            <a href="login.html">Login</a>
-            <a href="register.html">Register</a>
+        <a href="index.html" class="logo">
+            <span class="logo-icon">▶</span>
+            TRACK MY TRACKS
+        </a>
+
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="#">Discover</a>
+            <a href="#">Reviews</a>
+            <a href="#">Playlists</a>
         </div>
+
+        <div class="nav-actions">
+            <a href="login.html" class="login-link">Log In</a>
+            <a href="register.html" class="signup-btn">Sign Up</a>
+        </div>
+
     </nav>
 
+
     <main>
-        <section>
-            <h2>Discover. Rate. Review.</h2>
-            <p>Keep track of the music you love and see what others are listening to.</p>
 
-            <input
-                type="text"
-                placeholder="Search songs, albums, or artists"
-            >
-        </section>
+        <section class="hero">
 
-        <section>
-            <h2>Popular Songs</h2>
+            <div class="hero-glow glow-one"></div>
+            <div class="hero-glow glow-two"></div>
 
-            <div class="song-card">
-                <h3>Song Name</h3>
-                <p>Artist Name</p>
-                <p>★★★★★</p>
+            <p class="hero-label">
+                YOUR MUSIC. YOUR RATINGS.
+            </p>
+
+            <h1>
+                Every track deserves
+                <span>a rating.</span>
+            </h1>
+
+            <p class="hero-description">
+                Rate songs, review albums, discover new artists,
+                and keep track of everything worth replaying.
+            </p>
+
+            <div class="search-box">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    placeholder="Search songs, albums, or artists..."
+                >
+
+                <button>
+                    SEARCH
+                </button>
+
             </div>
+
+
+            <div class="hero-stats">
+
+                <div>
+                    <strong>★★★★★</strong>
+                    <span>Rate your favorites</span>
+                </div>
+
+                <div>
+                    <strong>♫</strong>
+                    <span>Discover new music</span>
+                </div>
+
+                <div>
+                    <strong>✎</strong>
+                    <span>Write your reviews</span>
+                </div>
+
+            </div>
+
         </section>
+
+
+        <section class="content-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <p class="section-label">
+                        WHAT'S PLAYING
+                    </p>
+
+                    <h2>
+                        Trending Tracks
+                    </h2>
+                </div>
+
+                <a href="#">
+                    View all →
+                </a>
+
+            </div>
+
+
+            <div class="track-grid">
+
+                <article class="track-card">
+
+                    <div class="album-cover cover-one">
+
+                        <span class="track-number">
+                            01
+                        </span>
+
+                        <button class="play-button">
+                            ▶
+                        </button>
+
+                    </div>
+
+                    <div class="track-info">
+
+                        <h3>
+                            Midnight Drive
+                        </h3>
+
+                        <p>
+                            Neon Avenue
+                        </p>
+
+                        <div class="rating-row">
+
+                            <span class="stars">
+                                ★★★★☆
+                            </span>
+
+                            <span class="score">
+                                4.4
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <article class="track-card">
+
+                    <div class="album-cover cover-two">
+
+                        <span class="track-number">
+                            02
+                        </span>
+
+                        <button class="play-button">
+                            ▶
+                        </button>
+
+                    </div>
+
+                    <div class="track-info">
+
+                        <h3>
+                            After Hours
+                        </h3>
+
+                        <p>
+                            Static Dreams
+                        </p>
+
+                        <div class="rating-row">
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <span class="score">
+                                4.8
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <article class="track-card">
+
+                    <div class="album-cover cover-three">
+
+                        <span class="track-number">
+                            03
+                        </span>
+
+                        <button class="play-button">
+                            ▶
+                        </button>
+
+                    </div>
+
+                    <div class="track-info">
+
+                        <h3>
+                            Electric Blue
+                        </h3>
+
+                        <p>
+                            Night Shift
+                        </p>
+
+                        <div class="rating-row">
+
+                            <span class="stars">
+                                ★★★★☆
+                            </span>
+
+                            <span class="score">
+                                4.2
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <article class="track-card">
+
+                    <div class="album-cover cover-four">
+
+                        <span class="track-number">
+                            04
+                        </span>
+
+                        <button class="play-button">
+                            ▶
+                        </button>
+
+                    </div>
+
+                    <div class="track-info">
+
+                        <h3>
+                            Replay
+                        </h3>
+
+                        <p>
+                            Echo Room
+                        </p>
+
+                        <div class="rating-row">
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <span class="score">
+                                4.7
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <section class="content-section reviews-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-label">
+                        THE COMMUNITY
+                    </p>
+
+                    <h2>
+                        Fresh Reviews
+                    </h2>
+
+                </div>
+
+                <a href="#">
+                    More reviews →
+                </a>
+
+            </div>
+
+
+            <div class="review-grid">
+
+                <article class="review-card">
+
+                    <div class="review-user">
+
+                        <div class="avatar">
+                            K
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                @khadijah
+                            </strong>
+
+                            <p>
+                                just now
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="stars">
+                        ★★★★★
+                    </span>
+
+                    <h3>
+                        Less than zero
+                    </h3>
+
+                    <p class="artist">
+                        The weeknd
+                    </p>
+
+                    <p class="review-text">
+                        This is one of those songs you immediately
+                        want to replay the second it ends.
+                    </p>
+
+                </article>
+
+
+                <article class="review-card featured-review">
+
+                    <div class="review-user">
+
+                        <div class="avatar">
+                            S
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                @sam
+                            </strong>
+
+                            <p>
+                                12 min ago
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="stars">
+                        ★★★★☆
+                    </span>
+
+                    <h3>
+                        Wheels on The Bus
+                    </h3>
+
+                    <p class="artist">
+                        Nursery Rhymes
+                    </p>
+
+                    <p class="review-text">
+                        The production is insane. Easily one of my
+                        favorite tracks from the album.
+                    </p>
+
+                </article>
+
+
+                <article class="review-card">
+
+                    <div class="review-user">
+
+                        <div class="avatar">
+                            E
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                @eyan
+                            </strong>
+
+                            <p>
+                                28 min ago
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="stars">
+                        ★★★★★
+                    </span>
+
+                    <h3>
+                        Spring
+                    </h3>
+
+                    <p class="artist">
+                        Vivaldi
+                    </p>
+
+                    <p class="review-text">
+                        Exactly what I want from a study playlist.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
     </main>
 
+
+    <footer>
+
+        <div class="footer-logo">
+            TRACK MY TRACKS
+        </div>
+
+        <p>
+            Rate it. Review it. Replay it.
+        </p>
+
+    </footer>
+
+
     <script src="js/main.js"></script>
+
 </body>
+
 </html>
