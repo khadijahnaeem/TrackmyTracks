@@ -42,6 +42,7 @@ api/
   tests/test_errors.py, test_models.py, test_http.py, test_session.py,
   tests/test_effective_ratings.py, test_serializers.py
 .github/workflows/api.yml
+README.md                    API setup section
 ```
 
 ---
@@ -1503,3 +1504,46 @@ git push
 ```
 
 Expected: the `api` check on the pull request goes green. Then in GitHub repository settings, protect `main` with one required review and the `api / test` check.
+
+### Task 8: README API setup
+
+**Files:**
+- Modify: `README.md`
+
+**Interfaces:**
+- Consumes: Tasks 1 and 2
+- Produces: the API setup steps later slices rely on
+
+- [ ] **Step 1: Add the API section to `README.md`**
+
+Insert after the Database section:
+
+````markdown
+### API
+
+Requires Python 3.12. The API runs in its own terminal from `api/`, with the virtual environment active.
+
+```bash
+cd api
+py -3.12 -m venv .venv                 # first time only, macOS and Linux: python3.12 -m venv .venv
+.venv\Scripts\activate                 # every new terminal, macOS and Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt    # first time only
+flask db upgrade                       # first time and after every database reset
+flask run                              # http://localhost:5001
+```
+
+Run the API tests with `pytest` from the same activated terminal.
+````
+
+- [ ] **Step 2: Verify the steps from a fresh terminal**
+
+Run the block above in a new terminal with Postgres up.
+Expected: `flask run` serves on port 5001, and `pytest` passes after stopping it.
+
+- [ ] **Step 3: Commit and push**
+
+```bash
+git add README.md
+git commit -m "docs: add api setup to the readme"
+git push
+```

@@ -9,54 +9,33 @@ A social music discovery and review web app where users can rate songs, write re
 
 ## Running locally
 
-Requires Docker Desktop, Python 3.12, and Node 22 or newer.
+Requires Docker Desktop and Python 3.
 
-### First time
+### Database
+
+First time, from the repository root:
 
 ```bash
 cp .env.example .env
-python -c "import secrets; print(secrets.token_hex(32))"
+py -c "import secrets; print(secrets.token_hex(32))"    # macOS and Linux: python3 -c "..."
 ```
 
-Paste the printed value into `SECRET_KEY` in `.env`.
+Paste the printed value into `SECRET_KEY` in `.env`, then start Postgres. Run this again each day before working.
 
 ```bash
 docker compose up -d --wait
-
-cd api
-py -3.12 -m venv .venv              # macOS and Linux: python3.12 -m venv .venv
-.venv\Scripts\activate              # macOS and Linux: source .venv/bin/activate
-pip install -r requirements-dev.txt
-flask db upgrade
-
-cd ../web
-npm install
 ```
 
-### Every day
-
-```bash
-docker compose up -d --wait
-cd api && flask run          # http://localhost:5001
-cd web && npm run dev        # http://localhost:5173, open this one
-```
-
-Vite proxies `/api` to Flask, so the browser only ever talks to port 5173.
-
-### Tests
-
-```bash
-cd api && pytest
-cd web && npm test
-```
-
-### Resetting the database
+Postgres 16 listens on `localhost:5433` with a `trackmytracks` database for development and `trackmytracks_test` for tests. To wipe both and start fresh:
 
 ```bash
 docker compose down -v
 docker compose up -d --wait
-cd api && flask db upgrade
 ```
+
+### Earlier prototype
+
+`frontend/` holds the first React prototype and needs Node 22 or newer. From `frontend/`, run `npm install` once, then `npm run dev`.
 
 ## Workflow
 

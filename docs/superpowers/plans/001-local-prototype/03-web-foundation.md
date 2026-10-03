@@ -34,6 +34,7 @@ web/
   plus one .module.css per component
   src/test/setup.ts, render.tsx, fetch.ts
 .github/workflows/web.yml
+README.md                    web setup section
 ```
 
 ## Design language
@@ -2069,3 +2070,43 @@ gh pr create --fill --base main
 ```
 
 Expected: the `web` check goes green. Add `web / check` to the required checks on `main`.
+
+### Task 8: README web setup
+
+**Files:**
+- Modify: `README.md`
+
+**Interfaces:**
+- Consumes: Task 1
+- Produces: the web setup steps later slices rely on
+
+- [ ] **Step 1: Add the web section to `README.md`**
+
+Insert before the Earlier prototype section, so it lands after the API section whichever slice merges first:
+
+````markdown
+### Web
+
+Requires Node 22 or newer. The web app runs in its own terminal from `web/`, next to the API terminal.
+
+```bash
+cd web
+npm install      # first time only
+npm run dev      # http://localhost:5173, open this one
+```
+
+Vite proxies `/api` to Flask, so the browser only ever talks to port 5173. Run the web tests with `npm test` from `web/`.
+````
+
+- [ ] **Step 2: Verify the steps from a fresh terminal**
+
+Run the block above in a new terminal.
+Expected: `npm run dev` serves on port 5173, and `npm test` passes after stopping it.
+
+- [ ] **Step 3: Commit and push**
+
+```bash
+git add README.md
+git commit -m "docs: add web setup to the readme"
+git push
+```
