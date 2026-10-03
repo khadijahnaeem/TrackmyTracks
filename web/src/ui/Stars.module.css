@@ -1,0 +1,47 @@
+.stars {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.sm {
+  --star-size: var(--space-4);
+}
+
+.md {
+  --star-size: var(--space-6);
+}
+
+.interactive {
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+
+.row {
+  display: flex;
+}
+
+/* fixed size so the clipped fill row never squeezes its stars */
+.star {
+  flex: none;
+  width: var(--star-size);
+  height: var(--star-size);
+  max-width: none;
+  fill: currentColor;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  opacity: 0.3;
+}
+
+.filled {
+  color: var(--color-accent);
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  pointer-events: none;
+}

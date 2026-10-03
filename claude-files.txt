@@ -101,6 +101,9 @@ web/src/ui/Skeleton.module.css
 web/src/ui/Skeleton.tsx
 web/src/ui/Spinner.module.css
 web/src/ui/Spinner.tsx
+web/src/ui/Stars.module.css
+web/src/ui/Stars.test.tsx
+web/src/ui/Stars.tsx
 web/src/ui/TextArea.tsx
 web/src/ui/TextField.tsx
 web/src/ui/buttonClassName.ts
@@ -109,6 +112,7 @@ web/src/ui/cx.ts
 web/src/ui/format.test.ts
 web/src/ui/format.ts
 web/src/ui/global.css
+web/src/ui/index.ts
 web/src/ui/tokens.css
 web/tsconfig.app.json
 web/tsconfig.json
