@@ -3,6 +3,7 @@ The following files were generated or modified by Claude code
 .editorconfig
 .env.example
 .gitattributes
+.github/workflows/api.yml
 .gitignore
 CLAUDE.md
 README.md
