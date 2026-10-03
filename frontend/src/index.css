@@ -7,6 +7,12 @@
    GLOBAL
 -------------------------- */
 
+:root {
+    /* lg containers hold sm children at 8px inset so corners stay concentric */
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -102,7 +108,7 @@ input {
 
     place-items: center;
 
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 
     background: #2f8f5b;
 
@@ -156,7 +162,7 @@ input {
 
     padding: 11px 19px;
 
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 
     font-size: 14px;
 
@@ -333,7 +339,7 @@ input {
 
     border: 1px solid #2b2e34;
 
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
 
     padding: 8px;
 
@@ -384,7 +390,7 @@ input {
 
     letter-spacing: 1px;
 
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 
     cursor: pointer;
 
@@ -495,9 +501,9 @@ input {
     border:
         1px solid rgba(255, 255, 255, 0.07);
 
-    padding: 10px;
+    padding: 8px;
 
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
 
     transition:
         transform 0.25s ease,
@@ -519,7 +525,7 @@ input {
 .album-cover {
     height: 250px;
 
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
 
     position: relative;
 
@@ -700,7 +706,7 @@ input {
     border:
         1px solid rgba(255, 255, 255, 0.07);
 
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
 
     transition: 0.25s;
 }
