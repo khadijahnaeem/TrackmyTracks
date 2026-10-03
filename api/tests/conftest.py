@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 from flask_migrate import upgrade
-from sqlalchemy import text
+from sqlalchemy import make_url, text
 from werkzeug.security import generate_password_hash
 
 from app import create_app
@@ -20,7 +20,10 @@ MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": os.environ["TEST_DATABASE_URL"]})
+    url = os.environ["TEST_DATABASE_URL"]
+    # the schema is dropped below, so never run against a non test database
+    assert make_url(url).database.endswith("_test"), f"{url} is not a test database"
+    app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": url})
     with app.app_context():
         db.session.execute(text("DROP SCHEMA public CASCADE"))
         db.session.execute(text("CREATE SCHEMA public"))

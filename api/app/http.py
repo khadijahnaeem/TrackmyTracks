@@ -8,6 +8,8 @@ from app.errors import ValidationError
 from app.extensions import db
 
 PER_PAGE = 20
+# keeps OFFSET far below the bigint limit
+MAX_PAGE = 10_000
 
 
 def json_body() -> dict:
@@ -38,8 +40,8 @@ def required_text(data: dict, field: str, max_length: int) -> str:
 
 def page_arg() -> int:
     page = request.args.get("page", 1, type=int)
-    if page < 1:
-        raise ValidationError("Page must be 1 or greater")
+    if not 1 <= page <= MAX_PAGE:
+        raise ValidationError(f"Page must be between 1 and {MAX_PAGE}")
     return page
 
 

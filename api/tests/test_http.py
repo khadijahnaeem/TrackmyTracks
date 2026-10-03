@@ -2,7 +2,15 @@ import pytest
 from sqlalchemy import select
 
 from app.errors import ValidationError
-from app.http import json_body, optional_text, page_arg, page_payload, paginate, required_text
+from app.http import (
+    MAX_PAGE,
+    json_body,
+    optional_text,
+    page_arg,
+    page_payload,
+    paginate,
+    required_text,
+)
 from app.models import User
 
 
@@ -35,6 +43,13 @@ def test_page_arg(app):
     with app.test_request_context("/"):
         assert page_arg() == 1
     with app.test_request_context("/?page=0"), pytest.raises(ValidationError):
+        page_arg()
+
+
+def test_page_arg_rejects_pages_past_the_cap(app):
+    with app.test_request_context(f"/?page={MAX_PAGE}"):
+        assert page_arg() == MAX_PAGE
+    with app.test_request_context("/?page=999999999999999999"), pytest.raises(ValidationError):
         page_arg()
 
 
