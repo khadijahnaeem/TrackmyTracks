@@ -1,7 +1,5 @@
 The following files were generated or modified by Claude code
 
-.editorconfig
-.env.example
 .gitattributes
 .github/workflows/api.yml
 .gitignore
@@ -76,7 +74,13 @@ web/index.html
 web/package-lock.json
 web/package.json
 web/public/favicon.svg
+web/src/api/client.test.ts
+web/src/api/client.ts
+web/src/api/queryClient.ts
+web/src/api/types.ts
+web/src/features/auth/useMe.ts
 web/src/main.tsx
+web/src/test/fetch.ts
 web/src/test/setup.ts
 web/src/ui/cx.ts
 web/src/ui/format.test.ts
