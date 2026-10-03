@@ -56,3 +56,16 @@ docs/superpowers/plans/001-local-prototype/08-playlists.md
 docs/superpowers/plans/001-local-prototype/09-history.md
 docs/superpowers/plans/001-local-prototype/10-integration.md
 docs/superpowers/specs/001-local-prototype-design.md
+frontend/.gitignore
+frontend/index.html
+frontend/public/favicon.svg
+frontend/src/App.jsx
+frontend/src/components/Footer.jsx
+frontend/src/components/FreshReviews.jsx
+frontend/src/components/Hero.jsx
+frontend/src/components/Navbar.jsx
+frontend/src/components/Reviewcard.jsx
+frontend/src/components/TrackCard.jsx
+frontend/src/components/TrendingTracks.jsx
+frontend/src/index.css
+frontend/src/main.jsx
