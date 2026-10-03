@@ -35,3 +35,17 @@ def test_unhandled_exception_returns_json_500():
 
     assert response.status_code == 500
     assert response.json["error"]["code"] == "internal_server_error"
+
+
+def test_http_error_keeps_its_headers():
+    app = create_app({"TESTING": True})
+
+    @app.post("/only-post")
+    def only_post():
+        return {}
+
+    response = app.test_client().get("/only-post")
+
+    assert response.status_code == 405
+    assert response.json["error"]["code"] == "method_not_allowed"
+    assert set(response.headers["Allow"].split(", ")) >= {"POST", "OPTIONS"}
