@@ -333,16 +333,12 @@ git commit -m "fix(web): <what the audit found>"
 
 - [ ] **Step 1: Add the demo section to `README.md`**
 
-Append after the Tests section:
+Insert before the Earlier prototype section:
 
 ````markdown
 ### Demo data
 
-```bash
-cd api && flask seed
-```
-
-Caches four albums from MusicBrainz and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
+From the activated API terminal in `api/`, run `flask seed`. It caches four albums from MusicBrainz and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
 ````
 
 - [ ] **Step 2: Commit, open the pull request, and tag after merge**
