@@ -13,6 +13,7 @@ api/app/catalog/__init__.py
 api/app/catalog/routes.py
 api/app/errors.py
 api/app/extensions.py
+api/app/http.py
 api/app/kinds.py
 api/app/models.py
 api/app/playlists/__init__.py
@@ -31,6 +32,7 @@ api/requirements.txt
 api/tests/__init__.py
 api/tests/conftest.py
 api/tests/test_errors.py
+api/tests/test_http.py
 api/tests/test_models.py
 claude-files.txt
 docker-compose.yml
