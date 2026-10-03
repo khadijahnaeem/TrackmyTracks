@@ -20,6 +20,7 @@ api/app/models.py
 api/app/playlists/__init__.py
 api/app/playlists/routes.py
 api/app/ratings/__init__.py
+api/app/ratings/queries.py
 api/app/ratings/routes.py
 api/app/views.py
 api/migrations/README
@@ -32,6 +33,7 @@ api/requirements-dev.txt
 api/requirements.txt
 api/tests/__init__.py
 api/tests/conftest.py
+api/tests/test_effective_ratings.py
 api/tests/test_errors.py
 api/tests/test_http.py
 api/tests/test_models.py
