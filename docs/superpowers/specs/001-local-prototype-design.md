@@ -34,38 +34,44 @@ The prototype is done when a teammate can clone the repo, run three commands, an
 
 ```
 TrackmyTracks/
-  docker-compose.yml          postgres:16, named volume, port 5432
-  .env.example                DATABASE_URL, TEST_DATABASE_URL, SECRET_KEY, MB_USER_AGENT
+  docker-compose.yml          postgres:16, named volume, host port 5433
+  .env.example                DATABASE_URL, TEST_DATABASE_URL, SECRET_KEY, MB_USER_AGENT, FLASK_RUN_PORT
   api/
-    app/__init__.py           create_app(), registers blueprints and error handlers
-    app/extensions.py         db, migrate
+    app/__init__.py           create_app(), registers blueprints, error handlers, client, seed command
+    app/extensions.py         db, migrate, constraint naming convention
     app/errors.py             ApiError and JSON error handlers
-    app/musicbrainz.py        MusicBrainz and ListenBrainz client
-    app/auth/                 routes, service
-    app/catalog/              routes, service with get_or_cache_*
-    app/ratings/              routes, service
-    app/playlists/            routes, service
+    app/http.py               request parsing and pagination helpers
     app/models.py             all SQLAlchemy models
+    app/kinds.py              song, album, artist and their models
+    app/views.py              effective rating views as read only tables
+    app/musicbrainz.py        MusicBrainz and ListenBrainz client
+    app/seed.py               flask seed demo data
+    app/auth/                 routes, session helpers, serializers
+    app/catalog/              routes, service with get_or_cache_*, serializers
+    app/ratings/              routes, service, rating summary queries
+    app/history/              routes
+    app/playlists/            routes, service
     migrations/
-    tests/                    pytest, fixtures/ holds recorded MB JSON
+    tests/                    pytest, fixtures/ holds recorded MB JSON, fakes.py
   web/
-    src/api/                  fetch wrapper and typed calls per feature
-    src/ui/                   design tokens, Button, Card, Input, Stars, Skeleton
+    src/api/                  fetch wrapper, response types, query client
+    src/ui/                   design tokens, Button, Card, TextField, TextArea, Stars, Skeleton, Pagination
     src/features/auth/
     src/features/catalog/
     src/features/ratings/     RatingControl, ReviewList, ReviewComposer
+    src/features/history/
     src/features/playlists/
 ```
 
 ### Running locally
 
 ```
-docker compose up -d
-cd api && flask db upgrade && flask run      # :5000
-cd web && npm run dev                        # :5173, proxies /api to :5000
+docker compose up -d --wait
+cd api && flask db upgrade && flask run      # :5001
+cd web && npm run dev                        # :5173, proxies /api to 127.0.0.1:5001
 ```
 
-The browser only talks to `:5173`, so session cookies work without CORS setup.
+The browser only talks to `:5173`, so session cookies work without CORS setup. Postgres uses host port 5433 so it never clashes with a local install, and Flask uses 5001 because macOS reserves 5000 for AirPlay.
 
 ### MusicBrainz client
 
@@ -74,18 +80,25 @@ The browser only talks to `:5173`, so session cookies work without CORS setup.
 - Sends the `User-Agent` MusicBrainz requires, read from `MB_USER_AGENT`
 - Holds a process-wide lock that spaces MusicBrainz requests at least 1 second apart
 - Uses a 5 second request timeout. A failure raises `CatalogUnavailable`, which the API returns as a 502
+- A 400 or 404 raises `NotFound`. Any other failure, including a 503 rate limit, raises `CatalogUnavailable`
+- Search text is Lucene escaped so input like `AC/DC` is literal
 - When an album is cached, its tracklist comes from the earliest official release in the release group
+- An artist's discography lists studio albums only, those without secondary types like Live
+- Top songs come from ListenBrainz, an artist with no listening data has none
 - Songs and albums store only their first credited artist
+- Every cached row is written with `INSERT ... ON CONFLICT` on its MBID, so concurrent first visits never collide
 
 ## Data model
 
 ```
 users            id, email UNIQUE, username UNIQUE, password_hash, created_at
-artists          id, mbid UNIQUE, name, fetched_at
-albums           id, mbid UNIQUE (release group), title, artist_id FK, release_year NULL, fetched_at
-songs            id, mbid UNIQUE (recording), title, length_ms NULL, artist_id FK, fetched_at
+artists          id, mbid UNIQUE, name, fetched_at NULL
+albums           id, mbid UNIQUE (release group), title, artist_id FK, release_year NULL, fetched_at NULL
+songs            id, mbid UNIQUE (recording), title, disambiguation NULL, length_ms NULL, artist_id FK
 album_songs      album_id FK, song_id FK, position
                  PK(album_id, song_id)
+artist_top_songs artist_id FK, rank, song_id FK
+                 PK(artist_id, rank)
 
 ratings          id, user_id FK ON DELETE CASCADE,
                  song_id FK NULL, album_id FK NULL, artist_id FK NULL,
@@ -93,7 +106,7 @@ ratings          id, user_id FK ON DELETE CASCADE,
                  review VARCHAR(2000) NULL CHECK (review <> ''),
                  created_at, updated_at
                  CHECK (num_nonnulls(song_id, album_id, artist_id) = 1)
-                 partial UNIQUE (user_id, song_id), (user_id, album_id), (user_id, artist_id)
+                 UNIQUE (user_id, song_id), (user_id, album_id), (user_id, artist_id)
 
 playlists        id, user_id FK ON DELETE CASCADE,
                  name VARCHAR(100) NOT NULL CHECK (name <> ''),
@@ -106,6 +119,8 @@ playlist_songs   playlist_id FK ON DELETE CASCADE, song_id FK, position INTEGER 
                  UNIQUE(playlist_id, position) DEFERRABLE INITIALLY DEFERRED
 ```
 
+`fetched_at` marks a fully cached row. An artist is fully cached once its discography and top songs are stored, and an album once its tracklist is stored. Rows created along the way, like the artist of a rated song, stay NULL until their own page is opened. The rating unique constraints need no partial index because Postgres treats NULLs as distinct.
+
 Validation rules enforced in the API as well as the database:
 
 - Username is 3 to 30 characters of lowercase letters, digits, and underscores
@@ -115,9 +130,9 @@ Validation rules enforced in the API as well as the database:
 
 ### Effective ratings
 
-All stars shown in the UI come from two views and one expression. Nothing derived is stored, so nothing can go stale.
+All stars shown in the UI come from three views with the same columns, `(user_id, target_id, stars, is_derived, song_count)`. Nothing derived is stored, so nothing can go stale. `song_effective_ratings` maps each song rating to `score / 2.0`, which lets one query serve every kind.
 
-`album_effective_ratings (user_id, album_id, stars, is_derived, song_count)`
+`album_effective_ratings`
 
 - If the user has an explicit album rating, `stars = score / 2.0` and `is_derived = false`. This is the override
 - Otherwise `stars = ROUND(AVG(song score) / 2.0, 1)` across the user's ratings of songs in `album_songs` for that album, `is_derived = true`
@@ -127,8 +142,7 @@ All stars shown in the UI come from two views and one expression. Nothing derive
 
 Community averages:
 
-- Song: `ROUND(AVG(score) / 2.0, 1)` across all users
-- Album and artist: `ROUND(AVG(stars), 1)` across the effective view, so personal and community numbers use the same rule
+- `ROUND(AVG(stars), 1)` across the effective view for every kind, so personal and community numbers use the same rule
 
 Example: a user rates three songs on an album 3.5, 4, and 3.5 stars (7, 8, 7). The album shows **3.7, avg of 3 songs**. Rating the album 4.5 shows **4.5** as an override. Clearing it returns to 3.7.
 
@@ -144,7 +158,7 @@ All routes live under `/api` and return JSON. Catalog URLs use the MusicBrainz I
 POST /auth/register     {email, username, password}     logs in on success
 POST /auth/login        {email, password}
 POST /auth/logout
-GET  /auth/me           current user or 401
+GET  /auth/me           {user} with null when logged out
 ```
 
 Session cookie is httpOnly with `SameSite=Lax`. Every write route requires login.
@@ -163,11 +177,13 @@ A detail request for an uncached entity fetches it from MusicBrainz, writes the 
 ### Ratings and reviews
 
 ```
-PUT    /ratings                         {type, mbid, score, review?}    upsert, caches the target
-DELETE /ratings/<type>/<mbid>           removes your rating, an override falls back to the average
-GET    /<type>s/<mbid>/reviews?page=    ratings with review text, newest first, 20 per page
-GET    /users/<username>/history?type=&page=    explicit ratings, newest first, 20 per page
+PUT    /ratings                         {kind, mbid, stars, review?}    upsert, caches the target
+DELETE /ratings/<kind>/<mbid>           removes your rating, an override falls back to the average
+GET    /<kind>s/<mbid>/reviews?page=    ratings with review text, newest first, 20 per page
+GET    /users/<username>/history?kind=&page=    explicit ratings, newest first, 20 per page
 ```
+
+`stars` is half stars from 0.5 to 5 on the wire and `score` 1 to 10 in the database. PUT and DELETE both answer with the target's fresh rating summary, so the UI shows a derived average the moment an override is cleared.
 
 ### Playlists
 
@@ -210,47 +226,24 @@ Frontend handling goes through TanStack Query:
 
 ## Testing
 
-- pytest runs against `trackmytracks_test` in the same Docker Postgres. Each test runs in a transaction that is rolled back
-- The MusicBrainz client is replaced with recorded JSON fixtures, so tests never call the network
+- pytest runs against `trackmytracks_test` in the same Docker Postgres. The schema is rebuilt from migrations once per run and every table is truncated after each test
+- The MusicBrainz client is replaced by a fake that runs the real parsing over recorded JSON fixtures, so tests never call the network
 - Required coverage: effective-rating views (derived average, override, clearing, rounding to one decimal), validation limits, playlist ownership and visibility, auth flow
 - Other routes get one happy-path test each
-- Vitest covers `Stars` and rating display formatting
-- GitHub Actions runs ruff, pytest, eslint, `tsc --noEmit`, and vitest on every pull request. `main` is protected and needs one approving review
+- Vitest and Testing Library cover the `ui/` components, the API client, and each feature's components and pages against a stubbed `fetch`
+- GitHub Actions runs ruff, a migration drift check, pytest, eslint, vitest, and the production build on every pull request. `main` is protected and needs one approving review
 
 ## Work breakdown
 
-### Day 1, foundation
+The implementation plan splits the week into ten slices, each one branch and one pull request. The plan index at `docs/superpowers/plans/001-local-prototype.md` pins the shared contracts so slices can run in parallel.
 
-All four work in parallel. The full schema and both views ship in one initial migration so no conflicting migrations appear during the week.
+| Day | Dev 1 | Dev 2 | Dev 3 | Dev 4 |
+|---|---|---|---|---|
+| 1 | 02 API foundation | 03 Web foundation | 04 Music catalog service | 01 Dev environment, then help on 04 |
+| 2 to 4 | 05 Auth, then 09 History | 06 Catalog pages | 07 Ratings and reviews | 08 Playlists |
+| 6 and 7 | 10 Integration | 10 Integration | 10 Integration | 10 Integration |
 
-| Dev | Owns |
-|---|---|
-| 1 | App factory, config, error handlers, models, initial migration with views |
-| 2 | Vite app, router, fetch wrapper, query client, design tokens, `ui/` components |
-| 3 | MusicBrainz and ListenBrainz client, throttle, recorded fixtures, `flask seed` command |
-| 4 | docker-compose, `.env.example`, README setup, pytest and test database, CI workflow |
-
-### Days 2 to 5, vertical slices
-
-Each developer owns one feature from route to page.
-
-| Dev | Slice | Depends on |
-|---|---|---|
-| 1 | Auth routes and pages, protected routes, then the history page | Foundation |
-| 2 | Search page, artist, album, and song pages, cache on touch, top 5 hits | MB client |
-| 3 | Rating routes, `RatingControl`, `ReviewList`, `ReviewComposer` with character counter | Views |
-| 4 | Playlist routes, add-to-playlist menu, playlist page with reorder | `get_or_cache_song` |
-
-Handoffs to agree by end of day 2:
-
-- Dev 3 builds rating components as self-contained units that Dev 2's pages mount, so the two never edit the same page files
-- Dev 4 calls `get_or_cache_song` from the catalog service instead of writing caching logic
-
-### Days 6 and 7, integration
-
-- Merge all slices and walk the goals list as a bug bash
-- Empty states, error states, and a responsive check at phone width
-- Run `flask seed` so demos start with real data
+The full schema and all three views ship in one initial migration so no conflicting migrations appear during the week. Slice 07's rating components and slice 08's add to playlist button merge before slice 06's pages, which mount them, so no two people edit the same page files.
 
 ## Out of scope
 
