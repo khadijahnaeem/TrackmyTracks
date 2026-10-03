@@ -33,6 +33,21 @@ docker compose down -v
 docker compose up -d --wait
 ```
 
+### API
+
+Requires Python 3.12. The API runs in its own terminal from `api/`, with the virtual environment active.
+
+```bash
+cd api
+py -3.12 -m venv .venv                 # first time only, python3.12 on macOS and Linux
+.venv\Scripts\activate                 # every new terminal, source .venv/bin/activate on macOS and Linux
+pip install -r requirements-dev.txt    # first time only
+flask db upgrade                       # first time and after every database reset
+flask run                              # http://localhost:5001
+```
+
+Run the API tests with `pytest` from the same activated terminal.
+
 ### Earlier prototype
 
 `frontend/` holds the first React prototype and needs Node 22 or newer. From `frontend/`, run `npm install` once, then `npm run dev`.
