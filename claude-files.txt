@@ -1,0 +1,23 @@
+The following files were generated or modified by Claude code
+
+.editorconfig
+.env.example
+.gitattributes
+.gitignore
+CLAUDE.md
+README.md
+claude-files.txt
+docker-compose.yml
+docker/initdb/01-create-test-db.sql
+docs/superpowers/plans/001-local-prototype.md
+docs/superpowers/plans/001-local-prototype/01-dev-environment.md
+docs/superpowers/plans/001-local-prototype/02-api-foundation.md
+docs/superpowers/plans/001-local-prototype/03-web-foundation.md
+docs/superpowers/plans/001-local-prototype/04-music-catalog.md
+docs/superpowers/plans/001-local-prototype/05-auth.md
+docs/superpowers/plans/001-local-prototype/06-catalog-pages.md
+docs/superpowers/plans/001-local-prototype/07-ratings-reviews.md
+docs/superpowers/plans/001-local-prototype/08-playlists.md
+docs/superpowers/plans/001-local-prototype/09-history.md
+docs/superpowers/plans/001-local-prototype/10-integration.md
+docs/superpowers/specs/001-local-prototype-design.md

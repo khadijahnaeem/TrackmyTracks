@@ -184,7 +184,7 @@ First time, from the repository root:
 
 ```bash
 cp .env.example .env
-py -c "import secrets; print(secrets.token_hex(32))"    # macOS and Linux: python3 -c "..."
+py -c "import secrets; print(secrets.token_hex(32))"    # python3 on macOS and Linux
 ```
 
 Paste the printed value into `SECRET_KEY` in `.env`, then start Postgres. Run this again each day before working.

@@ -103,8 +103,8 @@ addopts = "-q"
 
 ```bash
 cd api
-py -3.12 -m venv .venv              # macOS and Linux: python3.12 -m venv .venv
-.venv\Scripts\activate              # macOS and Linux: source .venv/bin/activate
+py -3.12 -m venv .venv              # python3.12 on macOS and Linux
+.venv\Scripts\activate              # source .venv/bin/activate on macOS and Linux
 pip install -r requirements-dev.txt
 ```
 
@@ -1525,8 +1525,8 @@ Requires Python 3.12. The API runs in its own terminal from `api/`, with the vir
 
 ```bash
 cd api
-py -3.12 -m venv .venv                 # first time only, macOS and Linux: python3.12 -m venv .venv
-.venv\Scripts\activate                 # every new terminal, macOS and Linux: source .venv/bin/activate
+py -3.12 -m venv .venv                 # first time only, python3.12 on macOS and Linux
+.venv\Scripts\activate                 # every new terminal, source .venv/bin/activate on macOS and Linux
 pip install -r requirements-dev.txt    # first time only
 flask db upgrade                       # first time and after every database reset
 flask run                              # http://localhost:5001
