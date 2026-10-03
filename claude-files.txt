@@ -69,3 +69,16 @@ frontend/src/components/TrackCard.jsx
 frontend/src/components/TrendingTracks.jsx
 frontend/src/index.css
 frontend/src/main.jsx
+web/.gitignore
+web/.oxlintrc.json
+web/README.md
+web/index.html
+web/package-lock.json
+web/package.json
+web/public/favicon.svg
+web/src/main.tsx
+web/src/test/setup.ts
+web/tsconfig.app.json
+web/tsconfig.json
+web/tsconfig.node.json
+web/vite.config.ts
