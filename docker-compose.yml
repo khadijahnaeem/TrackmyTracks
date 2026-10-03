@@ -11,7 +11,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trackmytracks"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trackmytracks"]
       interval: 2s
       timeout: 5s
       retries: 15
