@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 
+from app import models  # noqa: F401
 from app.auth.routes import bp as auth_bp
 from app.catalog.routes import bp as catalog_bp
 from app.errors import register_error_handlers
