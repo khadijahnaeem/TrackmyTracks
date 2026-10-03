@@ -9,6 +9,7 @@ README.md
 api/app/__init__.py
 api/app/auth/__init__.py
 api/app/auth/routes.py
+api/app/auth/session.py
 api/app/catalog/__init__.py
 api/app/catalog/routes.py
 api/app/errors.py
@@ -34,6 +35,7 @@ api/tests/conftest.py
 api/tests/test_errors.py
 api/tests/test_http.py
 api/tests/test_models.py
+api/tests/test_session.py
 claude-files.txt
 docker-compose.yml
 docker/initdb/01-create-test-db.sql
