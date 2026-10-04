@@ -73,4 +73,14 @@ describe("HomePage", () => {
     expect(within(reviews).getByText("Exactly what I want from a late-night playlist.")).toBeInTheDocument();
     expect(within(reviews).getAllByRole("img", { name: /^Rating: / })).toHaveLength(3);
   });
+
+  it("caps a pasted search at the api query length", async () => {
+    const { router } = renderAt("/");
+
+    await userEvent.click(await screen.findByLabelText("Search music"));
+    await userEvent.paste("a".repeat(205));
+    await userEvent.keyboard("{Enter}");
+
+    expect(searchParam(router.state.location.search)).toHaveLength(200);
+  });
 });

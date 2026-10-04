@@ -185,8 +185,9 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/auth/redirects.ts` | 05 Task 2 | `loginHref(next)`, `authHref(path, next)`, `safeNext(next)`. Every "Log in to ..." link uses `loginHref` |
 | `src/features/auth/useUnauthorizedRedirect.ts` | 05 Task 2 | any mutation failing with 401 clears `["me"]` and goes to `/login?next=`, opt out with `meta: { expectsUnauthorized: true }` |
 | `src/features/auth/AccountNav.tsx` | 05 | account links in the header |
-| `src/ui/index.ts` | 03 | `Button` (accepts `ref`), `buttonClassName`, `SegmentedControl({label, options, value, onChange})`, `Card`, `TextField`, `TextArea`, `Stars`, `Skeleton`, `Spinner`, `Notice`, `ErrorNotice`, `PageHeader`, `Pagination({page, pages, onPageChange})`, `cx`, and `formatAverage`, `formatDuration`, `formatDate`, `pluralize` |
-| `src/app/AppShell.tsx` | 03 | header bar, slice 05 mounts `AccountNav` after the `nav` element |
+| `src/ui/index.ts` | 03 | `Button` (accepts `ref`), `buttonClassName`, `SegmentedControl({label, options, value, onChange})`, `Card`, `TextField` (`hideLabel` keeps the label for screen readers only, 002), `TextArea`, `Stars`, `Skeleton`, `Spinner`, `Notice`, `ErrorNotice`, `PageHeader`, `Pagination({page, pages, onPageChange})`, `cx`, and `formatAverage`, `formatDuration`, `formatDate`, `pluralize` |
+| `src/app/AppShell.tsx` | 03 | header bar with the brand linking to `/`, slice 05 mounts `AccountNav` after the `nav` element, footer after `main` (002) |
+| `src/ui/global.css` | 03 | element defaults, plus the `visually-hidden` class for screen reader only content (002) |
 | `src/test/fetch.ts` | 03 | `mockFetch({"GET /api/path": {status?, body?} or (body) => reply})` stubs `fetch` |
 | `src/test/render.tsx` | 03 | `renderWithProviders(ui, {path?})` and `renderAt(path)`, both return the render result plus `queryClient` and `router` |
 | `src/features/ratings/RatingControl.tsx` | 07 | `RatingControl({kind, mbid, rating, title?, compact?})`, self-contained, pass `title` on compact rows |

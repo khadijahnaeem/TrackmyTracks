@@ -1110,7 +1110,7 @@ export function AppShell() {
       <header className={styles.header}>
         <div className={styles.bar}>
           <nav className={styles.nav} aria-label="Main">
-            <Link to="/search" className={styles.brand}>
+            <Link to="/" className={styles.brand}>
               TrackmyTracks
             </Link>
             <NavLink to="/search" className={navClassName}>
@@ -1123,6 +1123,12 @@ export function AppShell() {
       <main className={styles.main}>
         <Outlet />
       </main>
+      <footer className={styles.footer}>
+        <div className={styles.bar}>
+          <p className={styles.brand}>TrackmyTracks</p>
+          <p className={styles.tagline}>Rate it. Review it. Replay it.</p>
+        </div>
+      </footer>
     </>
   );
 }
