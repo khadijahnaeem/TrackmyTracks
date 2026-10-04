@@ -92,6 +92,11 @@ web/src/features/auth/routes.ts
 web/src/features/auth/useMe.ts
 web/src/features/catalog/routes.ts
 web/src/features/history/routes.ts
+web/src/features/home/Hero.tsx
+web/src/features/home/HomePage.module.css
+web/src/features/home/HomePage.test.tsx
+web/src/features/home/HomePage.tsx
+web/src/features/home/routes.ts
 web/src/features/playlists/routes.ts
 web/src/main.tsx
 web/src/test/fetch.ts
