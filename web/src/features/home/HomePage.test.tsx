@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { mockFetch } from "../../test/fetch";
@@ -53,5 +53,24 @@ describe("HomePage", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "TrackmyTracks" })).toBeInTheDocument();
     expect(document.title).toBe("TrackmyTracks");
+  });
+
+  it("shows trending tracks with community ratings", async () => {
+    renderAt("/");
+
+    const trending = await screen.findByRole("region", { name: "Trending Tracks" });
+    for (const title of ["Midnight Drive", "After Hours", "Electric Blue", "Replay"]) {
+      expect(within(trending).getByText(title)).toBeInTheDocument();
+    }
+    expect(within(trending).getByRole("img", { name: "Community rating: 4.4 out of 5" })).toBeInTheDocument();
+  });
+
+  it("shows fresh reviews from the community", async () => {
+    renderAt("/");
+
+    const reviews = await screen.findByRole("region", { name: "Fresh Reviews" });
+    expect(within(reviews).getByText("@khadijah")).toBeInTheDocument();
+    expect(within(reviews).getByText("Exactly what I want from a late-night playlist.")).toBeInTheDocument();
+    expect(within(reviews).getAllByRole("img", { name: /^Rating: / })).toHaveLength(3);
   });
 });
