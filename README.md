@@ -48,6 +48,18 @@ flask run                              # http://localhost:5001
 
 Run the API tests with `pytest` from the same activated terminal.
 
+### Web
+
+Requires Node 22 or newer. The web app runs in its own terminal from `web/`, next to the API terminal.
+
+```bash
+cd web
+npm install      # first time only
+npm run dev      # http://localhost:5173, open this one
+```
+
+Vite proxies `/api` to Flask, so the browser only ever talks to port 5173. Run the web tests with `npm test` from `web/`.
+
 ### Earlier prototype
 
 `frontend/` holds the first React prototype and needs Node 22 or newer. From `frontend/`, run `npm install` once, then `npm run dev`.
