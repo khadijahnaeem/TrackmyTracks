@@ -56,6 +56,7 @@ docs/superpowers/plans/001-local-prototype/07-ratings-reviews.md
 docs/superpowers/plans/001-local-prototype/08-playlists.md
 docs/superpowers/plans/001-local-prototype/09-history.md
 docs/superpowers/plans/001-local-prototype/10-integration.md
+docs/superpowers/plans/002-home-page.md
 docs/superpowers/specs/001-local-prototype-design.md
 docs/superpowers/specs/002-home-page-design.md
 frontend/.gitignore
