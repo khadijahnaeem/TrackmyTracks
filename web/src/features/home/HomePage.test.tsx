@@ -83,4 +83,11 @@ describe("HomePage", () => {
 
     expect(searchParam(router.state.location.search)).toHaveLength(200);
   });
+
+  it("leads with the search form and no feature blurbs", async () => {
+    renderAt("/");
+
+    expect(await screen.findByRole("search")).toBeInTheDocument();
+    expect(screen.queryByText("Rate your favorites")).not.toBeInTheDocument();
+  });
 });

@@ -19,6 +19,7 @@ Khadijah's `frontend/` prototype homepage moves into `web/` as the landing page 
 | Hero statement | Removed. The page leads with the search form, a visually hidden `h1` reads TrackmyTracks and a `<title>` sets the tab to TrackmyTracks | Requested, every page still needs one `h1` and a title |
 | Sample data | One `sampleData.ts` shaped like the API types | Wiring the API later swaps one import, not the components |
 | Dropped pieces | Glows, gradient covers, hover lift, play button, featured card, "View all" and "More reviews" links, navbar links | Off the token system, or controls with nothing behind them |
+| Feature blurbs | Removed, the search form sits directly above Trending Tracks | Requested after review, the row floated without a column to align to |
 | `frontend/` | Stays in this PR | Removed later by the team |
 | Credit | Commits carry `Co-authored-by: Khadijah Naeem <khadiju2004@gmail.com>` | The page is her design |
 | Branch | `feature/home-page` from `slice/03-web-foundation`, its own PR after slice 03 merges | Keeps slice 03 one PR |
@@ -31,7 +32,7 @@ web/src/
     routes.ts             homeRoutes = [{ index: true, Component: HomePage }]
     HomePage.tsx          hidden h1, Hero, TrendingTracks, FreshReviews
     HomePage.module.css   page and section layout
-    Hero.tsx              search form and three feature blurbs
+    Hero.tsx              search form
     TrendingTracks.tsx    section heading and track grid
     FreshReviews.tsx      section heading and review grid
     SectionHeading.tsx    eyebrow plus h2, shared by both sections
@@ -71,8 +72,6 @@ interface RecentReview {
 
 - A `<form role="search">` with a `TextField` labelled "Search music" (label visually hidden), placeholder "Search songs, albums, or artists", and a primary `Button` "Search"
 - Submitting trimmed text navigates to `/search?q=<encoded text>`, empty text does nothing
-- Her three blurbs in a row under the form: "Rate your favorites" with `Stars` at 5 (`size="sm"`), "Discover new music", "Write your reviews"
-
 ### Trending Tracks
 
 - `SectionHeading` with eyebrow "WHAT'S PLAYING" and `h2` "Trending Tracks"
