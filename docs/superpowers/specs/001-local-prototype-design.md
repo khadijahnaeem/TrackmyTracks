@@ -231,7 +231,7 @@ Frontend handling goes through TanStack Query:
 - Required coverage: effective-rating views (derived average, override, clearing, rounding to one decimal), validation limits, playlist ownership and visibility, auth flow
 - Other routes get one happy-path test each
 - Vitest and Testing Library cover the `ui/` components, the API client, and each feature's components and pages against a stubbed `fetch`
-- GitHub Actions runs ruff, a migration drift check, pytest, eslint, vitest, and the production build on every pull request. `main` is protected and needs one approving review
+- GitHub Actions runs ruff, a migration drift check, pytest, oxlint, vitest, and the production build on every pull request. `main` is protected and needs one approving review
 
 ## Work breakdown
 

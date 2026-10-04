@@ -68,7 +68,8 @@ export function Stars({ value, label, onChange, size = "md" }: StarsProps) {
     const step = KEY_STEPS[event.key];
     if (!step) return;
     event.preventDefault();
-    onChange(clamp(step(value ?? 0)));
+    const next = clamp(step(value ?? 0));
+    if (next !== value) onChange(next);
   };
 
   return (

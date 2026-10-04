@@ -27,6 +27,17 @@ describe("Stars", () => {
     expect(onChange.mock.calls).toEqual([[3.5], [5]]);
   });
 
+  it("ignores keys that would not change the rating", async () => {
+    const onChange = vi.fn();
+    render(<Stars value={5} label="Your rating" onChange={onChange} />);
+
+    screen.getByRole("slider", { name: "Your rating" }).focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard("{End}");
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("starts at half a star when unrated", async () => {
     const onChange = vi.fn();
     render(<Stars value={null} label="Your rating" onChange={onChange} />);

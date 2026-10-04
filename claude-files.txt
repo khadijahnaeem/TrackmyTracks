@@ -72,7 +72,6 @@ frontend/src/index.css
 frontend/src/main.jsx
 web/.gitignore
 web/.oxlintrc.json
-web/README.md
 web/index.html
 web/package-lock.json
 web/package.json
