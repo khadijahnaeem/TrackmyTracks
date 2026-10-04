@@ -241,7 +241,7 @@ Songs are defined once and shared. Artist and song MBIDs are fixed placeholder U
 | Electric Blue | Night Shift | 4.2 |
 | Replay | Echo Room | 4.7 |
 
-`community.count` is omitted from display, set it to 0.
+`community.count` is not displayed yet, use plausible counts: 128, 342, 97, 215.
 
 | User | Posted | Stars | Song | Review |
 |---|---|---|---|---|

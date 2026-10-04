@@ -29,10 +29,10 @@ const ELECTRIC_BLUE = song(3, "Electric Blue", "Night Shift");
 const REPLAY = song(4, "Replay", "Echo Room");
 
 export const TRENDING: TrendingTrack[] = [
-  { song: MIDNIGHT_DRIVE, community: { stars: 4.4, count: 0 } },
-  { song: AFTER_HOURS, community: { stars: 4.8, count: 0 } },
-  { song: ELECTRIC_BLUE, community: { stars: 4.2, count: 0 } },
-  { song: REPLAY, community: { stars: 4.7, count: 0 } },
+  { song: MIDNIGHT_DRIVE, community: { stars: 4.4, count: 128 } },
+  { song: AFTER_HOURS, community: { stars: 4.8, count: 342 } },
+  { song: ELECTRIC_BLUE, community: { stars: 4.2, count: 97 } },
+  { song: REPLAY, community: { stars: 4.7, count: 215 } },
 ];
 
 function review(id: number, username: string, stars: number, text: string): Review {
