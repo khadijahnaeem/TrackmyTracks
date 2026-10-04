@@ -635,7 +635,7 @@ Needs slice 08 Task 3 merged for `AddToPlaylistButton`.
 - Consumes: `useSearch`, `AddToPlaylistButton({mbid})`, `ui` components including `SegmentedControl`, `renderAt`, `mockFetch`
 - Produces:
   - `SongTitle({song})` and `RowsSkeleton({label})` in `Rows.tsx`, plus row styles in `rows.module.css`
-  - Routes `/` redirecting to `/search`, and `/search?q=&type=&page=`
+  - Route `/search?q=&type=&page=`, `/` belongs to the home page from plan 002
 
 The query, type, and page live in the URL so back and forward replay searches, and a search link can be shared.
 
@@ -654,15 +654,6 @@ import { karmaPolice, OK_COMPUTER, okComputer, pageOf } from "./test-data";
 const ME = { "GET /api/auth/me": { body: { user: null } } };
 
 describe("SearchPage", () => {
-  it("redirects the home page to search", async () => {
-    mockFetch(ME);
-
-    const { router } = renderAt("/");
-
-    expect(await screen.findByRole("heading", { level: 1, name: "Search" })).toBeInTheDocument();
-    expect(router.state.location.pathname).toBe("/search");
-  });
-
   it("invites a search before there is a query", async () => {
     const fetchMock = mockFetch(ME);
 
@@ -1072,11 +1063,10 @@ function ArtistResult({ artist }: { artist: ArtistSummary }) {
 Replace `web/src/features/catalog/routes.ts`:
 
 ```ts
-import { redirect, type RouteObject } from "react-router";
+import type { RouteObject } from "react-router";
 import { SearchPage } from "./SearchPage";
 
 export const catalogRoutes: RouteObject[] = [
-  { index: true, loader: () => redirect("/search") },
   { path: "/search", Component: SearchPage },
 ];
 ```
@@ -1084,7 +1074,7 @@ export const catalogRoutes: RouteObject[] = [
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `npx vitest run src/features/catalog/SearchPage.test.tsx`
-Expected: 9 passed
+Expected: 7 passed
 
 - [ ] **Step 6: Lint and commit**
 
@@ -1648,14 +1638,13 @@ export function SongPage() {
 Replace `web/src/features/catalog/routes.ts`:
 
 ```ts
-import { redirect, type RouteObject } from "react-router";
+import type { RouteObject } from "react-router";
 import { AlbumPage } from "./AlbumPage";
 import { ArtistPage } from "./ArtistPage";
 import { SearchPage } from "./SearchPage";
 import { SongPage } from "./SongPage";
 
 export const catalogRoutes: RouteObject[] = [
-  { index: true, loader: () => redirect("/search") },
   { path: "/search", Component: SearchPage },
   { path: "/artists/:mbid", Component: ArtistPage },
   { path: "/albums/:mbid", Component: AlbumPage },

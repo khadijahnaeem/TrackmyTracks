@@ -180,6 +180,7 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/api/queryClient.ts` | 03 | `queryClient` |
 | `src/app/router.ts` | 03 | `routes`, `router`, composes the feature route arrays |
 | `src/features/{auth,catalog,history,playlists}/routes.ts` | 03 | `authRoutes`, `catalogRoutes`, `historyRoutes`, `playlistsRoutes`, each `RouteObject[]` using `Component:` and no JSX, filled in by the feature slice |
+| `src/features/home/routes.ts` | 002 | `homeRoutes`, the landing page at `/` |
 | `src/features/auth/useMe.ts` | 03 | `useMe(): { user: User \| null, isLoading: boolean }` |
 | `src/features/auth/redirects.ts` | 05 Task 2 | `loginHref(next)`, `authHref(path, next)`, `safeNext(next)`. Every "Log in to ..." link uses `loginHref` |
 | `src/features/auth/useUnauthorizedRedirect.ts` | 05 Task 2 | any mutation failing with 401 clears `["me"]` and goes to `/login?next=`, opt out with `meta: { expectsUnauthorized: true }` |
@@ -192,6 +193,6 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/ratings/ReviewList.tsx` | 07 | `ReviewList({kind, mbid})`, no heading or outer margin, the page wraps it in a Reviews section |
 | `src/features/playlists/AddToPlaylistButton.tsx` | 08 | `AddToPlaylistButton({mbid})` |
 
-Routes: `/login`, `/register` (05), `/` redirects to `/search`, `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08).
+Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08).
 
 Query keys: `["me"]`, `["search", type, q, page]`, `["artist", mbid]`, `["album", mbid]`, `["song", mbid]`, `["reviews", kind, mbid, page]`, `["history", username, kind, page]`, `["playlists", username]`, `["playlist", id]`. A rating change invalidates `["artist"]`, `["album"]`, `["song"]`, `["reviews"]`, and `["history"]`.
