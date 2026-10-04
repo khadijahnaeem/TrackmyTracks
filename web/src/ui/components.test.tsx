@@ -83,4 +83,11 @@ describe("ui components", () => {
 
     expect(onChange).toHaveBeenCalledWith("album");
   });
+
+  it("keeps a hidden text field label accessible", () => {
+    render(<TextField label="Search music" hideLabel />);
+
+    expect(screen.getByLabelText("Search music")).toBeInTheDocument();
+    expect(screen.getByText("Search music")).toHaveClass("visually-hidden");
+  });
 });

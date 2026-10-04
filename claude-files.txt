@@ -56,7 +56,9 @@ docs/superpowers/plans/001-local-prototype/07-ratings-reviews.md
 docs/superpowers/plans/001-local-prototype/08-playlists.md
 docs/superpowers/plans/001-local-prototype/09-history.md
 docs/superpowers/plans/001-local-prototype/10-integration.md
+docs/superpowers/plans/002-home-page.md
 docs/superpowers/specs/001-local-prototype-design.md
+docs/superpowers/specs/002-home-page-design.md
 frontend/.gitignore
 frontend/index.html
 frontend/public/favicon.svg
@@ -90,6 +92,16 @@ web/src/features/auth/routes.ts
 web/src/features/auth/useMe.ts
 web/src/features/catalog/routes.ts
 web/src/features/history/routes.ts
+web/src/features/home/FreshReviews.tsx
+web/src/features/home/Hero.tsx
+web/src/features/home/HomePage.module.css
+web/src/features/home/HomePage.test.tsx
+web/src/features/home/HomePage.tsx
+web/src/features/home/SectionHeading.tsx
+web/src/features/home/TrendingTracks.tsx
+web/src/features/home/routes.ts
+web/src/features/home/sampleData.test.ts
+web/src/features/home/sampleData.ts
 web/src/features/playlists/routes.ts
 web/src/main.tsx
 web/src/test/fetch.ts
