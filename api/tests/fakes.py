@@ -45,7 +45,7 @@ class FakeMusicBrainz(MusicBrainzClient):
     def _mb(self, path: str, **params) -> dict:
         return self._get(f"{MB_ROOT}{path}", params)
 
-    def _get(self, url: str, params: dict, headers: dict | None = None):
+    def _get(self, url: str, params: dict, headers: dict | None = None, stream: bool = False):
         key = url.removeprefix(MB_ROOT).removeprefix(LB_ROOT)
         key += "".join(f"?{name}" for name in ("query", "artist") if name in params)
         self.calls.append(key)

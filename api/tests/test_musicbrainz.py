@@ -1,3 +1,5 @@
+from itertools import islice
+
 import pytest
 import requests
 import responses
@@ -5,7 +7,7 @@ from responses import matchers
 
 from app import create_app
 from app.errors import CatalogUnavailable, NotFound
-from app.musicbrainz import LB_ROOT, MB_ROOT, ArtistData, MusicBrainzClient
+from app.musicbrainz import LB_ROOT, MB_ROOT, ArtistData, MusicBrainzClient, json_array_items
 from tests.fakes import (
     KARMA_POLICE,
     OK_COMPUTER,
@@ -105,6 +107,25 @@ def test_top_songs_is_empty_without_listening_data(mb, api):
     api.get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}", status=404)
 
     assert mb.top_songs(RADIOHEAD_DATA) == []
+
+
+def test_truncated_top_songs_stream_is_unavailable(mb, api):
+    url = f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}"
+    api.get(url, body='[{"artist_mbids": [')
+
+    with pytest.raises(CatalogUnavailable):
+        mb.top_songs(RADIOHEAD_DATA)
+
+
+def test_streamed_rows_parse_across_chunks_and_stop_early():
+    def chunks():
+        yield b'[{"name": "Sigur R\xc3'
+        yield b'\xb3s"}, {"name": "Bj\xc3\xb6rk"},'
+        raise AssertionError("read past the rows that were needed")
+
+    rows = json_array_items(chunks())
+
+    assert [row["name"] for row in islice(rows, 2)] == ["Sigur Rós", "Björk"]
 
 
 def test_album_without_releases_has_no_tracks(mb, api):

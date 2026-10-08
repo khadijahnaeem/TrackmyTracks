@@ -1,8 +1,11 @@
+import codecs
+import json
 import re
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
+from itertools import islice
 
 import requests
 from flask import current_app
@@ -16,6 +19,7 @@ MIN_INTERVAL_SECONDS = 1.0
 UNAVAILABLE = "Music catalog is unavailable, try again"
 SEARCH_PAGE_SIZE = 25
 LUCENE_SPECIAL = re.compile(r'([+\-&|!(){}\[\]^"~*?:\\/])')
+JSON_ARRAY_GAP = re.compile(r"[\s,\[\]]*")
 
 
 @dataclass(frozen=True)
@@ -91,6 +95,32 @@ def _escape(query: str) -> str:
     return LUCENE_SPECIAL.sub(r"\\\1", query)
 
 
+def json_array_items(chunks: Iterable[bytes]) -> Iterator[dict]:
+    """Yields each element of a streamed JSON array as soon as it has fully arrived"""
+    decoder, text, buffer = json.JSONDecoder(), codecs.getincrementaldecoder("utf-8")(), ""
+    for chunk in chunks:
+        buffer += text.decode(chunk)
+        position = 0
+        while True:
+            position = JSON_ARRAY_GAP.match(buffer, position).end()
+            try:
+                item, position = decoder.raw_decode(buffer, position)
+            except json.JSONDecodeError:
+                break
+            yield item
+        buffer = buffer[position:]
+    if buffer:
+        raise ValueError("JSON array ended early")
+
+
+def _streamed_items(response: requests.Response) -> Iterator[dict]:
+    with response:
+        try:
+            yield from json_array_items(response.iter_content(chunk_size=None))
+        except (requests.RequestException, ValueError) as error:
+            raise CatalogUnavailable(UNAVAILABLE) from error
+
+
 class MusicBrainzClient:
     def __init__(self, user_agent: str, listenbrainz_token: str):
         self._http = requests.Session()
@@ -129,19 +159,21 @@ class MusicBrainzClient:
 
     def top_songs(self, artist: ArtistData, limit: int = 5) -> list[SongData]:
         try:
-            data = self._get(
+            rows = self._get(
                 f"{LB_ROOT}/popularity/top-recordings-for-artist/{artist.mbid}",
                 {},
                 self._listenbrainz_auth,
+                stream=True,
             )
         except NotFound:
             # artists nobody has listened to have no popularity data
             return []
         # features and guest credits belong to the first credited artist
-        own = [row for row in data if row["artist_mbids"][0] == artist.mbid]
+        own = (row for row in rows if row["artist_mbids"][0] == artist.mbid)
+        # rows come most played first and can run to megabytes, so reading stops at the limit
         return [
             SongData(row["recording_mbid"], row["recording_name"], None, row.get("length"), artist)
-            for row in own[:limit]
+            for row in islice(own, limit)
         ]
 
     def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
@@ -174,15 +206,20 @@ class MusicBrainzClient:
             finally:
                 self._next_request_at = time.monotonic() + MIN_INTERVAL_SECONDS
 
-    def _get(self, url: str, params: dict, headers: dict | None = None):
+    def _get(self, url: str, params: dict, headers: dict | None = None, stream: bool = False):
         try:
-            response = self._http.get(url, params=params, headers=headers, timeout=TIMEOUT_SECONDS)
+            response = self._http.get(
+                url, params=params, headers=headers, timeout=TIMEOUT_SECONDS, stream=stream
+            )
         except requests.RequestException as error:
             raise CatalogUnavailable(UNAVAILABLE) from error
-        if response.status_code in (400, 404):
-            raise NotFound("Not found in the music catalog")
         if not response.ok:
+            response.close()
+            if response.status_code in (400, 404):
+                raise NotFound("Not found in the music catalog")
             raise CatalogUnavailable(UNAVAILABLE)
+        if stream:
+            return _streamed_items(response)
         try:
             return response.json()
         except ValueError as error:
