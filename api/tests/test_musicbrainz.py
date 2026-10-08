@@ -73,7 +73,7 @@ def test_get_song_maps_blank_disambiguation_to_none(mb, api):
     assert song.artist == RADIOHEAD_DATA
 
 
-def test_top_songs_keeps_first_five_for_the_artist(mb, api):
+def test_top_songs_keeps_first_five_credited_first_to_the_artist(mb, api):
     url = f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}"
     api.get(url, json=load_fixture("top-recordings"))
 
@@ -107,6 +107,15 @@ def test_top_songs_is_empty_without_listening_data(mb, api):
     assert mb.top_songs(RADIOHEAD_DATA) == []
 
 
+def test_album_without_releases_has_no_tracks(mb, api):
+    group = {**load_fixture("release-group"), "releases": []}
+    api.get(f"{MB_ROOT}/release-group/{OK_COMPUTER}", json=group)
+
+    detail = mb.get_album(OK_COMPUTER)
+
+    assert (detail.album.title, detail.tracks) == ("OK Computer", [])
+
+
 def test_requests_are_spaced_one_second_apart(monkeypatch, api):
     sleeps = []
     monkeypatch.setattr("app.musicbrainz.time.sleep", sleeps.append)
@@ -130,6 +139,13 @@ def test_bad_or_unknown_mbid_is_not_found(mb, api, status):
 
 def test_rate_limit_or_outage_is_unavailable(mb, api):
     api.get(f"{MB_ROOT}/artist/{RADIOHEAD}", status=503)
+
+    with pytest.raises(CatalogUnavailable):
+        mb.get_artist(RADIOHEAD)
+
+
+def test_non_json_response_is_unavailable(mb, api):
+    api.get(f"{MB_ROOT}/artist/{RADIOHEAD}", body="<html>maintenance</html>")
 
     with pytest.raises(CatalogUnavailable):
         mb.get_artist(RADIOHEAD)

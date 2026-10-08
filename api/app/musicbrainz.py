@@ -113,6 +113,8 @@ class MusicBrainzClient:
 
     def get_album(self, mbid: str) -> AlbumDetail:
         group = self._mb(f"/release-group/{mbid}", inc="artist-credits releases")
+        if not group["releases"]:
+            return AlbumDetail(_album(group), [])
         release_id = _earliest_release(group["releases"])
         release = self._mb(f"/release/{release_id}", inc="recordings artist-credits")
         tracks = [
@@ -135,9 +137,11 @@ class MusicBrainzClient:
         except NotFound:
             # artists nobody has listened to have no popularity data
             return []
+        # features and guest credits belong to the first credited artist
+        own = [row for row in data if row["artist_mbids"][0] == artist.mbid]
         return [
             SongData(row["recording_mbid"], row["recording_name"], None, row.get("length"), artist)
-            for row in data[:limit]
+            for row in own[:limit]
         ]
 
     def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
@@ -179,7 +183,10 @@ class MusicBrainzClient:
             raise NotFound("Not found in the music catalog")
         if not response.ok:
             raise CatalogUnavailable(UNAVAILABLE)
-        return response.json()
+        try:
+            return response.json()
+        except ValueError as error:
+            raise CatalogUnavailable(UNAVAILABLE) from error
 
 
 def musicbrainz() -> MusicBrainzClient:

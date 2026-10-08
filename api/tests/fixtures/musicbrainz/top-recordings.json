@@ -11,6 +11,17 @@
   },
   {
     "artist_mbids": [
+      "00000000-0000-4000-8000-0000000000a1",
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Thom Yorke feat. Radiohead",
+    "recording_mbid": "00000000-0000-4000-8000-0000000000b1",
+    "recording_name": "Guest Appearance",
+    "length": 201000,
+    "total_listen_count": 3500000
+  },
+  {
+    "artist_mbids": [
       "a74b1b7f-71a5-4011-9441-d0b5e4122711"
     ],
     "artist_name": "Radiohead",
