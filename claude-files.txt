@@ -20,6 +20,7 @@ api/app/extensions.py
 api/app/http.py
 api/app/kinds.py
 api/app/models.py
+api/app/musicbrainz.py
 api/app/playlists/__init__.py
 api/app/playlists/routes.py
 api/app/ratings/__init__.py
@@ -36,6 +37,7 @@ api/requirements-dev.txt
 api/requirements.txt
 api/tests/__init__.py
 api/tests/conftest.py
+api/tests/fakes.py
 api/tests/fixtures/musicbrainz/artist-albums.json
 api/tests/fixtures/musicbrainz/artist.json
 api/tests/fixtures/musicbrainz/recording.json
@@ -49,6 +51,7 @@ api/tests/test_effective_ratings.py
 api/tests/test_errors.py
 api/tests/test_http.py
 api/tests/test_models.py
+api/tests/test_musicbrainz.py
 api/tests/test_serializers.py
 api/tests/test_session.py
 claude-files.txt
