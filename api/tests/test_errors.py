@@ -2,6 +2,7 @@ from unittest.mock import ANY
 
 from app import create_app
 from app.errors import NotFound
+from app.musicbrainz import MusicBrainzClient
 
 
 def test_unknown_route_returns_json_404(client):
@@ -49,3 +50,9 @@ def test_http_error_keeps_its_headers():
     assert response.status_code == 405
     assert response.json["error"]["code"] == "method_not_allowed"
     assert set(response.headers["Allow"].split(", ")) >= {"POST", "OPTIONS"}
+
+
+def test_app_carries_a_musicbrainz_client():
+    app = create_app()
+
+    assert isinstance(app.extensions["musicbrainz"], MusicBrainzClient)
