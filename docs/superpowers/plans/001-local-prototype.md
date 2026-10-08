@@ -123,7 +123,7 @@ Tables are truncated after every test.
 | `PARANOID_ANDROID` | `9f9cf187-d6f9-437f-9d98-d59cdbd52757` |
 | `KARMA_POLICE` | `9e2ad5bc-c6f9-40d2-a36f-3122ee2072a3` |
 
-`FakeMusicBrainz.calls` lists every request path made, `routes` maps a path to a fixture payload and can be extended per test, and setting `unavailable = True` makes every call raise `CatalogUnavailable`. Search requests return the same fixture for any query: artists Radiohead and On a Friday, albums OK Computer and OK Computer (8-bit), songs two live Karma Police recordings.
+`FakeMusicBrainz.calls` lists every request path made, `routes` maps a path to a fixture payload and can be extended per test, and setting `unavailable = True` makes every call raise `CatalogUnavailable`. Search requests return the same fixture for any query: artists Radiohead and On a Friday, albums OK Computer and OK Computer (8-bit), songs two live Karma Police recordings. The discography route returns Radiohead's albums for any artist.
 
 ### JSON shapes
 

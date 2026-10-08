@@ -11,6 +11,7 @@ from app.catalog.service import (
 from app.errors import CatalogUnavailable, NotFound
 from app.extensions import db
 from app.models import Album, Artist, Song
+from app.musicbrainz import UNAVAILABLE
 from tests.fakes import AIRBAG, KARMA_POLICE, OK_COMPUTER, RADIOHEAD, load_fixture
 
 
@@ -97,12 +98,24 @@ def test_unknown_mbid_is_not_found(fake_mb):
         get_or_cache_song("00000000-0000-4000-8000-000000000002")
 
 
-def test_outage_writes_nothing(fake_mb):
-    fake_mb.unavailable = True
+def test_outage_midway_writes_nothing(fake_mb):
+    top_songs_route = f"/popularity/top-recordings-for-artist/{RADIOHEAD}"
+    fake_mb.routes[top_songs_route] = CatalogUnavailable(UNAVAILABLE)
 
     with pytest.raises(CatalogUnavailable):
         get_or_cache_artist(RADIOHEAD)
-    assert _count(Artist) == 0
+    assert [_count(model) for model in (Artist, Album, Song)] == [0, 0, 0]
+
+
+def test_a_lost_cache_race_leaves_one_row(fake_mb, monkeypatch):
+    # the second request looked before the first one committed
+    monkeypatch.setattr("app.catalog.service.find_cached", lambda kind, mbid: None)
+
+    first = get_or_cache_song(KARMA_POLICE)
+    second = get_or_cache_song(KARMA_POLICE)
+
+    assert first.id == second.id
+    assert _count(Song) == 1
 
 
 def test_find_cached_never_calls_out(fake_mb):
