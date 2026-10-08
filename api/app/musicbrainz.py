@@ -92,9 +92,10 @@ def _escape(query: str) -> str:
 
 
 class MusicBrainzClient:
-    def __init__(self, user_agent: str):
+    def __init__(self, user_agent: str, listenbrainz_token: str):
         self._http = requests.Session()
         self._http.headers["User-Agent"] = user_agent
+        self._listenbrainz_auth = {"Authorization": f"Token {listenbrainz_token}"}
         self._lock = threading.Lock()
         self._next_request_at = 0.0
 
@@ -126,7 +127,11 @@ class MusicBrainzClient:
 
     def top_songs(self, artist: ArtistData, limit: int = 5) -> list[SongData]:
         try:
-            data = self._get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{artist.mbid}", {})
+            data = self._get(
+                f"{LB_ROOT}/popularity/top-recordings-for-artist/{artist.mbid}",
+                {},
+                self._listenbrainz_auth,
+            )
         except NotFound:
             # artists nobody has listened to have no popularity data
             return []
@@ -165,9 +170,9 @@ class MusicBrainzClient:
             finally:
                 self._next_request_at = time.monotonic() + MIN_INTERVAL_SECONDS
 
-    def _get(self, url: str, params: dict):
+    def _get(self, url: str, params: dict, headers: dict | None = None):
         try:
-            response = self._http.get(url, params=params, timeout=TIMEOUT_SECONDS)
+            response = self._http.get(url, params=params, headers=headers, timeout=TIMEOUT_SECONDS)
         except requests.RequestException as error:
             raise CatalogUnavailable(UNAVAILABLE) from error
         if response.status_code in (400, 404):

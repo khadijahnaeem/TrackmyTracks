@@ -20,7 +20,7 @@ cp .env.example .env
 py -c "import secrets; print(secrets.token_hex(32))"    # python3 on macOS and Linux
 ```
 
-Paste the printed value into `SECRET_KEY` in `.env`, then start Postgres. Run this again each day before working.
+Paste the printed value into `SECRET_KEY` in `.env`. Copy your user token from https://listenbrainz.org/settings/ into `LISTENBRAINZ_TOKEN`, then start Postgres. Run this again each day before working.
 
 ```bash
 docker compose up -d --wait

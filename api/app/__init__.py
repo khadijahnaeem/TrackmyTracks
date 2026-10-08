@@ -18,6 +18,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         SQLALCHEMY_DATABASE_URI=os.environ["DATABASE_URL"],
         SECRET_KEY=os.environ["SECRET_KEY"],
         MB_USER_AGENT=os.environ["MB_USER_AGENT"],
+        LISTENBRAINZ_TOKEN=os.environ["LISTENBRAINZ_TOKEN"],
         SESSION_COOKIE_SAMESITE="Lax",
     )
     app.config.update(overrides or {})
@@ -25,7 +26,9 @@ def create_app(overrides: dict | None = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     register_error_handlers(app)
-    app.extensions["musicbrainz"] = MusicBrainzClient(app.config["MB_USER_AGENT"])
+    app.extensions["musicbrainz"] = MusicBrainzClient(
+        app.config["MB_USER_AGENT"], app.config["LISTENBRAINZ_TOKEN"]
+    )
     for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp):
         app.register_blueprint(blueprint)
     return app

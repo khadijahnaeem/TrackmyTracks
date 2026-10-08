@@ -3,6 +3,7 @@ import requests
 import responses
 from responses import matchers
 
+from app import create_app
 from app.errors import CatalogUnavailable, NotFound
 from app.musicbrainz import LB_ROOT, MB_ROOT, ArtistData, MusicBrainzClient
 from tests.fakes import (
@@ -14,12 +15,13 @@ from tests.fakes import (
 )
 
 RADIOHEAD_DATA = ArtistData(RADIOHEAD, "Radiohead")
+TOKEN = "test-token"
 
 
 @pytest.fixture
 def mb(monkeypatch):
     monkeypatch.setattr("app.musicbrainz.time.sleep", lambda seconds: None)
-    return MusicBrainzClient("TrackmyTracks/test ( tests )")
+    return MusicBrainzClient("TrackmyTracks/test ( tests )", TOKEN)
 
 
 @pytest.fixture
@@ -87,6 +89,18 @@ def test_top_songs_keeps_first_five_for_the_artist(mb, api):
     assert {song.artist for song in songs} == {RADIOHEAD_DATA}
 
 
+def test_only_listenbrainz_requests_carry_the_token(mb, api):
+    api.get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}", json=[])
+    api.get(f"{MB_ROOT}/artist/{RADIOHEAD}", json=load_fixture("artist"))
+
+    mb.top_songs(RADIOHEAD_DATA)
+    mb.get_artist(RADIOHEAD)
+
+    listenbrainz, musicbrainz = (call.request.headers for call in api.calls)
+    assert listenbrainz["Authorization"] == f"Token {TOKEN}"
+    assert "Authorization" not in musicbrainz
+
+
 def test_top_songs_is_empty_without_listening_data(mb, api):
     api.get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}", status=404)
 
@@ -96,7 +110,7 @@ def test_top_songs_is_empty_without_listening_data(mb, api):
 def test_requests_are_spaced_one_second_apart(monkeypatch, api):
     sleeps = []
     monkeypatch.setattr("app.musicbrainz.time.sleep", sleeps.append)
-    mb = MusicBrainzClient("TrackmyTracks/test")
+    mb = MusicBrainzClient("TrackmyTracks/test", TOKEN)
     api.get(f"{MB_ROOT}/artist/{RADIOHEAD}", json=load_fixture("artist"))
 
     mb.get_artist(RADIOHEAD)
@@ -180,3 +194,9 @@ def test_search_escapes_lucene_syntax(mb, api):
     results = mb.search_artists('AC/DC "live"', page=1)
 
     assert results.items[0].name == "Radiohead"
+
+
+def test_app_carries_a_musicbrainz_client():
+    app = create_app()
+
+    assert isinstance(app.extensions["musicbrainz"], MusicBrainzClient)

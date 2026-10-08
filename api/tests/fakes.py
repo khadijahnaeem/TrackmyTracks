@@ -35,7 +35,9 @@ class FakeMusicBrainz(MusicBrainzClient):
     """Real parsing over recorded fixtures with no network or throttle"""
 
     def __init__(self):
-        super().__init__("TrackmyTracks/test")
+        super().__init__("TrackmyTracks/test", "test-token")
+        # any request that skips the fake fails loudly
+        self._http = None
         self.calls: list[str] = []
         self.unavailable = False
         self.routes = {path: load_fixture(name) for path, name in ROUTES.items()}
@@ -43,7 +45,7 @@ class FakeMusicBrainz(MusicBrainzClient):
     def _mb(self, path: str, **params) -> dict:
         return self._get(f"{MB_ROOT}{path}", params)
 
-    def _get(self, url: str, params: dict):
+    def _get(self, url: str, params: dict, headers: dict | None = None):
         key = url.removeprefix(MB_ROOT).removeprefix(LB_ROOT)
         key += "".join(f"?{name}" for name in ("query", "artist") if name in params)
         self.calls.append(key)
@@ -51,4 +53,7 @@ class FakeMusicBrainz(MusicBrainzClient):
             raise CatalogUnavailable(UNAVAILABLE)
         if key not in self.routes:
             raise NotFound("Not found in the music catalog")
-        return self.routes[key]
+        route = self.routes[key]
+        if isinstance(route, Exception):
+            raise route
+        return route

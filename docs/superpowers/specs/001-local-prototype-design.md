@@ -35,7 +35,7 @@ The prototype is done when a teammate can clone the repo, run three commands, an
 ```
 TrackmyTracks/
   docker-compose.yml          postgres:16, named volume, host port 5433
-  .env.example                DATABASE_URL, TEST_DATABASE_URL, SECRET_KEY, MB_USER_AGENT, FLASK_RUN_PORT
+  .env.example                DATABASE_URL, TEST_DATABASE_URL, SECRET_KEY, MB_USER_AGENT, LISTENBRAINZ_TOKEN, FLASK_RUN_PORT
   api/
     app/__init__.py           create_app(), registers blueprints, error handlers, client, seed command
     app/extensions.py         db, migrate, constraint naming convention
@@ -78,6 +78,7 @@ The browser only talks to `:5173`, so session cookies work without CORS setup. P
 `app/musicbrainz.py` is the only module that calls external services.
 
 - Sends the `User-Agent` MusicBrainz requires, read from `MB_USER_AGENT`
+- Sends `Authorization: Token <token>` on ListenBrainz requests only, read from `LISTENBRAINZ_TOKEN`, because ListenBrainz answers 401 for artists missing from its cache
 - Holds a process-wide lock that spaces MusicBrainz requests at least 1 second apart
 - Uses a 5 second request timeout. A failure raises `CatalogUnavailable`, which the API returns as a 502
 - A 400 or 404 raises `NotFound`. Any other failure, including a 503 rate limit, raises `CatalogUnavailable`
