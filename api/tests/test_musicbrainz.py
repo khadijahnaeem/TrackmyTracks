@@ -1,6 +1,7 @@
 import pytest
 import requests
 import responses
+from responses import matchers
 
 from app.errors import CatalogUnavailable, NotFound
 from app.musicbrainz import LB_ROOT, MB_ROOT, ArtistData, MusicBrainzClient
@@ -125,3 +126,57 @@ def test_network_failure_is_unavailable(mb, api):
 
     with pytest.raises(CatalogUnavailable):
         mb.get_artist(RADIOHEAD)
+
+
+def test_search_songs_pages_and_parses(mb, api):
+    api.get(
+        f"{MB_ROOT}/recording",
+        json=load_fixture("search-songs"),
+        match=[
+            matchers.query_param_matcher(
+                {"query": "karma police", "limit": "25", "offset": "25", "fmt": "json"}
+            )
+        ],
+    )
+
+    results = mb.search_songs("karma police", page=2)
+
+    assert results.total == 34017
+    assert results.items[0].disambiguation.startswith("live, 2003")
+
+
+def test_search_albums_limits_to_albums(mb, api):
+    api.get(
+        f"{MB_ROOT}/release-group",
+        json=load_fixture("search-albums"),
+        match=[
+            matchers.query_param_matcher(
+                {
+                    "query": "releasegroup:(ok computer) AND primarytype:album",
+                    "limit": "25",
+                    "offset": "0",
+                    "fmt": "json",
+                }
+            )
+        ],
+    )
+
+    results = mb.search_albums("ok computer", page=1)
+
+    assert [album.title for album in results.items] == ["OK Computer", "OK Computer (8-bit)"]
+
+
+def test_search_escapes_lucene_syntax(mb, api):
+    api.get(
+        f"{MB_ROOT}/artist",
+        json=load_fixture("search-artists"),
+        match=[
+            matchers.query_param_matcher(
+                {"query": 'AC\\/DC \\"live\\"', "limit": "25", "offset": "0", "fmt": "json"}
+            )
+        ],
+    )
+
+    results = mb.search_artists('AC/DC "live"', page=1)
+
+    assert results.items[0].name == "Radiohead"

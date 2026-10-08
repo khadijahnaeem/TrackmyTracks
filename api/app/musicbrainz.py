@@ -1,5 +1,7 @@
+import re
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import requests
@@ -12,6 +14,8 @@ LB_ROOT = "https://api.listenbrainz.org/1"
 TIMEOUT_SECONDS = 5
 MIN_INTERVAL_SECONDS = 1.0
 UNAVAILABLE = "Music catalog is unavailable, try again"
+SEARCH_PAGE_SIZE = 25
+LUCENE_SPECIAL = re.compile(r'([+\-&|!(){}\[\]^"~*?:\\/])')
 
 
 @dataclass(frozen=True)
@@ -83,6 +87,10 @@ def _earliest_release(releases: list[dict]) -> str:
     return min(candidates, key=lambda r: r.get("date") or "9999")["id"]
 
 
+def _escape(query: str) -> str:
+    return LUCENE_SPECIAL.sub(r"\\\1", query)
+
+
 class MusicBrainzClient:
     def __init__(self, user_agent: str):
         self._http = requests.Session()
@@ -126,6 +134,25 @@ class MusicBrainzClient:
             SongData(row["recording_mbid"], row["recording_name"], None, row.get("length"), artist)
             for row in data[:limit]
         ]
+
+    def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
+        return self._search(
+            "artist", "artists", _escape(query), page, lambda a: ArtistData(a["id"], a["name"])
+        )
+
+    def search_albums(self, query: str, page: int) -> SearchResults[AlbumData]:
+        lucene = f"releasegroup:({_escape(query)}) AND primarytype:album"
+        return self._search("release-group", "release-groups", lucene, page, _album)
+
+    def search_songs(self, query: str, page: int) -> SearchResults[SongData]:
+        return self._search("recording", "recordings", _escape(query), page, _song)
+
+    def _search[T](
+        self, entity: str, key: str, query: str, page: int, parse: Callable[[dict], T]
+    ) -> SearchResults[T]:
+        offset = (page - 1) * SEARCH_PAGE_SIZE
+        data = self._mb(f"/{entity}", query=query, limit=SEARCH_PAGE_SIZE, offset=offset)
+        return SearchResults([parse(item) for item in data[key]], data["count"])
 
     def _mb(self, path: str, **params) -> dict:
         # musicbrainz allows one request per second per client
