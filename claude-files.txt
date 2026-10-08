@@ -15,6 +15,7 @@ api/app/auth/session.py
 api/app/catalog/__init__.py
 api/app/catalog/routes.py
 api/app/catalog/serializers.py
+api/app/catalog/service.py
 api/app/errors.py
 api/app/extensions.py
 api/app/http.py
@@ -47,6 +48,7 @@ api/tests/fixtures/musicbrainz/search-albums.json
 api/tests/fixtures/musicbrainz/search-artists.json
 api/tests/fixtures/musicbrainz/search-songs.json
 api/tests/fixtures/musicbrainz/top-recordings.json
+api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py
 api/tests/test_errors.py
 api/tests/test_http.py

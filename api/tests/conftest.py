@@ -13,6 +13,7 @@ from app import create_app
 from app.extensions import db
 from app.kinds import kind_of
 from app.models import Album, AlbumSong, Artist, Rating, Song, User
+from tests.fakes import FakeMusicBrainz
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
@@ -41,6 +42,13 @@ def _app_context(app):
         tables = ", ".join(table.name for table in db.metadata.sorted_tables)
         db.session.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
         db.session.commit()
+
+
+@pytest.fixture(autouse=True)
+def fake_mb(app):
+    fake = FakeMusicBrainz()
+    app.extensions["musicbrainz"] = fake
+    return fake
 
 
 @pytest.fixture
