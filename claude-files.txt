@@ -36,6 +36,15 @@ api/requirements-dev.txt
 api/requirements.txt
 api/tests/__init__.py
 api/tests/conftest.py
+api/tests/fixtures/musicbrainz/artist-albums.json
+api/tests/fixtures/musicbrainz/artist.json
+api/tests/fixtures/musicbrainz/recording.json
+api/tests/fixtures/musicbrainz/release-group.json
+api/tests/fixtures/musicbrainz/release.json
+api/tests/fixtures/musicbrainz/search-albums.json
+api/tests/fixtures/musicbrainz/search-artists.json
+api/tests/fixtures/musicbrainz/search-songs.json
+api/tests/fixtures/musicbrainz/top-recordings.json
 api/tests/test_effective_ratings.py
 api/tests/test_errors.py
 api/tests/test_http.py

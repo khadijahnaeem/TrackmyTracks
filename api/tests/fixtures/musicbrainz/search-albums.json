@@ -1,0 +1,42 @@
+{
+  "count": 912,
+  "offset": 0,
+  "release-groups": [
+    {
+      "id": "b1392450-e666-3926-a536-22c65f834433",
+      "title": "OK Computer",
+      "primary-type": "Album",
+      "secondary-types": [],
+      "first-release-date": "1997-05-21",
+      "artist-credit": [
+        {
+          "name": "Radiohead",
+          "joinphrase": "",
+          "artist": {
+            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+            "name": "Radiohead"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3b55129d-276c-4c42-8327-e47ba94f2ddf",
+      "title": "OK Computer (8-bit)",
+      "primary-type": "Album",
+      "secondary-types": [
+        "Remix"
+      ],
+      "first-release-date": "2012-04-11",
+      "artist-credit": [
+        {
+          "name": "Quinton Sung",
+          "joinphrase": "",
+          "artist": {
+            "id": "318d1a3b-7323-4b59-8e7f-e16ddf8acacc",
+            "name": "Quinton Sung"
+          }
+        }
+      ]
+    }
+  ]
+}

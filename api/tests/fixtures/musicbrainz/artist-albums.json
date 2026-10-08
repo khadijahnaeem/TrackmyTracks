@@ -1,0 +1,58 @@
+{
+  "release-group-count": 3,
+  "release-groups": [
+    {
+      "id": "5c14fd50-a2f1-3672-9537-b0dad91bea2f",
+      "title": "Hail to the Thief",
+      "primary-type": "Album",
+      "secondary-types": [],
+      "first-release-date": "2003-05-26",
+      "artist-credit": [
+        {
+          "name": "Radiohead",
+          "joinphrase": "",
+          "artist": {
+            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+            "name": "Radiohead"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6e335887-60ba-38f0-95af-fae7774336bf",
+      "title": "In Rainbows",
+      "primary-type": "Album",
+      "secondary-types": [],
+      "first-release-date": "2007-10-10",
+      "artist-credit": [
+        {
+          "name": "Radiohead",
+          "joinphrase": "",
+          "artist": {
+            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+            "name": "Radiohead"
+          }
+        }
+      ]
+    },
+    {
+      "id": "01618034-2de5-4ace-a057-fcd0bca4cf08",
+      "title": "1995‐06‐10: Cabaret Metro, Chicago, IL, USA",
+      "primary-type": "Album",
+      "secondary-types": [
+        "Live"
+      ],
+      "first-release-date": "1995-06-10",
+      "artist-credit": [
+        {
+          "name": "Radiohead",
+          "joinphrase": "",
+          "artist": {
+            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+            "name": "Radiohead"
+          }
+        }
+      ]
+    }
+  ]
+}
