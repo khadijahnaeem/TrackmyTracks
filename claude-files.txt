@@ -107,8 +107,14 @@ web/src/app/router.test.tsx
 web/src/app/router.ts
 web/src/features/auth/api.test.tsx
 web/src/features/auth/api.ts
+web/src/features/auth/auth.module.css
+web/src/features/auth/AuthLayout.tsx
+web/src/features/auth/LoginPage.test.tsx
+web/src/features/auth/LoginPage.tsx
 web/src/features/auth/redirects.test.ts
 web/src/features/auth/redirects.ts
+web/src/features/auth/RegisterPage.test.tsx
+web/src/features/auth/RegisterPage.tsx
 web/src/features/auth/routes.ts
 web/src/features/auth/useMe.ts
 web/src/features/auth/useUnauthorizedRedirect.ts
