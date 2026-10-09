@@ -7,7 +7,7 @@ import type { MockPlaylist, MockRating, MockUser } from "./seed";
 export type { MockPlaylist, MockRating, MockUser };
 
 export const STORAGE_KEY = "trackmytracks-mock";
-export const STORE_VERSION = 1;
+export const STORE_VERSION = 2;
 
 export interface MockState {
   version: number;

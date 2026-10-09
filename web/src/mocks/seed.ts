@@ -257,7 +257,7 @@ const RATING_ROWS: RatingRow[] = [
   [20, SOFIA, "song", JOGA, 10, "The strings sound like tectonic plates moving. Her voice holds on top of them without ever pushing.", 2],
   [21, SOFIA, "song", ALL_IS_FULL_OF_LOVE, 9, null, 5],
   [22, SOFIA, "song", PEDESTAL, 7, null, 7],
-  [23, SOFIA, "album", HOMOGENIC, 9, "Hard beats and a string octet, with her voice sitting right on top. The first half is stronger, but the ending earns the slower pace.", 13],
+  [23, SOFIA, "album", HOMOGENIC, 9, "Hard beats pushed against a string octet, and the mix never lets either one win. The first half is stronger, but the ending earns the slower pace.", 13],
   [24, SOFIA, "album", MEZZANINE, 9, "Dense and a little suffocating in the best way. Teardrop gets the attention, but Inertia Creeps is where the album settles in.", 14],
   [25, SOFIA, "artist", BJORK, 9, null, 15],
   [26, DEMO, "song", AIRBAG, 9, null, 16],
@@ -301,5 +301,14 @@ export const SEED_PLAYLISTS: MockPlaylist[] = [
     isPublic: true,
     songs: [JOGA, ALL_IS_FULL_OF_LOVE, UNRAVEL, EXIT_MUSIC, MYSTERONS],
     updatedAt: "2026-09-22T12:00:00.000Z",
+  },
+  {
+    id: 31,
+    ownerId: DEMO,
+    name: "Late night loops",
+    description: "Private, for working after midnight",
+    isPublic: false,
+    songs: [AIRBAG, NO_SURPRISES, KARMA_POLICE, TEARDROP],
+    updatedAt: "2026-09-24T23:15:00.000Z",
   },
 ];

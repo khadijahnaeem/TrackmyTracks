@@ -12,6 +12,8 @@ useMockServer(...authHandlers, ...playlistsHandlers);
 const MIRA_LOGIN = { email: "mira@trackmytracks.dev", password: "mira-listens-1" };
 // seeded by mira, so demo may not edit it
 const [{ id: MIRAS_PLAYLIST }] = SEED_PLAYLISTS as [MockPlaylist];
+// seeded private for demo, so it shows only to its owner
+const DEMO_PRIVATE = SEED_PLAYLISTS.find((playlist) => !playlist.isPublic)!.id;
 const NOT_FOUND = { status: 404, body: { error: { code: "not_found", message: "Playlist not found" } } };
 
 afterEach(() => vi.useRealTimers());
@@ -177,7 +179,7 @@ test("an owner sees private playlists", async () => {
   const id = await seeded();
   await call("PATCH", `/playlists/${id}`, { is_public: false });
   const mine = await call<{ items: Playlist[] }>("GET", "/users/demo/playlists");
-  expect(mine.body.items.map((playlist) => playlist.id)).toEqual([id]);
+  expect(mine.body.items.map((playlist) => playlist.id)).toEqual([id, DEMO_PRIVATE]);
 
   await logIn(MIRA_LOGIN);
   const others = await call<{ items: Playlist[] }>("GET", "/users/demo/playlists");
@@ -195,7 +197,7 @@ test("a user's playlists list newest first", async () => {
   tick();
   await call("PATCH", `/playlists/${older.body.id}`, { description: "touched" });
   const { body } = await call<{ items: Playlist[] }>("GET", "/users/demo/playlists");
-  expect(body.items.map((playlist) => playlist.id)).toEqual([older.body.id, newer.body.id]);
+  expect(body.items.map((playlist) => playlist.id)).toEqual([older.body.id, newer.body.id, DEMO_PRIVATE]);
 });
 
 test("an unknown user answers 404", async () => {

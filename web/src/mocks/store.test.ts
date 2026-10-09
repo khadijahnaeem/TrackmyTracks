@@ -10,6 +10,8 @@ import {
   PARANOID_ANDROID,
   RADIOHEAD,
   RECKONER,
+  SEED_PLAYLISTS,
+  SEED_RATINGS,
   SEED_USERS,
 } from "./seed";
 import {
@@ -121,7 +123,8 @@ describe("persistence", () => {
   });
 
   test("new ids start above every seed id", () => {
-    expect(state().nextId).toBe(31);
+    const seedIds = [...SEED_USERS, ...SEED_RATINGS, ...SEED_PLAYLISTS].map((row) => row.id);
+    expect(state().nextId).toBe(Math.max(...seedIds) + 1);
   });
 });
 
