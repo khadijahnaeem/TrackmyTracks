@@ -1,0 +1,37 @@
+{
+  "id": "b1392450-e666-3926-a536-22c65f834433",
+  "title": "OK Computer",
+  "primary-type": "Album",
+  "secondary-types": [],
+  "first-release-date": "1997-05-21",
+  "artist-credit": [
+    {
+      "name": "Radiohead",
+      "joinphrase": "",
+      "artist": {
+        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+        "name": "Radiohead"
+      }
+    }
+  ],
+  "releases": [
+    {
+      "id": "5c4b0a9e-2d1f-4c8e-9b7a-1f2e3d4c5b6a",
+      "title": "OK Computer",
+      "status": "Bootleg",
+      "date": "1996-12-01"
+    },
+    {
+      "id": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+      "title": "OK Computer",
+      "status": "Official",
+      "date": "1997-05-21"
+    },
+    {
+      "id": "e16cda60-6e6d-4a32-8d7c-e12d9aeb72de",
+      "title": "OK Computer",
+      "status": "Official",
+      "date": "1997-06-16"
+    }
+  ]
+}

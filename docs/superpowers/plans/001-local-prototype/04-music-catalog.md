@@ -458,7 +458,7 @@ git commit -m "test(api): add recorded musicbrainz and listenbrainz fixtures"
 - Consumes: `CatalogUnavailable`, `NotFound` from slice 02
 - Produces:
   - Dataclasses `ArtistData(mbid, name)`, `AlbumData(mbid, title, release_year, artist)`, `SongData(mbid, title, disambiguation, length_ms, artist)`, `AlbumDetail(album, tracks)`, `SearchResults[T](items, total)`
-  - `MusicBrainzClient(user_agent)` with `get_artist(mbid) -> ArtistData`, `get_artist_albums(mbid) -> list[AlbumData]` (studio albums newest first), `get_album(mbid) -> AlbumDetail`, `get_song(mbid) -> SongData`, `top_songs(artist: ArtistData, limit=5) -> list[SongData]`
+  - `MusicBrainzClient(user_agent, listenbrainz_token)` with `get_artist(mbid) -> ArtistData`, `get_artist_albums(mbid) -> list[AlbumData]` (studio albums newest first), `get_album(mbid) -> AlbumDetail`, `get_song(mbid) -> SongData`, `top_songs(artist: ArtistData, limit=5) -> list[SongData]`
   - `musicbrainz() -> MusicBrainzClient` reading `current_app.extensions["musicbrainz"]`
   - `tests/fakes.py` with `load_fixture(name)` and the MBID constants from the index
 

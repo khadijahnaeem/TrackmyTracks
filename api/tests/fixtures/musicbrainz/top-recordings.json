@@ -1,0 +1,73 @@
+[
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "9e2ad5bc-c6f9-40d2-a36f-3122ee2072a3",
+    "recording_name": "Karma Police",
+    "length": 262426,
+    "total_listen_count": 3890683
+  },
+  {
+    "artist_mbids": [
+      "00000000-0000-4000-8000-0000000000a1",
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Thom Yorke feat. Radiohead",
+    "recording_mbid": "00000000-0000-4000-8000-0000000000b1",
+    "recording_name": "Guest Appearance",
+    "length": 201000,
+    "total_listen_count": 3500000
+  },
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "9f9cf187-d6f9-437f-9d98-d59cdbd52757",
+    "recording_name": "Paranoid Android",
+    "length": 384000,
+    "total_listen_count": 3092016
+  },
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "980a426e-623e-4ea5-98c7-008d037a0508",
+    "recording_name": "No Surprises",
+    "length": 228533,
+    "total_listen_count": 3001215
+  },
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "72c6b4d3-71a8-4c70-bf50-da11c0149089",
+    "recording_name": "All I Need",
+    "length": 228746,
+    "total_listen_count": 2843571
+  },
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "70595637-9310-45f2-a266-58f8de4874a7",
+    "recording_name": "Creep",
+    "length": 236666,
+    "total_listen_count": 2829991
+  },
+  {
+    "artist_mbids": [
+      "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+    ],
+    "artist_name": "Radiohead",
+    "recording_mbid": "faea2aa0-80a9-41be-9b1e-3b994f4f76ac",
+    "recording_name": "15 Step",
+    "length": 238000,
+    "total_listen_count": 2801152
+  }
+]

@@ -30,6 +30,7 @@ jobs:
       TEST_DATABASE_URL: postgresql+psycopg://trackmytracks:trackmytracks@localhost:5432/trackmytracks_test
       SECRET_KEY: ci-only-secret
       MB_USER_AGENT: TrackmyTracks/ci ( https://github.com/khadijahnaeem/TrackmyTracks )
+      LISTENBRAINZ_TOKEN: ci-only-token
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

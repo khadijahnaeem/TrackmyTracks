@@ -1,0 +1,74 @@
+{
+  "id": "1834eae1-741b-3c03-9ca5-0df3decb43ea",
+  "title": "OK Computer",
+  "media": [
+    {
+      "position": 1,
+      "tracks": [
+        {
+          "id": "ff7733a6-6903-3e2e-b683-6dbbb0f59ec6",
+          "position": 1,
+          "title": "Airbag",
+          "recording": {
+            "id": "4a7fea2e-545b-4c63-bc9a-9943cc3a29d7",
+            "title": "Airbag",
+            "disambiguation": "",
+            "length": 284400,
+            "artist-credit": [
+              {
+                "name": "Radiohead",
+                "joinphrase": "",
+                "artist": {
+                  "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                  "name": "Radiohead"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "6a7cd9af-f665-3652-9aba-1e89a4236e9f",
+          "position": 2,
+          "title": "Paranoid Android",
+          "recording": {
+            "id": "9f9cf187-d6f9-437f-9d98-d59cdbd52757",
+            "title": "Paranoid Android",
+            "disambiguation": "",
+            "length": 384000,
+            "artist-credit": [
+              {
+                "name": "Radiohead",
+                "joinphrase": "",
+                "artist": {
+                  "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                  "name": "Radiohead"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "692f228b-b908-3cc9-85e6-17ab3e518d39",
+          "position": 3,
+          "title": "Subterranean Homesick Alien",
+          "recording": {
+            "id": "bd82738d-163c-4b1a-bfaf-7acffe30e68a",
+            "title": "Subterranean Homesick Alien",
+            "disambiguation": "",
+            "length": 267706,
+            "artist-credit": [
+              {
+                "name": "Radiohead",
+                "joinphrase": "",
+                "artist": {
+                  "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                  "name": "Radiohead"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
