@@ -1,9 +1,14 @@
 import type { HttpHandler } from "msw";
 import { setupServer } from "msw/node";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { resetStore } from "./store";
 
 export function useMockServer(...handlers: HttpHandler[]): void {
   const server = setupServer(...handlers);
+  beforeEach(() => {
+    localStorage.clear();
+    resetStore();
+  });
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());

@@ -132,6 +132,8 @@ web/src/mocks/handlers/ratings.ts
 web/src/mocks/respond.test.ts
 web/src/mocks/respond.ts
 web/src/mocks/seed.ts
+web/src/mocks/store.test.ts
+web/src/mocks/store.ts
 web/src/mocks/testing.ts
 web/src/test/fetch.ts
 web/src/test/render.tsx
