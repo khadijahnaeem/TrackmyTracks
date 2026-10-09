@@ -13,7 +13,8 @@
 }
 
 .confirmTitle {
-  font-weight: 600;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
 }
 
 .muted {
@@ -35,11 +36,10 @@
   margin-top: var(--space-1);
 }
 
-/* doubled class outranks the secondary variant hover rule */
-.danger.danger,
-.danger.danger:hover:not(:disabled) {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+.songSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .songs {

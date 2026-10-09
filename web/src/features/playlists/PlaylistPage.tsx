@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { errorMessage } from "../../api/client";
+import { errorMessage, isNotFound } from "../../api/client";
 import type { PlaylistDetail } from "../../api/types";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   Card,
   ErrorNotice,
   formatDuration,
+  NotFoundState,
   Notice,
   PageHeader,
   pluralize,
@@ -23,10 +24,14 @@ type Mode = "view" | "edit" | "confirm-delete";
 export function PlaylistPage() {
   const id = Number(useParams().id);
   const playlist = usePlaylist(id);
-  const { user } = useMe();
+  const remove = useDeletePlaylist(id);
+  const { user, isLoading: sessionLoading } = useMe();
   const [mode, setMode] = useState<Mode>("view");
+  const editRef = useRef<HTMLButtonElement>(null);
+  const deleteRef = useRef<HTMLButtonElement>(null);
 
-  if (playlist.isPending) return <PlaylistSkeleton />;
+  if (playlist.isPending || sessionLoading) return <PlaylistSkeleton />;
+  if (isNotFound(playlist.error)) return <NotFoundState />;
   if (playlist.isError) {
     return <ErrorNotice error={playlist.error} onRetry={() => playlist.refetch()} />;
   }
@@ -34,6 +39,12 @@ export function PlaylistPage() {
   const detail = playlist.data;
   const owner = detail.owner.username;
   const isOwner = user?.username === owner;
+
+  // panels hand focus back to the button that opened them
+  const closePanel = (opener: RefObject<HTMLButtonElement | null>) => {
+    setMode("view");
+    opener.current?.focus();
+  };
 
   return (
     <>
@@ -49,8 +60,21 @@ export function PlaylistPage() {
         actions={
           isOwner && (
             <>
-              <Button onClick={() => setMode("edit")}>Edit details</Button>
-              <Button variant="ghost" onClick={() => setMode("confirm-delete")}>
+              <Button
+                ref={editRef}
+                aria-expanded={mode === "edit"}
+                disabled={remove.isPending}
+                onClick={() => setMode("edit")}
+              >
+                Edit details
+              </Button>
+              <Button
+                ref={deleteRef}
+                variant="ghost"
+                aria-expanded={mode === "confirm-delete"}
+                disabled={remove.isPending}
+                onClick={() => setMode("confirm-delete")}
+              >
                 Delete playlist
               </Button>
             </>
@@ -59,10 +83,10 @@ export function PlaylistPage() {
       />
       {detail.description && <p className={styles.description}>{detail.description}</p>}
       {isOwner && mode === "edit" && (
-        <EditPlaylist detail={detail} onDone={() => setMode("view")} />
+        <EditPlaylist detail={detail} onDone={() => closePanel(editRef)} />
       )}
       {isOwner && mode === "confirm-delete" && (
-        <DeleteConfirm detail={detail} onCancel={() => setMode("view")} />
+        <DeleteConfirm detail={detail} remove={remove} onCancel={() => closePanel(deleteRef)} />
       )}
       <SongList detail={detail} isOwner={isOwner} />
     </>
@@ -75,6 +99,7 @@ function EditPlaylist({ detail, onDone }: { detail: PlaylistDetail; onDone: () =
   return (
     <Card className={styles.panel}>
       <PlaylistForm
+        autoFocus
         initial={{ name: detail.name, description: detail.description, is_public: detail.is_public }}
         submitLabel="Save changes"
         pending={update.isPending}
@@ -86,14 +111,24 @@ function EditPlaylist({ detail, onDone }: { detail: PlaylistDetail; onDone: () =
   );
 }
 
-function DeleteConfirm({ detail, onCancel }: { detail: PlaylistDetail; onCancel: () => void }) {
+interface DeleteConfirmProps {
+  detail: PlaylistDetail;
+  remove: ReturnType<typeof useDeletePlaylist>;
+  onCancel: () => void;
+}
+
+function DeleteConfirm({ detail, remove, onCancel }: DeleteConfirmProps) {
   const navigate = useNavigate();
-  const remove = useDeletePlaylist(detail.id);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const ownerPage = `/users/${detail.owner.username}/playlists`;
+
+  useEffect(() => titleRef.current?.focus(), []);
 
   return (
     <Card className={styles.panel}>
-      <p className={styles.confirmTitle}>Delete playlist?</p>
+      <h2 ref={titleRef} tabIndex={-1} className={styles.confirmTitle}>
+        Delete playlist?
+      </h2>
       <p className={styles.muted}>This can't be undone. The songs stay in the catalog.</p>
       {remove.isError && (
         <p role="alert" className={styles.error}>
@@ -102,13 +137,13 @@ function DeleteConfirm({ detail, onCancel }: { detail: PlaylistDetail; onCancel:
       )}
       <div className={styles.confirmActions}>
         <Button
-          className={styles.danger}
+          variant="danger"
           loading={remove.isPending}
           onClick={() => remove.mutate(undefined, { onSuccess: () => navigate(ownerPage) })}
         >
           Delete
         </Button>
-        <Button variant="ghost" onClick={onCancel}>
+        <Button variant="ghost" disabled={remove.isPending} onClick={onCancel}>
           Cancel
         </Button>
       </div>
@@ -119,6 +154,18 @@ function DeleteConfirm({ detail, onCancel }: { detail: PlaylistDetail; onCancel:
 function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolean }) {
   const reorder = useReorderSongs(detail.id);
   const removeSong = useRemoveSong(detail.id);
+  const [announcement, setAnnouncement] = useState("");
+  // move buttons are keyed by `${mbid}-${dir}` so focus can follow a moved row
+  const moveButtons = useRef(new Map<string, HTMLButtonElement>());
+  const pendingFocus = useRef<string | null>(null);
+  const busy = reorder.isPending || removeSong.isPending;
+
+  // a move reorders DOM nodes, so focus is restored once the new order has rendered
+  useEffect(() => {
+    if (pendingFocus.current === null) return;
+    moveButtons.current.get(pendingFocus.current)?.focus();
+    pendingFocus.current = null;
+  }, [detail.songs]);
 
   if (detail.songs.length === 0) {
     return isOwner ? (
@@ -138,16 +185,47 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
   }
 
   const mbids = detail.songs.map((song) => song.mbid);
+  const last = mbids.length - 1;
+
   const move = (index: number, offset: -1 | 1) => {
+    if (busy) return;
+    const target = index + offset;
     const next = [...mbids];
-    [next[index], next[index + offset]] = [next[index + offset], next[index]];
-    reorder.mutate(next);
+    [next[index], next[target]] = [next[target], next[index]];
+
+    // at the list edge that direction is unavailable, so focus the sibling button
+    const [same, other] = offset === -1 ? (["up", "down"] as const) : (["down", "up"] as const);
+    const reachedEdge = offset === -1 ? target === 0 : target === last;
+    pendingFocus.current = `${mbids[index]}-${reachedEdge ? other : same}`;
+
+    removeSong.reset();
+    reorder.mutate(next, {
+      onSuccess: () =>
+        setAnnouncement(`${detail.songs[index].title} moved to position ${target + 1}`),
+      onError: () => {
+        pendingFocus.current = null;
+      },
+    });
   };
-  const failure = reorder.error ?? removeSong.error;
+
+  const remove = (mbid: string) => {
+    if (busy) return;
+    reorder.reset();
+    removeSong.mutate(mbid);
+  };
+
+  const trackButton = (mbid: string, direction: "up" | "down") => (node: HTMLButtonElement) => {
+    moveButtons.current.set(`${mbid}-${direction}`, node);
+    return () => {
+      moveButtons.current.delete(`${mbid}-${direction}`);
+    };
+  };
 
   return (
-    <>
-      {failure && <ErrorNotice error={failure} />}
+    <div className={styles.songSection}>
+      <h2 className="visually-hidden">Songs</h2>
+      {reorder.isError && <ErrorNotice title="Could not reorder" error={reorder.error} />}
+      {removeSong.isError && <ErrorNotice title="Could not remove" error={removeSong.error} />}
       <ol aria-label="Songs" className={styles.songs}>
         {detail.songs.map((song, index) => (
           <li key={song.mbid} className={styles.song}>
@@ -166,17 +244,21 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
             {isOwner && (
               <div className={styles.controls}>
                 <Button
+                  ref={trackButton(song.mbid, "up")}
                   variant="ghost"
                   aria-label={`Move ${song.title} up`}
-                  disabled={index === 0 || reorder.isPending}
+                  aria-disabled={busy || undefined}
+                  disabled={index === 0}
                   onClick={() => move(index, -1)}
                 >
                   Up
                 </Button>
                 <Button
+                  ref={trackButton(song.mbid, "down")}
                   variant="ghost"
                   aria-label={`Move ${song.title} down`}
-                  disabled={index === mbids.length - 1 || reorder.isPending}
+                  aria-disabled={busy || undefined}
+                  disabled={index === last}
                   onClick={() => move(index, 1)}
                 >
                   Down
@@ -184,8 +266,9 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
                 <Button
                   variant="ghost"
                   aria-label={`Remove ${song.title}`}
+                  aria-disabled={busy || undefined}
                   loading={removeSong.isPending && removeSong.variables === song.mbid}
-                  onClick={() => removeSong.mutate(song.mbid)}
+                  onClick={() => remove(song.mbid)}
                 >
                   Remove
                 </Button>
@@ -194,7 +277,10 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
           </li>
         ))}
       </ol>
-    </>
+      <p role="status" className="visually-hidden">
+        {announcement}
+      </p>
+    </div>
   );
 }
 

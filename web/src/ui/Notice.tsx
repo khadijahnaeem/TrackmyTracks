@@ -22,11 +22,17 @@ export function Notice({ title, children, action, role = "status", tone = "neutr
   );
 }
 
-export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+interface ErrorNoticeProps {
+  error: unknown;
+  onRetry?: () => void;
+  title?: string;
+}
+
+export function ErrorNotice({ error, onRetry, title = "Something went wrong" }: ErrorNoticeProps) {
   return (
     <Notice
       role="alert"
-      title="Something went wrong"
+      title={title}
       action={onRetry && <Button onClick={onRetry}>Try again</Button>}
     >
       {errorMessage(error)}

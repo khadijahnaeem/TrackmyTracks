@@ -13,6 +13,7 @@ interface PlaylistFormProps {
   error: unknown;
   onSubmit: (fields: PlaylistFields) => void;
   onCancel?: () => void;
+  autoFocus?: boolean;
 }
 
 export function PlaylistForm({
@@ -22,6 +23,7 @@ export function PlaylistForm({
   error,
   onSubmit,
   onCancel,
+  autoFocus,
 }: PlaylistFormProps) {
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description ?? "");
@@ -36,6 +38,7 @@ export function PlaylistForm({
     <form className={styles.form} onSubmit={submit}>
       <TextField
         label="Name"
+        autoFocus={autoFocus}
         value={name}
         maxLength={100}
         onChange={(event) => setName(event.target.value)}

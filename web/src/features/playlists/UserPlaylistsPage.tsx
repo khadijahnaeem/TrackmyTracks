@@ -1,6 +1,8 @@
+import type { UseQueryResult } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router";
+import { isNotFound } from "../../api/client";
 import type { Playlist } from "../../api/types";
-import { Card, ErrorNotice, Notice, PageHeader, pluralize, Skeleton } from "../../ui";
+import { Card, ErrorNotice, NotFoundState, Notice, PageHeader, pluralize, Skeleton } from "../../ui";
 import { useMe } from "../auth/useMe";
 import { useCreatePlaylist, useUserPlaylists } from "./api";
 import { PlaylistForm } from "./PlaylistForm";
@@ -8,15 +10,22 @@ import styles from "./UserPlaylistsPage.module.css";
 
 export function UserPlaylistsPage() {
   const { username = "" } = useParams();
-  const { user } = useMe();
+  const playlists = useUserPlaylists(username);
+  const { user, isLoading: sessionLoading } = useMe();
   const isOwner = user?.username === username;
+
+  if (isNotFound(playlists.error)) return <NotFoundState />;
 
   return (
     <>
       <PageHeader eyebrow="Playlists" title={`${username}'s playlists`} />
       <div className={styles.page}>
         {isOwner && <CreatePlaylistCard />}
-        <PlaylistGrid username={username} isOwner={isOwner} />
+        {sessionLoading ? (
+          <GridSkeleton />
+        ) : (
+          <PlaylistGrid playlists={playlists} username={username} isOwner={isOwner} />
+        )}
       </div>
     </>
   );
@@ -43,21 +52,27 @@ function CreatePlaylistCard() {
   );
 }
 
-function PlaylistGrid({ username, isOwner }: { username: string; isOwner: boolean }) {
-  const playlists = useUserPlaylists(username);
+function GridSkeleton() {
+  return (
+    <div className={styles.grid} aria-busy="true">
+      {[0, 1, 2].map((i) => (
+        <Card key={i} className={styles.card}>
+          <Skeleton width="60%" height="var(--leading-lg)" />
+          <Skeleton width="30%" height="var(--leading-sm)" />
+        </Card>
+      ))}
+    </div>
+  );
+}
 
-  if (playlists.isPending) {
-    return (
-      <div className={styles.grid} aria-busy="true">
-        {[0, 1, 2].map((i) => (
-          <Card key={i} className={styles.card}>
-            <Skeleton width="60%" height="var(--leading-lg)" />
-            <Skeleton width="30%" height="var(--leading-sm)" />
-          </Card>
-        ))}
-      </div>
-    );
-  }
+interface PlaylistGridProps {
+  playlists: UseQueryResult<Playlist[]>;
+  username: string;
+  isOwner: boolean;
+}
+
+function PlaylistGrid({ playlists, username, isOwner }: PlaylistGridProps) {
+  if (playlists.isPending) return <GridSkeleton />;
   if (playlists.isError) {
     return <ErrorNotice error={playlists.error} onRetry={() => playlists.refetch()} />;
   }
