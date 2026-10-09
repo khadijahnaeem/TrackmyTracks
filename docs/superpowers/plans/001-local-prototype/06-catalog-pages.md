@@ -14,6 +14,8 @@
 
 **Branch:** `slice/06-catalog-pages`. Tasks 1 to 3 need slice 04 merged. Task 4 also needs slice 08 Task 3 merged. Task 5 also needs slice 07 Task 3 and slice 08 Task 3 merged.
 
+**Phases:** Tasks 3 to 5 run in A1 against the mock, which needs slice 11 merged, and the catalog handlers come from [003](../003-ui-first.md) Task 6. Tasks 1 and 2 run in B.
+
 ---
 
 ## File map

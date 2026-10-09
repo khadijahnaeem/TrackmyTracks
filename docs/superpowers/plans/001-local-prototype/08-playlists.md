@@ -14,6 +14,8 @@
 
 **Branch:** `slice/08-playlists`. Requires slice 04 merged and slice 05 Task 1 merged for `public_user`.
 
+**Phases:** Tasks 3 and 4 run in A1 against the mock, and [003](../003-ui-first.md) Task 8 adds the playlist handlers. Tasks 1 and 2 run in B.
+
 **Merge early:** open a pull request after Task 3, because slice 06's pages import `AddToPlaylistButton`. Continue Task 4 on the same branch.
 
 ---

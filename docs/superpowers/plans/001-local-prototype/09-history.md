@@ -14,6 +14,8 @@
 
 **Branch:** `slice/09-history`. Requires slices 02 and 03 merged. Does not need slice 07, the tests write ratings through the `rate` fixture.
 
+**Phases:** Task 2 runs in A1 against the mock any time after slice 11, and [003](../003-ui-first.md) Task 9 adds the history handler. Task 1 runs in B.
+
 ---
 
 ## File map
