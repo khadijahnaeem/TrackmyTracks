@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { errorMessage } from "../../api/client";
 import type { CommunityRating, Kind, RatingSummary } from "../../api/types";
@@ -22,21 +22,37 @@ function communityText({ stars, count }: CommunityRating): string {
 }
 
 export function RatingControl({ kind, mbid, rating, title, compact = false }: RatingControlProps) {
-  const { user } = useMe();
+  const { user, isLoading } = useMe();
   const location = useLocation();
-  const save = useSaveRating();
-  const clear = useClearRating();
+  const target = { kind, mbid };
+  const save = useSaveRating(target);
+  const clear = useClearRating(target);
+  const [view, setView] = useState(rating);
   const [stars, setStars] = useState(rating.mine?.stars ?? null);
   const [syncedRating, setSyncedRating] = useState(rating);
   const [composing, setComposing] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const wasComposing = useRef(false);
+  const explanationId = useId();
 
-  // fresh server data replaces the optimistic value
-  if (syncedRating !== rating) {
+  const show = (next: RatingSummary) => {
+    setView(next);
+    setStars(next.mine?.stars ?? null);
+  };
+
+  // fresh server data replaces the optimistic value, but never mid save
+  if (syncedRating !== rating && !save.isPending && !clear.isPending) {
     setSyncedRating(rating);
-    setStars(rating.mine?.stars ?? null);
+    show(rating);
   }
 
-  const mine = rating.mine;
+  // closing the composer hands focus back to the button that opened it
+  useEffect(() => {
+    if (wasComposing.current && !composing) opener.current?.focus();
+    wasComposing.current = composing;
+  }, [composing]);
+
+  const { mine, community } = view;
   const derived = mine?.is_derived && stars === mine.stars ? mine : null;
   const error = save.error ?? clear.error;
   const errorText = error && (
@@ -47,8 +63,17 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
 
   const rate = (next: number) => {
     const previous = stars;
+    clear.reset();
     setStars(next);
-    save.mutate({ kind, mbid, stars: next }, { onError: () => setStars(previous) });
+    save.mutate(
+      { stars: next },
+      { onSuccess: (response) => show(response.rating), onError: () => setStars(previous) },
+    );
+  };
+
+  const clearRating = () => {
+    save.reset();
+    clear.mutate(undefined, { onSuccess: (response) => show(response.rating) });
   };
 
   if (compact) {
@@ -62,7 +87,7 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
             onChange={rate}
           />
         )}
-        <span className={styles.muted}>{communityText(rating.community)}</span>
+        <span className={styles.muted}>{communityText(community)}</span>
         {errorText}
       </div>
     );
@@ -73,26 +98,33 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
       <div className={styles.columns}>
         <div className={styles.block}>
           <p className={styles.label}>Your rating</p>
-          {user ? (
+          {user && (
             <div className={styles.inline}>
-              <Stars value={stars} label="Your rating" onChange={rate} />
+              <Stars
+                value={stars}
+                label="Your rating"
+                onChange={rate}
+                describedBy={derived ? explanationId : undefined}
+              />
               {mine && !mine.is_derived && (
                 <Button
                   variant="ghost"
+                  aria-label="Clear your rating"
                   loading={clear.isPending}
-                  onClick={() => clear.mutate({ kind, mbid })}
+                  onClick={clearRating}
                 >
-                  Clear
+                  {mine.review ? "Clear rating and review" : "Clear"}
                 </Button>
               )}
             </div>
-          ) : (
+          )}
+          {!user && !isLoading && (
             <Link to={loginHref(location.pathname + location.search)} className={buttonClassName("secondary")}>
               Log in to rate
             </Link>
           )}
           {derived && (
-            <p className={styles.muted}>
+            <p id={explanationId} className={styles.muted}>
               {formatAverage(derived.stars)}, average of your{" "}
               {pluralize(derived.song_count, "song rating")}. Rate to set your own.
             </p>
@@ -101,8 +133,8 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
         <div className={styles.block}>
           <p className={styles.label}>Community</p>
           <div className={styles.inline}>
-            <Stars size="sm" value={rating.community.stars} label="Community rating" />
-            <span className={styles.muted}>{communityText(rating.community)}</span>
+            <Stars size="sm" value={community.stars} label="Community rating" />
+            <span className={styles.muted}>{communityText(community)}</span>
           </div>
         </div>
       </div>
@@ -113,10 +145,14 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
             mbid={mbid}
             stars={derived ? null : stars}
             review={mine?.review ?? null}
-            onDone={() => setComposing(false)}
+            onSaved={(next) => {
+              show(next);
+              setComposing(false);
+            }}
+            onCancel={() => setComposing(false)}
           />
         ) : (
-          <Button onClick={() => setComposing(true)}>
+          <Button ref={opener} onClick={() => setComposing(true)}>
             {mine?.review ? "Edit review" : "Write a review"}
           </Button>
         ))}

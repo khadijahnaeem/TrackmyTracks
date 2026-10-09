@@ -27,13 +27,7 @@
   text-transform: uppercase;
 }
 
-.inline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
+.inline,
 .compact {
   display: flex;
   flex-wrap: wrap;

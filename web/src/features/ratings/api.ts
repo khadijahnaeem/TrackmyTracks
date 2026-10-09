@@ -12,12 +12,15 @@ interface Target {
   mbid: string;
 }
 
-interface SaveRatingInput extends Target {
+interface SaveRatingInput {
   stars: number;
   review?: string;
 }
 
 const RATED_QUERY_KEYS = [["artist"], ["album"], ["song"], ["reviews"], ["history"]];
+
+// one mutation per target at a time, so the last click always wins
+const ratingScope = ({ kind, mbid }: Target) => ({ id: `rating:${kind}:${mbid}` });
 
 function useInvalidateRated() {
   const queryClient = useQueryClient();
@@ -25,18 +28,20 @@ function useInvalidateRated() {
     Promise.all(RATED_QUERY_KEYS.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }
 
-export function useSaveRating() {
+export function useSaveRating(target: Target) {
   const invalidateRated = useInvalidateRated();
   return useMutation({
-    mutationFn: (input: SaveRatingInput) => api.put<RatingResponse>("/ratings", input),
+    mutationFn: (input: SaveRatingInput) => api.put<RatingResponse>("/ratings", { ...target, ...input }),
+    scope: ratingScope(target),
     onSuccess: invalidateRated,
   });
 }
 
-export function useClearRating() {
+export function useClearRating(target: Target) {
   const invalidateRated = useInvalidateRated();
   return useMutation({
-    mutationFn: ({ kind, mbid }: Target) => api.delete<RatingResponse>(`/ratings/${kind}/${mbid}`),
+    mutationFn: () => api.delete<RatingResponse>(`/ratings/${target.kind}/${target.mbid}`),
+    scope: ratingScope(target),
     onSuccess: invalidateRated,
   });
 }
