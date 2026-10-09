@@ -15,6 +15,7 @@ import {
 import {
   STORAGE_KEY,
   currentUser,
+  forgetState,
   logIn,
   ratingSummary,
   requireUser,
@@ -111,6 +112,12 @@ describe("persistence", () => {
     vi.resetModules();
     const fresh = await import("./store");
     expect(fresh.state().users).toHaveLength(SEED_USERS.length);
+  });
+
+  test("forgetting state reloads what another tab saved", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state(), sessionUserId: JONAH.id }));
+    forgetState();
+    expect(currentUser()?.id).toBe(JONAH.id);
   });
 
   test("new ids start above every seed id", () => {

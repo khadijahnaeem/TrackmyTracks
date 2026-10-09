@@ -44,6 +44,11 @@ let current: MockState | null = null;
 
 export const state = (): MockState => (current ??= loadState());
 
+// another tab saved, so the next state() reads its copy
+export const forgetState = (): void => {
+  current = null;
+};
+
 export const save = (): void => localStorage.setItem(STORAGE_KEY, JSON.stringify(state()));
 
 export function resetStore(): void {
