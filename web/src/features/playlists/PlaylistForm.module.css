@@ -1,0 +1,32 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: var(--space-4);
+  height: var(--space-4);
+  accent-color: var(--color-accent);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

@@ -1,0 +1,59 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 32rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+}
+
+.cardTitle {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.badge {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+}
+
+.description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
