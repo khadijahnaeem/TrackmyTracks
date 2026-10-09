@@ -129,6 +129,7 @@ web/src/mocks/handlers/auth.ts
 web/src/mocks/handlers/catalog.ts
 web/src/mocks/handlers/catalog.test.ts
 web/src/mocks/handlers/history.ts
+web/src/mocks/handlers/playlists.test.ts
 web/src/mocks/handlers/playlists.ts
 web/src/mocks/handlers/ratings.test.ts
 web/src/mocks/handlers/ratings.ts
