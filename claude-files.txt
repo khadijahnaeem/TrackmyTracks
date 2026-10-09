@@ -138,6 +138,10 @@ web/src/features/catalog/routes.ts
 web/src/features/catalog/rows.module.css
 web/src/features/catalog/test-data.ts
 web/src/features/catalog/useMbidParam.ts
+web/src/features/history/HistoryPage.module.css
+web/src/features/history/HistoryPage.test.tsx
+web/src/features/history/HistoryPage.tsx
+web/src/features/history/api.ts
 web/src/features/history/routes.ts
 web/src/features/home/FreshReviews.tsx
 web/src/features/home/Hero.tsx
