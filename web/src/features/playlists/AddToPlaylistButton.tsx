@@ -38,6 +38,7 @@ export function AddToPlaylistButton({ mbid }: { mbid: string }) {
 
 function PlaylistPicker({ username, mbid }: { username: string; mbid: string }) {
   const [open, setOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
@@ -74,15 +75,28 @@ function PlaylistPicker({ username, mbid }: { username: string; mbid: string }) 
       </Button>
       {open && (
         <div id={panelId} role="dialog" aria-label="Add to playlist" className={styles.panel}>
-          <PlaylistChoices username={username} mbid={mbid} />
-          <NewPlaylistForm mbid={mbid} />
+          <PlaylistChoices username={username} mbid={mbid} onStatusChange={setStatusMessage} />
+          <NewPlaylistForm
+            mbid={mbid}
+            onStatusChange={setStatusMessage}
+            onNameChange={() => setStatusMessage(null)}
+          />
+          {statusMessage && <p role="status" className={styles.note}>{statusMessage}</p>}
         </div>
       )}
     </div>
   );
 }
 
-function PlaylistChoices({ username, mbid }: { username: string; mbid: string }) {
+function PlaylistChoices({
+  username,
+  mbid,
+  onStatusChange,
+}: {
+  username: string;
+  mbid: string;
+  onStatusChange: (message: string) => void;
+}) {
   const playlists = useUserPlaylists(username);
   const addSong = useAddSong();
   const [statuses, setStatuses] = useState<Record<number, AddStatus>>({});
@@ -104,14 +118,23 @@ function PlaylistChoices({ username, mbid }: { username: string; mbid: string })
     setStatuses((current) => ({ ...current, [playlistId]: status }));
 
   // mutateAsync settles every call, mutate callbacks only fire for the latest one
-  const add = (playlistId: number) => {
-    setStatus(playlistId, "pending");
+  const add = (playlist: (typeof playlists.data)[0]) => {
+    setStatus(playlist.id, "pending");
     addSong
-      .mutateAsync({ playlistId, mbid })
-      .then(() => setStatus(playlistId, "added"))
+      .mutateAsync({ playlistId: playlist.id, mbid })
+      .then(() => {
+        setStatus(playlist.id, "added");
+        onStatusChange(`Added to ${playlist.name}`);
+      })
       .catch((error: unknown) => {
         const exists = error instanceof ApiError && error.status === 409;
-        setStatus(playlistId, exists ? "exists" : "failed");
+        if (exists) {
+          setStatus(playlist.id, "exists");
+          onStatusChange(`Already in ${playlist.name}`);
+        } else {
+          setStatus(playlist.id, "failed");
+          onStatusChange(`Could not add to ${playlist.name}, try again`);
+        }
       });
   };
 
@@ -126,7 +149,7 @@ function PlaylistChoices({ username, mbid }: { username: string; mbid: string })
               className={styles.choice}
               loading={status === "pending"}
               disabled={status === "added" || status === "exists"}
-              onClick={() => add(playlist.id)}
+              onClick={() => add(playlist)}
               aria-label={status && status !== "pending" ? `${playlist.name} ${STATUS_LABELS[status]}` : playlist.name}
             >
               <span className={styles.name}>{playlist.name}</span>
@@ -139,10 +162,17 @@ function PlaylistChoices({ username, mbid }: { username: string; mbid: string })
   );
 }
 
-function NewPlaylistForm({ mbid }: { mbid: string }) {
+function NewPlaylistForm({
+  mbid,
+  onStatusChange,
+  onNameChange,
+}: {
+  mbid: string;
+  onStatusChange: (message: string) => void;
+  onNameChange: () => void;
+}) {
   const [name, setName] = useState("");
   const [createdPlaylistId, setCreatedPlaylistId] = useState<number | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const createPlaylist = useCreatePlaylist();
   const addSong = useAddSong();
   const error = createPlaylist.error ?? addSong.error;
@@ -151,13 +181,15 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
     event.preventDefault();
     try {
       let playlistId = createdPlaylistId;
-      if (!playlistId) {
+      let playlistName = name;
+      if (playlistId === null) {
         const playlist = await createPlaylist.mutateAsync({ name, description: null, is_public: true });
         playlistId = playlist.id;
+        playlistName = playlist.name;
         setCreatedPlaylistId(playlist.id);
       }
       await addSong.mutateAsync({ playlistId, mbid });
-      setStatusMessage(`Added to ${name}`);
+      onStatusChange(`Added to ${playlistName}`);
       setName("");
       setCreatedPlaylistId(null);
     } catch {
@@ -174,7 +206,7 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
         onChange={(event) => {
           setName(event.target.value);
           setCreatedPlaylistId(null);
-          setStatusMessage(null);
+          onNameChange();
         }}
         error={error ? errorMessage(error) : undefined}
       />
@@ -186,11 +218,6 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
       >
         Create and add
       </Button>
-      {(statusMessage || error) && (
-        <p role="status" className={styles.note}>
-          {statusMessage}
-        </p>
-      )}
     </form>
   );
 }

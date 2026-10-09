@@ -152,4 +152,17 @@ describe("AddToPlaylistButton", () => {
     expect(await screen.findByText("Added to Road trip")).toBeInTheDocument();
     expect(createCount).toBe(1);
   });
+
+  it("announces status outcomes in live region", async () => {
+    mockFetch({
+      ...loggedIn([playlist(1, "Late nights")]),
+      "POST /api/playlists/1/songs": { status: 201, body: detail(1, "Late nights") },
+    });
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} />);
+
+    await openPicker();
+    await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Added to Late nights");
+  });
 });
