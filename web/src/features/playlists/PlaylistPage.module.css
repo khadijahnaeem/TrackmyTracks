@@ -1,0 +1,107 @@
+.description {
+  max-width: 40rem;
+  margin-bottom: var(--space-8);
+  color: var(--color-text-muted);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 32rem;
+  margin-bottom: var(--space-8);
+}
+
+.confirmTitle {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.confirmActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.songSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.songs {
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.song {
+  display: grid;
+  grid-template-columns: var(--space-8) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.position,
+.duration {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-sm);
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* owner controls wrap under the title on phones */
+@media (max-width: 640px) {
+  .song {
+    grid-template-columns: var(--space-8) minmax(0, 1fr) auto;
+  }
+
+  .controls {
+    grid-column: 2 / -1;
+  }
+}

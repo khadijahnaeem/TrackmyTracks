@@ -133,6 +133,17 @@ web/src/features/home/TrendingTracks.tsx
 web/src/features/home/routes.ts
 web/src/features/home/sampleData.test.ts
 web/src/features/home/sampleData.ts
+web/src/features/playlists/AddToPlaylistButton.module.css
+web/src/features/playlists/AddToPlaylistButton.test.tsx
+web/src/features/playlists/AddToPlaylistButton.tsx
+web/src/features/playlists/PlaylistForm.module.css
+web/src/features/playlists/PlaylistForm.tsx
+web/src/features/playlists/PlaylistPage.module.css
+web/src/features/playlists/PlaylistPage.tsx
+web/src/features/playlists/UserPlaylistsPage.module.css
+web/src/features/playlists/UserPlaylistsPage.tsx
+web/src/features/playlists/api.ts
+web/src/features/playlists/pages.test.tsx
 web/src/features/playlists/routes.ts
 web/src/features/ratings/RatingControl.module.css
 web/src/features/ratings/RatingControl.test.tsx
@@ -170,6 +181,7 @@ web/src/ui/Button.tsx
 web/src/ui/Card.module.css
 web/src/ui/Card.tsx
 web/src/ui/Field.module.css
+web/src/ui/NotFoundState.tsx
 web/src/ui/Notice.module.css
 web/src/ui/Notice.tsx
 web/src/ui/PageHeader.module.css

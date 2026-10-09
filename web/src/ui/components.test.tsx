@@ -1,9 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { ApiError } from "../api/client";
 import { Button } from "./Button";
 import { ErrorNotice } from "./Notice";
+import { NotFoundState } from "./NotFoundState";
 import { PageHeader } from "./PageHeader";
 import { Pagination } from "./Pagination";
 import { SegmentedControl } from "./SegmentedControl";
@@ -44,6 +46,18 @@ describe("ui components", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "OK Computer" })).toBeInTheDocument();
     expect(document.title).toBe("OK Computer | TrackmyTracks");
+  });
+
+  it("titles a missing page and links back to search", () => {
+    render(
+      <MemoryRouter>
+        <NotFoundState />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { level: 1, name: "Page not found" })).toBeInTheDocument();
+    expect(document.title).toBe("Page not found | TrackmyTracks");
+    expect(screen.getByRole("link", { name: "Search music" })).toHaveAttribute("href", "/search");
   });
 
   it("pages forward and disables the edges", async () => {

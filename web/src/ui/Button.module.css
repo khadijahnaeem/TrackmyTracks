@@ -18,7 +18,8 @@
     color var(--duration);
 }
 
-.button:disabled {
+.button:disabled,
+.button[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -50,7 +51,7 @@
   color: var(--color-on-accent);
 }
 
-.primary:hover:not(:disabled) {
+.primary:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-accent-hover);
   color: var(--color-on-accent);
 }
@@ -61,7 +62,7 @@
   color: var(--color-text);
 }
 
-.secondary:hover:not(:disabled) {
+.secondary:hover:not(:disabled, [aria-disabled="true"]) {
   border-color: var(--color-text-muted);
   color: var(--color-text);
 }
@@ -71,7 +72,18 @@
   color: var(--color-text-muted);
 }
 
-.ghost:hover:not(:disabled) {
+.ghost:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-surface-raised);
   color: var(--color-text);
+}
+
+.danger {
+  background: transparent;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.danger:hover:not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--color-danger) 16%, transparent);
+  color: var(--color-danger);
 }

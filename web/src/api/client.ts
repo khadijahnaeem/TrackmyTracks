@@ -16,6 +16,10 @@ export function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : UNREACHABLE;
 }
 
+export function isNotFound(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 404;
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const response = await fetch(`/api${path}`, {
     method,
