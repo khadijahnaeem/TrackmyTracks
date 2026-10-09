@@ -1,0 +1,31 @@
+.account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.links {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.link {
+  composes: link from "../../app/AppShell.module.css";
+}
+
+.active {
+  composes: active from "../../app/AppShell.module.css";
+}
+
+.username {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+@media (max-width: 640px) {
+  .username {
+    display: none;
+  }
+}
