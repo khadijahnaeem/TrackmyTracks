@@ -1,6 +1,6 @@
 import { http, type HttpHandler } from "msw";
 import type { Kind, Review } from "../../api/types";
-import { hasEntity } from "../catalog";
+import { hasEntity, NOT_IN_CATALOG } from "../catalog";
 import { invalid, jsonBody, notFound, optionalText, pageArg, paginate, route } from "../respond";
 import type { MockRating } from "../store";
 import { nextId, now, publicUser, ratingSummary, requireUser, save, state } from "../store";
@@ -65,7 +65,7 @@ export const ratingsHandlers: HttpHandler[] = [
       const score = parseScore(data.stars);
       const hasReview = "review" in data;
       const review = optionalText(data, "review", REVIEW_MAX_LENGTH);
-      ensureKnown(kind, mbid);
+      if (!hasEntity(kind, mbid)) throw notFound(NOT_IN_CATALOG);
 
       const saved = state().ratings.find((row) => row.userId === user.id && row.kind === kind && row.mbid === mbid);
       if (saved) {

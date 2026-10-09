@@ -92,12 +92,22 @@ test("a failed rating leaves the store alone", async () => {
   expect((await call<Saved>("DELETE", `/ratings/song/${PARANOID_ANDROID}`)).body.rating.mine).toBeNull();
 });
 
-test("an mbid outside the seed is not found", async () => {
+const UNKNOWN_MBID = "00000000-0000-0000-0000-000000000000";
+
+test("rating an mbid outside the seed is not in the catalog", async () => {
   await logIn();
-  const unknown = "00000000-0000-0000-0000-000000000000";
-  const expected = { status: 404, body: { error: { code: "not_found", message: "Album not found" } } };
-  expect(await rate({ kind: "album", mbid: unknown, stars: 4 })).toEqual(expected);
-  expect(await call("DELETE", `/ratings/album/${unknown}`)).toEqual(expected);
+  expect(await rate({ kind: "album", mbid: UNKNOWN_MBID, stars: 4 })).toEqual({
+    status: 404,
+    body: { error: { code: "not_found", message: "Not found in the music catalog" } },
+  });
+});
+
+test("clearing an mbid outside the seed names the kind", async () => {
+  await logIn();
+  expect(await call("DELETE", `/ratings/album/${UNKNOWN_MBID}`)).toEqual({
+    status: 404,
+    body: { error: { code: "not_found", message: "Album not found" } },
+  });
 });
 
 test("reviews list newest first with no empty reviews", async () => {
