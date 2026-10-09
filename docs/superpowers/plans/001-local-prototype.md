@@ -32,9 +32,9 @@ The remaining work is built UI first. A0 is the browser mock API, A1 is every we
 
 ```
 A0  03 --> 11 Mock API
-A1  11 --> 05 Tasks 2 to 4
-    11 --> 06 Task 3, 08 Task 4, 09 Task 2, any time after A0
-    11 --> 07 Task 3, 08 Task 3 --> 06 Tasks 4 and 5
+A1  11 --> 05 Tasks 2 to 4 --> 07 Task 3, 08 Task 3 --> 06 Tasks 4 and 5
+                               08 Task 3 --> 08 Task 4
+    11 --> 06 Task 3, 09 Task 2
 B   02, 04 --> 05 Task 1 --> 06 Tasks 1 and 2, 07 Tasks 1 and 2, 08 Tasks 1 and 2, 09 Task 1
 C   all --> 003 Task 10 --> 10
 ```
