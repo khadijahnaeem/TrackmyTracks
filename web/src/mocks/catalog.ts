@@ -37,6 +37,8 @@ export const SUMMARIES: Record<Kind, (mbid: string) => ArtistSummary | AlbumSumm
 
 const TABLES: Record<Kind, Map<string, unknown>> = { artist: artists, album: albums, song: songs };
 
+export const NOT_IN_CATALOG = "Not found in the music catalog";
+
 export const hasEntity = (kind: Kind, mbid: string): boolean => TABLES[kind].has(mbid);
 
 export const albumTracks = (albumMbid: string): string[] => lookup<SeedAlbum>(albums, albumMbid).tracks;

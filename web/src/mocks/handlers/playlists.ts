@@ -1,6 +1,6 @@
 import { http, type HttpHandler } from "msw";
 import type { Playlist, PlaylistDetail } from "../../api/types";
-import { hasEntity, songSummary } from "../catalog";
+import { hasEntity, NOT_IN_CATALOG, songSummary } from "../catalog";
 import { conflict, created, invalid, jsonBody, noContent, notFound, optionalText, requiredText, route } from "../respond";
 import type { MockPlaylist } from "../store";
 import { currentUser, findUserByName, nextId, now, publicUser, requireUser, save, state } from "../store";
@@ -134,7 +134,7 @@ export const playlistsHandlers: HttpHandler[] = [
       if (typeof mbid !== "string" || !UUID_PATTERN.test(mbid)) throw invalid("A valid MusicBrainz ID is required");
       const playlist = ownedPlaylist(params.id);
       const song = mbid.toLowerCase();
-      if (!hasEntity("song", song)) throw notFound("Song not found");
+      if (!hasEntity("song", song)) throw notFound(NOT_IN_CATALOG);
       if (playlist.songs.includes(song)) throw conflict("Song is already in this playlist");
       if (playlist.songs.length >= MAX_SONGS) throw invalid(`Playlists hold up to ${MAX_SONGS} songs`);
       playlist.songs.push(song);

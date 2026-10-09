@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import type { Playlist, PlaylistDetail } from "../../api/types";
-import { AIRBAG, DEMO_LOGIN, KARMA_POLICE, LET_DOWN, LUCKY, PARANOID_ANDROID } from "../seed";
+import { AIRBAG, DEMO_LOGIN, KARMA_POLICE, LET_DOWN, LUCKY, PARANOID_ANDROID, SEED_PLAYLISTS } from "../seed";
+import type { MockPlaylist } from "../seed";
 import { save, state } from "../store";
 import { call, useMockServer } from "../testing";
 import { authHandlers } from "./auth";
@@ -9,6 +10,8 @@ import { playlistsHandlers } from "./playlists";
 useMockServer(...authHandlers, ...playlistsHandlers);
 
 const MIRA_LOGIN = { email: "mira@trackmytracks.dev", password: "mira-listens-1" };
+// seeded by mira, so demo may not edit it
+const [{ id: MIRAS_PLAYLIST }] = SEED_PLAYLISTS as [MockPlaylist];
 const NOT_FOUND = { status: 404, body: { error: { code: "not_found", message: "Playlist not found" } } };
 
 afterEach(() => vi.useRealTimers());
@@ -108,7 +111,10 @@ test("adding validates the mbid and the catalog", async () => {
   expect(bad.status).toBe(422);
   expect(bad.body).toEqual({ error: { code: "validation_error", message: "A valid MusicBrainz ID is required" } });
   const unknown = await addSong(id, "00000000-0000-4000-8000-000000000000");
-  expect(unknown.status).toBe(404);
+  expect(unknown).toEqual({
+    status: 404,
+    body: { error: { code: "not_found", message: "Not found in the music catalog" } },
+  });
 });
 
 test("a playlist holds up to 500 songs", async () => {
@@ -201,18 +207,18 @@ test("an unknown user answers 404", async () => {
 
 test("edits are owner only", async () => {
   const unauthorized = { status: 401, body: { error: { code: "unauthorized", message: "Log in to continue" } } };
-  const base = "/playlists/28";
+  const base = `/playlists/${MIRAS_PLAYLIST}`;
   expect(await create({ name: "Night drive" })).toEqual(unauthorized);
   expect(await call("PATCH", base, { name: "Mine now" })).toEqual(unauthorized);
   expect(await call("DELETE", base)).toEqual(unauthorized);
-  expect(await addSong(28, AIRBAG)).toEqual(unauthorized);
+  expect(await addSong(MIRAS_PLAYLIST, AIRBAG)).toEqual(unauthorized);
 
   await logIn();
   expect(await call("PATCH", base, { name: "Mine now" })).toEqual(NOT_FOUND);
   expect(await call("DELETE", base)).toEqual(NOT_FOUND);
-  expect(await addSong(28, KARMA_POLICE)).toEqual(NOT_FOUND);
+  expect(await addSong(MIRAS_PLAYLIST, KARMA_POLICE)).toEqual(NOT_FOUND);
   expect(await call("DELETE", `${base}/songs/${AIRBAG}`)).toEqual(NOT_FOUND);
-  expect(await reorder(28, [])).toEqual(NOT_FOUND);
+  expect(await reorder(MIRAS_PLAYLIST, [])).toEqual(NOT_FOUND);
 });
 
 test("a non integer id answers 404", async () => {

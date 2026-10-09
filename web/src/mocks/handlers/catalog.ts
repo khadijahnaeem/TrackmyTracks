@@ -8,6 +8,7 @@ import {
   artistSummary,
   artistTopSongs,
   hasEntity,
+  NOT_IN_CATALOG,
   searchCatalog,
   songSummary,
 } from "../catalog";
@@ -21,7 +22,7 @@ const isKind = (value: string | null): value is Kind => KINDS.some((kind) => kin
 
 // the detail routes answer 404 for any mbid outside the seed
 function known(kind: Kind, mbid: string | readonly string[] | undefined): string {
-  if (typeof mbid !== "string" || !hasEntity(kind, mbid)) throw notFound("Not found in the music catalog");
+  if (typeof mbid !== "string" || !hasEntity(kind, mbid)) throw notFound(NOT_IN_CATALOG);
   return mbid;
 }
 
