@@ -1,10 +1,14 @@
 import { Link, NavLink, Outlet } from "react-router";
+import { AccountNav } from "../features/auth/AccountNav";
+import { useUnauthorizedRedirect } from "../features/auth/useUnauthorizedRedirect";
 import { cx } from "../ui";
 import styles from "./AppShell.module.css";
 
 const navClassName = ({ isActive }: { isActive: boolean }) => cx(styles.link, isActive && styles.active);
 
 export function AppShell() {
+  useUnauthorizedRedirect();
+
   return (
     <>
       <header className={styles.header}>
@@ -17,6 +21,7 @@ export function AppShell() {
               Search
             </NavLink>
           </nav>
+          <AccountNav />
         </div>
       </header>
       <main className={styles.main}>

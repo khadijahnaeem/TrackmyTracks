@@ -105,6 +105,9 @@ web/src/app/AppShell.tsx
 web/src/app/NotFoundPage.tsx
 web/src/app/router.test.tsx
 web/src/app/router.ts
+web/src/features/auth/AccountNav.module.css
+web/src/features/auth/AccountNav.test.tsx
+web/src/features/auth/AccountNav.tsx
 web/src/features/auth/api.test.tsx
 web/src/features/auth/api.ts
 web/src/features/auth/auth.module.css
