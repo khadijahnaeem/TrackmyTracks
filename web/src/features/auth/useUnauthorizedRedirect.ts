@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { ApiError } from "../../api/client";
+import { clearSession } from "./api";
 import { loginHref } from "./redirects";
 
 // any write that fails with 401, like an expired session, goes to login and comes back
@@ -17,7 +18,7 @@ export function useUnauthorizedRedirect() {
         const { error } = event.action;
         if (!(error instanceof ApiError) || error.status !== 401) return;
         if (event.mutation.options.meta?.expectsUnauthorized) return;
-        queryClient.setQueryData(["me"], { user: null });
+        clearSession(queryClient);
         navigate(loginHref(pathname + search));
       }),
     [queryClient, navigate, pathname, search],

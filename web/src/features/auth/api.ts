@@ -1,4 +1,4 @@
-import { type Query, useMutation, useQueryClient } from "@tanstack/react-query";
+import { type Query, type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { User } from "../../api/types";
 
@@ -16,6 +16,12 @@ interface MeResponse {
 }
 
 const isNotMe = (query: Query) => query.queryKey[0] !== "me";
+
+// reset, not remove, so mounted observers drop private data and refetch as a guest
+export function clearSession(queryClient: QueryClient) {
+  queryClient.setQueryData<MeResponse>(["me"], { user: null });
+  void queryClient.resetQueries({ predicate: isNotMe });
+}
 
 function useSessionMutation<T>(path: string) {
   const queryClient = useQueryClient();
@@ -43,9 +49,6 @@ export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => api.post<void>("/auth/logout"),
-    onSuccess: () => {
-      queryClient.removeQueries({ predicate: isNotMe });
-      queryClient.setQueryData<MeResponse>(["me"], { user: null });
-    },
+    onSuccess: () => clearSession(queryClient),
   });
 }

@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -27,6 +27,28 @@ function LogoutHarness() {
   return <button onClick={() => logout.mutate()}>Log out</button>;
 }
 
+function PlaylistsHarness() {
+  const { data } = useQuery({
+    queryKey: ["playlists", "alice"],
+    queryFn: () => api.get<{ name: string }>("/playlists"),
+  });
+  return <p>{data?.name ?? "empty"}</p>;
+}
+
+function SaveErrorHarness() {
+  useUnauthorizedRedirect();
+  const save = useMutation({
+    mutationFn: () => api.post("/playlists"),
+    meta: { expectsUnauthorized: true },
+  });
+  return (
+    <>
+      <button onClick={() => save.mutate()}>Save</button>
+      {save.isError && <p>Failed</p>}
+    </>
+  );
+}
+
 describe("auth data layer", () => {
   it("sends a 401 write to login and back", async () => {
     mockFetch({ "POST /api/playlists": UNAUTHORIZED });
@@ -42,14 +64,12 @@ describe("auth data layer", () => {
   });
 
   it("leaves expected 401s to the form", async () => {
-    const fetchMock = mockFetch({ "POST /api/playlists": UNAUTHORIZED });
-    const { router } = renderWithProviders(<SaveHarness expectsUnauthorized />, {
-      path: "/login",
-    });
+    mockFetch({ "POST /api/playlists": UNAUTHORIZED });
+    const { router } = renderWithProviders(<SaveErrorHarness />, { path: "/login" });
 
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    await screen.findByText("Failed");
     expect(router.state.location.search).toBe("");
   });
 
@@ -63,5 +83,27 @@ describe("auth data layer", () => {
 
     await waitFor(() => expect(queryClient.getQueryData(["me"])).toEqual({ user: null }));
     expect(queryClient.getQueryData(["playlists", "alice"])).toBeUndefined();
+  });
+
+  it("drops private data from mounted queries on logout", async () => {
+    let name = "Private mix";
+    mockFetch({
+      "GET /api/playlists": () => ({ body: { name } }),
+      "POST /api/auth/logout": { status: 204 },
+    });
+    const { queryClient } = renderWithProviders(
+      <>
+        <PlaylistsHarness />
+        <LogoutHarness />
+      </>,
+    );
+    queryClient.setQueryData(["me"], { user: { id: 1, username: "alice", email: "a@b.co" } });
+    await screen.findByText("Private mix");
+    name = "Public mix";
+
+    await userEvent.click(screen.getByRole("button", { name: "Log out" }));
+
+    await screen.findByText("Public mix");
+    expect(screen.queryByText("Private mix")).not.toBeInTheDocument();
   });
 });
