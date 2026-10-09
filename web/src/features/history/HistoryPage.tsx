@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { isNotFound } from "../../api/client";
-import type { HistoryEntry, Kind } from "../../api/types";
+import type { HistoryEntry, Kind, Page } from "../../api/types";
 import {
   buttonClassName,
   cx,
   ErrorNotice,
   formatDate,
   Notice,
-  NotFoundState,
   PageHeader,
   Pagination,
   pluralize,
@@ -55,33 +54,17 @@ export function HistoryPage() {
     }
   }, [history.isPlaceholderData, history.data, history.isError]);
 
-  if (isNotFound(history.error)) {
-    return (
-      <NotFoundState
-        title="User not found"
-        noticeTitle={`No user named ${username}`}
-        message="Check the spelling in the address."
-      />
-    );
-  }
-  if (history.isError) {
-    return (
-      <>
-        <PageHeader eyebrow="History" title={username} />
-        <ErrorNotice error={history.error} title="Could not load this history" onRetry={() => history.refetch()} />
-      </>
-    );
-  }
-
   const { data } = history;
-  const loading = meLoading || !data;
   const refreshing = history.isPlaceholderData;
+  const unknownUser = isNotFound(history.error);
+  const title = unknownUser ? "User not found" : isOwn ? "Your history" : username;
 
   const handlePageChange = (next: number) => {
     focusResults.current = true;
     setSearchParams((current) => {
       const params = new URLSearchParams(current);
-      params.set("page", String(next));
+      if (next > 1) params.set("page", String(next));
+      else params.delete("page");
       return params;
     });
   };
@@ -91,21 +74,33 @@ export function HistoryPage() {
 
   return (
     <>
-      {loading ? <LoadingHeader /> : <PageHeader eyebrow="History" title={isOwn ? "Your history" : username} />}
+      {meLoading ? <LoadingHeader /> : <PageHeader eyebrow="History" title={title} />}
       <div className={styles.filters}>
         <SegmentedControl label="Filter by kind" options={FILTERS} value={kind ?? "all"} onChange={handleKindChange} />
       </div>
       <p role="status" className="visually-hidden">
-        {data && !refreshing ? settledStatus(data.total, data.pages, page) : ""}
+        {data && !refreshing ? settledStatus(data, page) : ""}
       </p>
-      {loading ? (
+      {history.isError ? (
+        unknownUser ? (
+          <Notice title={`No user named ${username}`} action={<SearchLink />}>
+            Check the spelling in the address.
+          </Notice>
+        ) : (
+          <ErrorNotice error={history.error} title="Could not load this history" onRetry={() => history.refetch()} />
+        )
+      ) : !data || meLoading ? (
         <HistorySkeleton />
       ) : (
         <>
           <h2 ref={headingRef} tabIndex={-1} className="visually-hidden">
             Results
           </h2>
-          {data.items.length === 0 ? (
+          {data.items.length === 0 && page > 1 ? (
+            <Notice title="Past the end">
+              Page {page} has no ratings. <Link to={{ search: kind ? `?kind=${kind}` : "" }}>Back to page 1</Link>
+            </Notice>
+          ) : data.items.length === 0 ? (
             <EmptyHistory username={username} isOwn={isOwn} kind={kind} />
           ) : (
             <>
@@ -128,8 +123,17 @@ export function HistoryPage() {
   );
 }
 
-function settledStatus(total: number, pages: number, page: number): string {
+function settledStatus({ items, total, pages }: Page<HistoryEntry>, page: number): string {
+  if (items.length === 0 && page > 1) return `Page ${page} has no ratings`;
   return `${pluralize(total, "rating")}${pages > 1 ? `, page ${page} of ${pages}` : ""}`;
+}
+
+function SearchLink() {
+  return (
+    <Link to="/search" className={buttonClassName("primary")}>
+      Search music
+    </Link>
+  );
 }
 
 function LoadingHeader() {
@@ -171,11 +175,7 @@ function EmptyHistory({ username, isOwn, kind }: EmptyHistoryProps) {
   return (
     <Notice
       title={kind ? `No ${kind} ratings yet` : "Nothing rated yet"}
-      action={
-        <Link to="/search" className={buttonClassName("primary")}>
-          Search music
-        </Link>
-      }
+      action={<SearchLink />}
     >
       Songs, albums, and artists you rate show up here.
     </Notice>

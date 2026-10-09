@@ -61,6 +61,8 @@
   display: -webkit-box;
   margin-top: var(--space-2);
   overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
   -webkit-box-orient: vertical;

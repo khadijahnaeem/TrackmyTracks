@@ -75,6 +75,7 @@ describe("HistoryPage", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Albums" }));
 
     expect(screen.getByLabelText("Loading history")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole("heading", { level: 1, name: "alice" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "OK Computer" })).not.toBeInTheDocument();
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
     album.resolve({ body: pageOf([ENTRIES[0]]) });
@@ -115,7 +116,7 @@ describe("HistoryPage", () => {
 
   it("shows a skeleton and loading title while the viewer is unknown", async () => {
     const me = deferred<{ body: unknown }>();
-    mockFetch({
+    const fetchMock = mockFetch({
       "GET /api/auth/me": () => me.promise,
       "GET /api/users/alice/history?page=1": { body: pageOf([]) },
     });
@@ -123,12 +124,28 @@ describe("HistoryPage", () => {
 
     expect(screen.getByLabelText("Loading history")).toHaveAttribute("aria-busy", "true");
     expect(document.title).toBe("Loading | TrackmyTracks");
-    await waitFor(() => expect(screen.getByLabelText("Loading history")).toBeInTheDocument());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/users/alice/history?page=1", expect.anything()));
     expect(screen.queryByText("Nothing rated yet")).not.toBeInTheDocument();
     expect(screen.queryByText("alice has not rated anything yet")).not.toBeInTheDocument();
 
     me.resolve({ body: { user: ALICE_USER } });
     expect(await screen.findByText("Nothing rated yet")).toBeInTheDocument();
+  });
+
+  it("keeps the layout around an unknown user", async () => {
+    mockFetch({
+      ...LOGGED_OUT,
+      "GET /api/users/ghost/history?page=1": {
+        status: 404,
+        body: { error: { code: "not_found", message: "User not found" } },
+      },
+    });
+    renderAt("/users/ghost/history");
+
+    await screen.findByText("No user named ghost");
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Albums" })).toBeInTheDocument();
+    expect(screen.getAllByRole("status")[0]).toBeEmptyDOMElement();
   });
 
   it("shows a header above a generic error and retries", async () => {
@@ -147,6 +164,21 @@ describe("HistoryPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
 
     expect(await screen.findByRole("link", { name: "OK Computer" })).toBeInTheDocument();
+  });
+
+  it("puts the kind in the url and drops it for All", async () => {
+    mockFetch({
+      ...LOGGED_OUT,
+      "GET /api/users/alice/history?page=1": { body: pageOf(ENTRIES) },
+      "GET /api/users/alice/history?kind=album&page=1": { body: pageOf([ENTRIES[0]]) },
+    });
+    const { router } = renderAt("/users/alice/history");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Albums" }));
+    expect(router.state.location.search).toBe("?kind=album");
+
+    await userEvent.click(screen.getByRole("button", { name: "All" }));
+    expect(router.state.location.search).toBe("");
   });
 
   describe("paging", () => {
@@ -184,6 +216,36 @@ describe("HistoryPage", () => {
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
       expect(screen.getByRole("list")).not.toHaveAttribute("aria-busy");
       expect(screen.getByRole("status")).toHaveTextContent("21 ratings, page 2 of 2");
+    });
+
+    it("drops the page param when returning to page 1", async () => {
+      mockFetch({
+        ...LOGGED_OUT,
+        "GET /api/users/alice/history?page=2": { body: SECOND },
+        "GET /api/users/alice/history?page=1": { body: FIRST },
+      });
+      const { router } = renderAt("/users/alice/history?page=2");
+
+      await userEvent.click(await screen.findByRole("button", { name: "Previous" }));
+
+      expect(router.state.location.search).toBe("");
+      expect(await screen.findByRole("link", { name: "OK Computer" })).toBeInTheDocument();
+    });
+
+    it("explains a page past the end and links back to the first", async () => {
+      mockFetch({
+        ...LOGGED_OUT,
+        "GET /api/users/alice/history?kind=song&page=5": { body: pageOf([], { page: 5, pages: 2, total: 21 }) },
+      });
+      renderAt("/users/alice/history?kind=song&page=5");
+
+      expect(await screen.findByText("Past the end")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Back to page 1" })).toHaveAttribute(
+        "href",
+        "/users/alice/history?kind=song",
+      );
+      expect(screen.getAllByRole("status")[0]).toHaveTextContent("Page 5 has no ratings");
+      expect(screen.getAllByRole("status")[0]).not.toHaveTextContent("of 2");
     });
 
     it("leaves focus alone after a filter change", async () => {
