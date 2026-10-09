@@ -33,6 +33,11 @@
   width: 100%;
 }
 
+/* added rows keep full opacity so the status text stays readable */
+.root .choice[aria-disabled="true"] {
+  opacity: 1;
+}
+
 /* spreads the playlist name and its status across the full row */
 .choice > span:first-child {
   flex: 1;
@@ -51,10 +56,16 @@
   line-height: var(--leading-xs);
 }
 
-.note {
+.note,
+.announcement {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
+}
+
+/* stays mounted so screen readers pick up each change, empty it takes no space */
+.announcement:empty {
+  margin-top: calc(-1 * var(--space-4));
 }
 
 .form {
@@ -74,5 +85,7 @@
     bottom: var(--space-4);
     left: var(--space-4);
     width: auto;
+    max-height: calc(100dvh - 2 * var(--space-4));
+    overflow-y: auto;
   }
 }

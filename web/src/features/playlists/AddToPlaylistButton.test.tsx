@@ -60,7 +60,8 @@ describe("AddToPlaylistButton", () => {
     await openPicker();
     await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
 
-    expect(await screen.findByRole("button", { name: "Late nights Added" })).toBeDisabled();
+    const added = await screen.findByRole("button", { name: "Late nights Added" });
+    expect(added).toHaveAttribute("aria-disabled", "true");
   });
 
   it("reports a song that is already there", async () => {
@@ -76,7 +77,10 @@ describe("AddToPlaylistButton", () => {
     await openPicker();
     await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
 
-    expect(await screen.findByRole("button", { name: "Late nights Already added" })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "Late nights Already added" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("creates a playlist and adds the song in one step", async () => {
@@ -164,5 +168,47 @@ describe("AddToPlaylistButton", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
 
     expect(await screen.findByRole("status")).toHaveTextContent("Added to Late nights");
+  });
+
+  it("keeps an empty live region mounted before any outcome", async () => {
+    mockFetch(loggedIn([playlist(1, "Late nights")]));
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} />);
+
+    await openPicker();
+
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("does not add twice to a playlist that already has the song", async () => {
+    const fetchMock = mockFetch({
+      ...loggedIn([playlist(1, "Late nights")]),
+      "POST /api/playlists/1/songs": { status: 201, body: detail(1, "Late nights") },
+    });
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} />);
+
+    await openPicker();
+    await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Late nights Added" }));
+
+    const posts = fetchMock.mock.calls.filter(([, init]) => init?.method === "POST");
+    expect(posts).toHaveLength(1);
+  });
+
+  it("explains why adding to a playlist failed", async () => {
+    mockFetch({
+      ...loggedIn([playlist(1, "Late nights")]),
+      "POST /api/playlists/1/songs": {
+        status: 500,
+        body: { error: { code: "server_error", message: "Server error" } },
+      },
+    });
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} />);
+
+    await openPicker();
+    await userEvent.click(await screen.findByRole("button", { name: "Late nights" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Could not add to Late nights. Server error",
+    );
   });
 });

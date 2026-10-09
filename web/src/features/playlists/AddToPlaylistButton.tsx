@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { ApiError, errorMessage } from "../../api/client";
+import type { Playlist } from "../../api/types";
 import { Button, buttonClassName, Skeleton, TextField } from "../../ui";
 import { loginHref } from "../auth/redirects";
 import { useMe } from "../auth/useMe";
@@ -81,7 +82,9 @@ function PlaylistPicker({ username, mbid }: { username: string; mbid: string }) 
             onStatusChange={setStatusMessage}
             onNameChange={() => setStatusMessage(null)}
           />
-          {statusMessage && <p role="status" className={styles.note}>{statusMessage}</p>}
+          <p role="status" className={styles.announcement}>
+            {statusMessage}
+          </p>
         </div>
       )}
     </div>
@@ -118,7 +121,8 @@ function PlaylistChoices({
     setStatuses((current) => ({ ...current, [playlistId]: status }));
 
   // mutateAsync settles every call, mutate callbacks only fire for the latest one
-  const add = (playlist: (typeof playlists.data)[0]) => {
+  const add = (playlist: Playlist) => {
+    if (statuses[playlist.id] === "added" || statuses[playlist.id] === "exists") return;
     setStatus(playlist.id, "pending");
     addSong
       .mutateAsync({ playlistId: playlist.id, mbid })
@@ -133,7 +137,7 @@ function PlaylistChoices({
           onStatusChange(`Already in ${playlist.name}`);
         } else {
           setStatus(playlist.id, "failed");
-          onStatusChange(`Could not add to ${playlist.name}, try again`);
+          onStatusChange(`Could not add to ${playlist.name}. ${errorMessage(error)}`);
         }
       });
   };
@@ -148,7 +152,7 @@ function PlaylistChoices({
               variant="ghost"
               className={styles.choice}
               loading={status === "pending"}
-              disabled={status === "added" || status === "exists"}
+              aria-disabled={status === "added" || status === "exists" || undefined}
               onClick={() => add(playlist)}
               aria-label={status && status !== "pending" ? `${playlist.name} ${STATUS_LABELS[status]}` : playlist.name}
             >
