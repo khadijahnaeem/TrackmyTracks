@@ -124,6 +124,7 @@ web/src/main.tsx
 web/src/mocks/browser.ts
 web/src/mocks/catalog.test.ts
 web/src/mocks/catalog.ts
+web/src/mocks/handlers/auth.test.ts
 web/src/mocks/handlers/auth.ts
 web/src/mocks/handlers/catalog.ts
 web/src/mocks/handlers/history.ts
