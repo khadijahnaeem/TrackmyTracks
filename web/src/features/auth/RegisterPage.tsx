@@ -45,6 +45,7 @@ export function RegisterPage() {
           minLength={3}
           maxLength={30}
           pattern="[a-zA-Z0-9_]+"
+          title="Letters, numbers, or underscores"
           required
         />
         <TextField

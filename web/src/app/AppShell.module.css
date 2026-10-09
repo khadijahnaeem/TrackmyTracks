@@ -52,7 +52,6 @@
 }
 
 .footer .bar {
-  flex-wrap: wrap;
   padding-block: var(--space-6);
 }
 

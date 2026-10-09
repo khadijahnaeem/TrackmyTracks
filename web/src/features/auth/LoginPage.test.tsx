@@ -51,5 +51,6 @@ describe("LoginPage", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Email or password is incorrect");
     expect(router.state.location.pathname).toBe("/login");
+    expect(router.state.location.search).toBe("");
   });
 });
