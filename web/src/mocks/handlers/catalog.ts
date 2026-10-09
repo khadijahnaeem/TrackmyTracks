@@ -1,28 +1,28 @@
 import { http, type HttpHandler } from "msw";
 import type { AlbumSummary, ArtistSummary, Kind, SongSummary } from "../../api/types";
 import {
-  SUMMARIES,
   albumSummary,
   albumTracks,
   artistAlbums,
   artistSummary,
   artistTopSongs,
   hasEntity,
+  isKind,
+  normalizeMbid,
   NOT_IN_CATALOG,
   searchCatalog,
   songSummary,
+  SUMMARIES,
 } from "../catalog";
-import { notFound, invalid, pageArg, pagePayload, requiredText, route } from "../respond";
+import { invalid, notFound, pageArg, paginate, requiredText, route } from "../respond";
 import { rated } from "../store";
 
 const SEARCH_PER_PAGE = 25;
-const KINDS: Kind[] = ["song", "album", "artist"];
-
-const isKind = (value: string | null): value is Kind => KINDS.some((kind) => kind === value);
 
 // the detail routes answer 404 for any mbid outside the seed
-function known(kind: Kind, mbid: string | readonly string[] | undefined): string {
-  if (typeof mbid !== "string" || !hasEntity(kind, mbid)) throw notFound(NOT_IN_CATALOG);
+function known(kind: Kind, param: string | readonly string[] | undefined): string {
+  const mbid = normalizeMbid(param);
+  if (mbid === null || !hasEntity(kind, mbid)) throw notFound(NOT_IN_CATALOG);
   return mbid;
 }
 
@@ -35,10 +35,8 @@ export const catalogHandlers: HttpHandler[] = [
       if (!isKind(type)) throw invalid("Type must be song, album, or artist");
       const query = requiredText({ query: url.searchParams.get("q") }, "query", 200);
       const page = pageArg(url);
-      const matches = searchCatalog(type, query);
-      const start = (page - 1) * SEARCH_PER_PAGE;
-      const items = matches.slice(start, start + SEARCH_PER_PAGE).map((mbid) => SUMMARIES[type](mbid));
-      return pagePayload(items, page, matches.length, SEARCH_PER_PAGE);
+      const results = paginate(searchCatalog(type, query), page, SEARCH_PER_PAGE);
+      return { ...results, items: results.items.map(SUMMARIES[type]) };
     }),
   ),
 

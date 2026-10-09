@@ -53,6 +53,10 @@ export function resetStore(): void {
 
 export const nextId = (): number => state().nextId++;
 
+// the same order everywhere a list shows recent activity first
+export const newestFirst = (a: { updatedAt: string; id: number }, b: { updatedAt: string; id: number }): number =>
+  b.updatedAt.localeCompare(a.updatedAt) || b.id - a.id;
+
 export const now = (): string => new Date().toISOString();
 
 export const findUserByName = (username: string): MockUser | null =>

@@ -1,14 +1,13 @@
 import { http, type HttpHandler } from "msw";
 import type { Playlist, PlaylistDetail } from "../../api/types";
-import { hasEntity, NOT_IN_CATALOG, songSummary } from "../catalog";
+import { hasEntity, NOT_IN_CATALOG, normalizeMbid, parseMbid, songSummary } from "../catalog";
 import { conflict, created, invalid, jsonBody, noContent, notFound, optionalText, requiredText, route } from "../respond";
 import type { MockPlaylist } from "../store";
-import { currentUser, findUserByName, nextId, now, publicUser, requireUser, save, state } from "../store";
+import { currentUser, findUserByName, newestFirst, nextId, now, publicUser, requireUser, save, state } from "../store";
 
 const NAME_MAX_LENGTH = 100;
 const DESCRIPTION_MAX_LENGTH = 500;
 const MAX_SONGS = 500;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const playlistPayload = (playlist: MockPlaylist): Playlist => ({
   id: playlist.id,
@@ -44,11 +43,11 @@ function ownedPlaylist(id: unknown): MockPlaylist {
   return playlist;
 }
 
-type PlaylistFields = Partial<Pick<MockPlaylist, "name" | "description" | "isPublic">>;
+const parseName = (data: Record<string, unknown>): string => requiredText(data, "name", NAME_MAX_LENGTH);
 
-function parseFields(data: Record<string, unknown>, partial: boolean): PlaylistFields {
-  const fields: PlaylistFields = {};
-  if (!partial || "name" in data) fields.name = requiredText(data, "name", NAME_MAX_LENGTH);
+// only the fields present in the body, so a patch leaves the rest alone
+function parseOptionalFields(data: Record<string, unknown>): Partial<Pick<MockPlaylist, "description" | "isPublic">> {
+  const fields: Partial<Pick<MockPlaylist, "description" | "isPublic">> = {};
   if ("description" in data) fields.description = optionalText(data, "description", DESCRIPTION_MAX_LENGTH);
   if ("is_public" in data) {
     if (typeof data.is_public !== "boolean") throw invalid("Visibility must be true or false");
@@ -58,10 +57,9 @@ function parseFields(data: Record<string, unknown>, partial: boolean): PlaylistF
 }
 
 function parseMbids(value: unknown): string[] {
-  if (!Array.isArray(value) || !value.every((mbid) => typeof mbid === "string")) {
-    throw invalid("Mbids must be a list of MusicBrainz IDs");
-  }
-  return value;
+  const message = "Mbids must be a list of MusicBrainz IDs";
+  if (!Array.isArray(value)) throw invalid(message);
+  return value.map((mbid) => parseMbid(mbid, message));
 }
 
 export const playlistsHandlers: HttpHandler[] = [
@@ -73,7 +71,7 @@ export const playlistsHandlers: HttpHandler[] = [
       const viewing = currentUser()?.id === owner.id;
       const items = state()
         .playlists.filter((row) => row.ownerId === owner.id && (row.isPublic || viewing))
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id - a.id);
+        .sort(newestFirst);
       return { items: items.map(playlistPayload) };
     }),
   ),
@@ -82,17 +80,10 @@ export const playlistsHandlers: HttpHandler[] = [
     "/api/playlists",
     route(async ({ request }) => {
       const user = requireUser();
-      const fields = parseFields(await jsonBody(request), false);
-      const playlist = {
-        id: nextId(),
-        ownerId: user.id,
-        name: "",
-        description: null,
-        isPublic: true,
-        songs: [],
-        updatedAt: now(),
-        ...fields,
-      };
+      const data = await jsonBody(request);
+      const name = parseName(data);
+      const { description = null, isPublic = true } = parseOptionalFields(data);
+      const playlist = { id: nextId(), ownerId: user.id, name, description, isPublic, songs: [], updatedAt: now() };
       state().playlists.push(playlist);
       save();
       return created(playlistPayload(playlist));
@@ -109,7 +100,9 @@ export const playlistsHandlers: HttpHandler[] = [
     route(async ({ params, request }) => {
       requireUser();
       const playlist = ownedPlaylist(params.id);
-      Object.assign(playlist, parseFields(await jsonBody(request), true), { updatedAt: now() });
+      const data = await jsonBody(request);
+      const name = "name" in data ? { name: parseName(data) } : {};
+      Object.assign(playlist, name, parseOptionalFields(data), { updatedAt: now() });
       save();
       return playlistPayload(playlist);
     }),
@@ -130,10 +123,8 @@ export const playlistsHandlers: HttpHandler[] = [
     "/api/playlists/:id/songs",
     route(async ({ params, request }) => {
       requireUser();
-      const { mbid } = await jsonBody(request);
-      if (typeof mbid !== "string" || !UUID_PATTERN.test(mbid)) throw invalid("A valid MusicBrainz ID is required");
+      const song = parseMbid((await jsonBody(request)).mbid, "A valid MusicBrainz ID is required");
       const playlist = ownedPlaylist(params.id);
-      const song = mbid.toLowerCase();
       if (!hasEntity("song", song)) throw notFound(NOT_IN_CATALOG);
       if (playlist.songs.includes(song)) throw conflict("Song is already in this playlist");
       if (playlist.songs.length >= MAX_SONGS) throw invalid(`Playlists hold up to ${MAX_SONGS} songs`);
@@ -149,7 +140,8 @@ export const playlistsHandlers: HttpHandler[] = [
     route(({ params }) => {
       requireUser();
       const playlist = ownedPlaylist(params.id);
-      const index = playlist.songs.indexOf(String(params.mbid).toLowerCase());
+      const mbid = normalizeMbid(params.mbid);
+      const index = playlist.songs.findIndex((song) => song === mbid);
       if (index < 0) throw notFound("Song is not in this playlist");
       playlist.songs.splice(index, 1);
       playlist.updatedAt = now();
@@ -162,7 +154,7 @@ export const playlistsHandlers: HttpHandler[] = [
     "/api/playlists/:id/songs",
     route(async ({ params, request }) => {
       requireUser();
-      const mbids = parseMbids((await jsonBody(request)).mbids).map((mbid) => mbid.toLowerCase());
+      const mbids = parseMbids((await jsonBody(request)).mbids);
       const playlist = ownedPlaylist(params.id);
       if (mbids.length !== playlist.songs.length || !playlist.songs.every((mbid) => mbids.includes(mbid))) {
         throw invalid("Reorder must list every song in the playlist exactly once");

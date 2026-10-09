@@ -1,26 +1,13 @@
 import { http, type HttpHandler } from "msw";
 import type { Kind, Review } from "../../api/types";
-import { hasEntity, NOT_IN_CATALOG } from "../catalog";
+import { hasEntity, NOT_IN_CATALOG, normalizeMbid, parseKind, parseMbid } from "../catalog";
 import { invalid, jsonBody, notFound, optionalText, pageArg, paginate, route } from "../respond";
 import type { MockRating } from "../store";
-import { nextId, now, publicUser, ratingSummary, requireUser, save, state } from "../store";
+import { newestFirst, nextId, now, publicUser, ratingSummary, requireUser, save, state } from "../store";
 
 const REVIEW_MAX_LENGTH = 2000;
 const REVIEWS_PER_PAGE = 20;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const COLLECTIONS: Record<string, Kind> = { songs: "song", albums: "album", artists: "artist" };
-
-const isKind = (value: unknown): value is Kind => Object.values(COLLECTIONS).some((kind) => kind === value);
-
-function parseKind(value: unknown): Kind {
-  if (!isKind(value)) throw invalid("Kind must be song, album, or artist");
-  return value;
-}
-
-function parseMbid(value: unknown): string {
-  if (typeof value !== "string" || !UUID_PATTERN.test(value)) throw invalid("Mbid must be a MusicBrainz ID");
-  return value.toLowerCase();
-}
 
 // stars on the wire become a score of 1 to 10
 function parseScore(value: unknown): number {
@@ -29,15 +16,17 @@ function parseScore(value: unknown): number {
   return value * 2;
 }
 
-const ensureKnown = (kind: Kind, mbid: string): void => {
-  if (!hasEntity(kind, mbid)) throw notFound(`${kind.charAt(0).toUpperCase()}${kind.slice(1)} not found`);
-};
+const missingMessage = (kind: Kind): string => `${kind.charAt(0).toUpperCase()}${kind.slice(1)} not found`;
 
-const reviewPayload = (rating: MockRating): Review => ({
+type ReviewedRating = MockRating & { review: string };
+
+const isReviewed = (rating: MockRating): rating is ReviewedRating => rating.review !== null;
+
+const reviewPayload = (rating: ReviewedRating): Review => ({
   id: rating.id,
   user: publicUser(rating.userId),
   stars: rating.score / 2,
-  review: rating.review ?? "",
+  review: rating.review,
   updated_at: rating.updatedAt,
 });
 
@@ -46,9 +35,11 @@ const reviewRoutes = Object.entries(COLLECTIONS).map(([collection, kind]) =>
     `/api/${collection}/:mbid/reviews`,
     route(({ params, request }) => {
       const page = pageArg(new URL(request.url));
+      const mbid = normalizeMbid(params.mbid);
       const reviews = state()
-        .ratings.filter((rating) => rating.kind === kind && rating.mbid === params.mbid && rating.review !== null)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id - a.id);
+        .ratings.filter((rating) => rating.kind === kind && rating.mbid === mbid)
+        .filter(isReviewed)
+        .sort(newestFirst);
       return paginate(reviews.map(reviewPayload), page, REVIEWS_PER_PAGE);
     }),
   ),
@@ -61,7 +52,7 @@ export const ratingsHandlers: HttpHandler[] = [
       const user = requireUser();
       const data = await jsonBody(request);
       const kind = parseKind(data.kind);
-      const mbid = parseMbid(data.mbid);
+      const mbid = parseMbid(data.mbid, "Mbid must be a MusicBrainz ID");
       const score = parseScore(data.stars);
       const hasReview = "review" in data;
       const review = optionalText(data, "review", REVIEW_MAX_LENGTH);
@@ -85,8 +76,8 @@ export const ratingsHandlers: HttpHandler[] = [
     route(({ params }) => {
       const user = requireUser();
       const kind = parseKind(params.kind);
-      const mbid = String(params.mbid).toLowerCase();
-      ensureKnown(kind, mbid);
+      const mbid = normalizeMbid(params.mbid);
+      if (mbid === null || !hasEntity(kind, mbid)) throw notFound(missingMessage(kind));
 
       const { ratings } = state();
       const index = ratings.findIndex((row) => row.userId === user.id && row.kind === kind && row.mbid === mbid);

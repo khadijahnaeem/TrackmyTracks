@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import type { AlbumSummary, Page, SongSummary, Rated } from "../../api/types";
+import type { AlbumSummary, Rated, SongSummary } from "../../api/types";
 import { AIRBAG, DEMO_LOGIN, IN_RAINBOWS, OK_COMPUTER, RADIOHEAD } from "../seed";
 import { call, useMockServer } from "../testing";
 import { authHandlers } from "./auth";
@@ -53,9 +53,14 @@ test("detail ratings follow the session", async () => {
 });
 
 test("an unknown mbid is not found", async () => {
-  const missing = await call<Page<never>>("GET", "/albums/00000000-0000-0000-0000-000000000000");
+  const missing = await call("GET", "/albums/00000000-0000-0000-0000-000000000000");
   expect(missing).toEqual({
     status: 404,
     body: { error: { code: "not_found", message: "Not found in the music catalog" } },
   });
+});
+
+test("an uppercase mbid resolves like the lowercase one", async () => {
+  const detail = await call<{ song: Rated<SongSummary> }>("GET", `/songs/${AIRBAG.toUpperCase()}`);
+  expect(detail.body.song.mbid).toBe(AIRBAG);
 });

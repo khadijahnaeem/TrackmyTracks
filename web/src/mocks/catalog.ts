@@ -1,4 +1,5 @@
 import type { AlbumSummary, ArtistSummary, Kind, SongSummary } from "../api/types";
+import { invalid } from "./respond";
 import { SEED_ALBUMS, SEED_ARTISTS, SEED_SONGS } from "./seed";
 import type { SeedAlbum, SeedArtist, SeedSong } from "./seed";
 
@@ -34,6 +35,25 @@ export const SUMMARIES: Record<Kind, (mbid: string) => ArtistSummary | AlbumSumm
   album: albumSummary,
   song: songSummary,
 };
+
+export const isKind = (value: unknown): value is Kind => typeof value === "string" && Object.hasOwn(SUMMARIES, value);
+
+export function parseKind(value: unknown): Kind {
+  if (!isKind(value)) throw invalid("Kind must be song, album, or artist");
+  return value;
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// canonical lowercase like Flask's uuid converter, null when the value is not a uuid
+export const normalizeMbid = (value: unknown): string | null =>
+  typeof value === "string" && UUID_PATTERN.test(value) ? value.toLowerCase() : null;
+
+export function parseMbid(value: unknown, message: string): string {
+  const mbid = normalizeMbid(value);
+  if (mbid === null) throw invalid(message);
+  return mbid;
+}
 
 const TABLES: Record<Kind, Map<string, unknown>> = { artist: artists, album: albums, song: songs };
 
