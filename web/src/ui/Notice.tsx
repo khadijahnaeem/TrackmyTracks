@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { errorMessage } from "../api/client";
 import { Button } from "./Button";
+import { cx } from "./cx";
 import styles from "./Notice.module.css";
 
 interface NoticeProps {
@@ -8,11 +9,12 @@ interface NoticeProps {
   children?: ReactNode;
   action?: ReactNode;
   role?: "status" | "alert";
+  tone?: "neutral" | "danger";
 }
 
-export function Notice({ title, children, action, role = "status" }: NoticeProps) {
+export function Notice({ title, children, action, role = "status", tone = "neutral" }: NoticeProps) {
   return (
-    <div role={role} className={styles.notice}>
+    <div role={role} className={cx(styles.notice, tone === "danger" && styles.danger)}>
       <p className={styles.title}>{title}</p>
       {children && <p className={styles.body}>{children}</p>}
       {action}

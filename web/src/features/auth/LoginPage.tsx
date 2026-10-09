@@ -32,7 +32,7 @@ export function LoginPage() {
         </>
       }
     >
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.stack} onSubmit={handleSubmit}>
         <TextField label="Email" name="email" type="email" autoComplete="email" required />
         <TextField
           label="Password"

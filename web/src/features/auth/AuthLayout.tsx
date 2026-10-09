@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Card, PageHeader } from "../../ui";
+import { Card, Notice, PageHeader } from "../../ui";
 import styles from "./auth.module.css";
 
 interface AuthLayoutProps {
@@ -14,12 +14,10 @@ export function AuthLayout({ title, error, footer, children }: AuthLayoutProps) 
     <div className={styles.page}>
       <PageHeader title={title} />
       <Card>
-        {error && (
-          <p role="alert" className={styles.error}>
-            {error}
-          </p>
-        )}
-        {children}
+        <div className={styles.stack}>
+          {error && <Notice role="alert" tone="danger" title={error} />}
+          {children}
+        </div>
       </Card>
       <p className={styles.footer}>{footer}</p>
     </div>

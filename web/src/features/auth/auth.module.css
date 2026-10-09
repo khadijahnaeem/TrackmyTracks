@@ -3,7 +3,7 @@
   margin: 0 auto;
 }
 
-.form {
+.stack {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -12,16 +12,6 @@
 .submit {
   width: 100%;
   margin-top: var(--space-2);
-}
-
-.error {
-  margin-bottom: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-danger);
-  border-radius: var(--radius);
-  color: var(--color-danger);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
 }
 
 .footer {
