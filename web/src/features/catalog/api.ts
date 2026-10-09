@@ -42,20 +42,20 @@ export function useSearch<K extends Kind>(type: K, q: string, page: number) {
 export function useArtist(mbid: string) {
   return useQuery({
     queryKey: ["artist", mbid],
-    queryFn: () => api.get<ArtistDetail>(`/artists/${mbid}`),
+    queryFn: () => api.get<ArtistDetail>(`/artists/${encodeURIComponent(mbid)}`),
   });
 }
 
 export function useAlbum(mbid: string) {
   return useQuery({
     queryKey: ["album", mbid],
-    queryFn: () => api.get<AlbumDetail>(`/albums/${mbid}`),
+    queryFn: () => api.get<AlbumDetail>(`/albums/${encodeURIComponent(mbid)}`),
   });
 }
 
 export function useSong(mbid: string) {
   return useQuery({
     queryKey: ["song", mbid],
-    queryFn: () => api.get<SongDetail>(`/songs/${mbid}`),
+    queryFn: () => api.get<SongDetail>(`/songs/${encodeURIComponent(mbid)}`),
   });
 }

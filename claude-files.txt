@@ -122,6 +122,7 @@ web/src/features/auth/routes.ts
 web/src/features/auth/useMe.ts
 web/src/features/auth/useUnauthorizedRedirect.ts
 web/src/features/catalog/AlbumPage.tsx
+web/src/features/catalog/ArtistPage.module.css
 web/src/features/catalog/ArtistPage.tsx
 web/src/features/catalog/DetailLayout.module.css
 web/src/features/catalog/DetailLayout.tsx

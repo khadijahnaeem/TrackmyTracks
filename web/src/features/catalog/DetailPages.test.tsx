@@ -83,7 +83,8 @@ describe("catalog detail pages", () => {
 
     renderAt(`/albums/${OK_COMPUTER}`);
 
-    expect(screen.getByLabelText("Loading")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole("status", { name: "Loading" })).toHaveAttribute("aria-busy", "true");
+    expect(document.title).toBe("Loading | TrackmyTracks");
   });
 
   it("explains an entry missing from the catalog", async () => {
@@ -99,6 +100,7 @@ describe("catalog detail pages", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "Not in the music catalog" })).toBeInTheDocument();
     expect(document.title).toBe("Not in the music catalog | TrackmyTracks");
+    expect(screen.getByRole("status")).toHaveTextContent("This entry is gone");
     expect(screen.getByRole("status")).toHaveTextContent("MusicBrainz may have removed or merged this entry.");
     expect(screen.getByRole("link", { name: "Search music" })).toHaveAttribute("href", "/search");
   });
@@ -118,8 +120,33 @@ describe("catalog detail pages", () => {
     });
     renderAt(`/songs/${KARMA_POLICE}`);
 
+    expect(await screen.findByRole("heading", { level: 1, name: "Something went wrong" })).toBeInTheDocument();
     await userEvent.click(await screen.findByRole("button", { name: "Try again" }));
 
     expect(await screen.findByRole("heading", { level: 1, name: "Karma Police" })).toBeInTheDocument();
+  });
+
+  it("shows the derived album rating after rating a track", async () => {
+    let albumCalls = 0;
+    const derived = {
+      mine: { stars: 5, is_derived: true, song_count: 1, review: null },
+      community: { stars: 5, count: 1 },
+    };
+    const fetchMock = mockFetch({
+      "GET /api/auth/me": { body: { user: { id: 1, username: "alice", email: "alice@example.com" } } },
+      ...noReviews("album", OK_COMPUTER),
+      [`GET /api/albums/${OK_COMPUTER}`]: () => ({
+        body: ++albumCalls === 1 ? albumDetail : { ...albumDetail, album: { ...albumDetail.album, rating: derived } },
+      }),
+      "PUT /api/ratings": { body: { mbid: albumDetail.tracks[0].mbid, rating: derived } },
+    });
+    renderAt(`/albums/${OK_COMPUTER}`);
+
+    const slider = await screen.findByRole("slider", { name: "Your rating for Airbag" });
+    slider.focus();
+    await userEvent.keyboard("{End}");
+
+    expect(await screen.findByText(/average of your 1 song rating/)).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith("/api/ratings", expect.objectContaining({ method: "PUT" }));
   });
 });

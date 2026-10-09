@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import type { Rated, SongSummary } from "../../api/types";
 import { cx, formatDuration, Skeleton } from "../../ui";
@@ -43,8 +44,12 @@ export function TrackRow({ song, index }: { song: Rated<SongSummary>; index: num
         <RatingControl compact kind="song" mbid={song.mbid} rating={song.rating} title={song.title} />
       </div>
       <div className={rows.add}>
-        <AddToPlaylistButton mbid={song.mbid} />
+        <AddToPlaylistButton mbid={song.mbid} title={song.title} />
       </div>
     </li>
   );
+}
+
+export function TrackList({ children }: { children: ReactNode }) {
+  return <ol className={cx(rows.list, rows.trackList)}>{children}</ol>;
 }

@@ -3,19 +3,29 @@ import { buttonClassName } from "./buttonClassName";
 import { Notice } from "./Notice";
 import { PageHeader } from "./PageHeader";
 
-export function NotFoundState() {
+interface NotFoundStateProps {
+  title?: string;
+  noticeTitle?: string;
+  message?: string;
+}
+
+export function NotFoundState({
+  title = "Page not found",
+  noticeTitle = "Nothing lives at this address",
+  message = "The link may be broken, or the page may have moved.",
+}: NotFoundStateProps) {
   return (
     <>
-      <PageHeader title="Page not found" />
+      <PageHeader title={title} />
       <Notice
-        title="Nothing lives at this address"
+        title={noticeTitle}
         action={
           <Link to="/search" className={buttonClassName("primary")}>
             Search music
           </Link>
         }
       >
-        The link may be broken, or the page may have moved.
+        {message}
       </Notice>
     </>
   );

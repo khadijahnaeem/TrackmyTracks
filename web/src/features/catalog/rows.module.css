@@ -65,16 +65,22 @@
   line-height: var(--leading-sm);
 }
 
-.index {
+.track .index {
   grid-area: index;
   text-align: right;
 }
 
-/* tracks share columns so ratings line up down the list */
+/* the list owns the columns and each row inherits them, so ratings line up */
+.trackList {
+  display: grid;
+  grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto auto;
+}
+
 .track {
   display: grid;
+  grid-column: 1 / -1;
   grid-template-areas: "index main duration rating add";
-  grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto auto;
+  grid-template-columns: subgrid;
 }
 
 .track .main {
@@ -94,11 +100,14 @@
 }
 
 @media (max-width: 640px) {
+  .trackList {
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+  }
+
   .track {
     grid-template-areas:
       "index main add"
       ". rating duration";
-    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
     row-gap: var(--space-2);
   }
 

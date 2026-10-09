@@ -4,7 +4,7 @@ import { RatingControl } from "../ratings/RatingControl";
 import { ReviewList } from "../ratings/ReviewList";
 import { useAlbum } from "./api";
 import { DetailError, DetailLayout, DetailSkeleton, Section } from "./DetailLayout";
-import { TrackRow } from "./Rows";
+import { TrackList, TrackRow } from "./Rows";
 import rows from "./rows.module.css";
 import { useMbidParam } from "./useMbidParam";
 
@@ -27,16 +27,16 @@ export function AlbumPage() {
           </span>
         }
       />
-      <DetailLayout aside={<RatingControl kind="album" mbid={album.mbid} rating={album.rating} />}>
+      <DetailLayout aside={<RatingControl key={album.mbid} kind="album" mbid={album.mbid} rating={album.rating} />}>
         <Section title="Tracklist">
           {tracks.length === 0 ? (
             <Notice title="No tracklist yet">MusicBrainz has not listed the songs on this album.</Notice>
           ) : (
-            <ol className={rows.list}>
+            <TrackList>
               {tracks.map((track) => (
-                <TrackRow key={track.mbid} song={track} index={track.position} />
+                <TrackRow key={track.position} song={track} index={track.position} />
               ))}
-            </ol>
+            </TrackList>
           )}
         </Section>
         <Section title="Reviews">

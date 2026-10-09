@@ -4,9 +4,8 @@ import { RatingControl } from "../ratings/RatingControl";
 import { ReviewList } from "../ratings/ReviewList";
 import { useArtist } from "./api";
 import { DetailError, DetailLayout, DetailSkeleton, Section } from "./DetailLayout";
-import styles from "./DetailLayout.module.css";
-import { TrackRow } from "./Rows";
-import rows from "./rows.module.css";
+import styles from "./ArtistPage.module.css";
+import { TrackList, TrackRow } from "./Rows";
 import { useMbidParam } from "./useMbidParam";
 
 export function ArtistPage() {
@@ -19,18 +18,18 @@ export function ArtistPage() {
   return (
     <>
       <PageHeader eyebrow="Artist" title={artist.name} />
-      <DetailLayout aside={<RatingControl kind="artist" mbid={artist.mbid} rating={artist.rating} />}>
+      <DetailLayout aside={<RatingControl key={artist.mbid} kind="artist" mbid={artist.mbid} rating={artist.rating} />}>
         <Section title="Popular songs">
           {topSongs.length === 0 ? (
             <Notice title="No listening data yet">
               ListenBrainz has no popularity numbers for this artist.
             </Notice>
           ) : (
-            <ol className={rows.list}>
+            <TrackList>
               {topSongs.map((song, i) => (
                 <TrackRow key={song.mbid} song={song} index={i + 1} />
               ))}
-            </ol>
+            </TrackList>
           )}
         </Section>
         <Section title="Albums">

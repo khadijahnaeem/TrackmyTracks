@@ -1,7 +1,6 @@
 import { type ReactNode, useId } from "react";
-import { Link } from "react-router";
 import { isNotFound } from "../../api/client";
-import { buttonClassName, ErrorNotice, Notice, PageHeader, Skeleton } from "../../ui";
+import { ErrorNotice, NotFoundState, PageHeader, Skeleton } from "../../ui";
 import styles from "./DetailLayout.module.css";
 import { RowsSkeleton } from "./Rows";
 
@@ -26,10 +25,13 @@ export function Section({ title, children }: { title: string; children: ReactNod
 
 export function DetailSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading" className={styles.skeleton}>
+    <div role="status" aria-busy="true" aria-label="Loading" className={styles.skeleton}>
+      <title>Loading | TrackmyTracks</title>
       <Skeleton width="6rem" height="var(--leading-xs)" />
       <Skeleton width="min(24rem, 80%)" height="var(--leading-3xl)" />
-      <RowsSkeleton label="Loading tracks" />
+      <DetailLayout aside={<Skeleton height="calc(var(--space-16) * 3)" />}>
+        <RowsSkeleton label="Loading tracks" />
+      </DetailLayout>
     </div>
   );
 }
@@ -37,20 +39,17 @@ export function DetailSkeleton() {
 export function DetailError({ error, onRetry }: { error: Error; onRetry: () => void }) {
   if (isNotFound(error)) {
     return (
-      <>
-        <PageHeader title="Not in the music catalog" />
-        <Notice
-          title="Not in the music catalog"
-          action={
-            <Link to="/search" className={buttonClassName("primary")}>
-              Search music
-            </Link>
-          }
-        >
-          MusicBrainz may have removed or merged this entry.
-        </Notice>
-      </>
+      <NotFoundState
+        title="Not in the music catalog"
+        noticeTitle="This entry is gone"
+        message="MusicBrainz may have removed or merged this entry."
+      />
     );
   }
-  return <ErrorNotice error={error} onRetry={onRetry} />;
+  return (
+    <>
+      <PageHeader title="Something went wrong" />
+      <ErrorNotice error={error} title="Could not load this entry" onRetry={onRetry} />
+    </>
+  );
 }

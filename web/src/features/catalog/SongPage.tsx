@@ -31,8 +31,8 @@ export function SongPage() {
       <DetailLayout
         aside={
           <>
-            <RatingControl kind="song" mbid={song.mbid} rating={song.rating} />
-            <AddToPlaylistButton mbid={song.mbid} />
+            <RatingControl key={song.mbid} kind="song" mbid={song.mbid} rating={song.rating} />
+            <AddToPlaylistButton mbid={song.mbid} title={song.title} />
           </>
         }
       >
