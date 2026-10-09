@@ -9,6 +9,7 @@ import {
   Notice,
   PageHeader,
   Pagination,
+  pluralize,
   SegmentedControl,
   TextField,
 } from "../../ui";
@@ -42,6 +43,25 @@ export function SearchPage() {
   const pageValue = params.get("page");
   const page = pageValue && Number.isInteger(Number(pageValue)) && Number(pageValue) > 0 ? Number(pageValue) : 1;
 
+  // shares its query with the result list through the query cache
+  const search = useSearch(type, q, page);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusResults = useRef(false);
+
+  // focus the results heading once a page change from the pagination control settles
+  useEffect(() => {
+    if (focusResults.current && !search.isPlaceholderData) {
+      focusResults.current = false;
+      headingRef.current?.focus();
+      headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [search.isPlaceholderData, search.data, search.isError]);
+
+  const handlePageChange = (next: number) => {
+    focusResults.current = true;
+    setParams(searchParams(q, type, next));
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const value = String(new FormData(event.currentTarget).get("q") ?? "").trim();
@@ -68,8 +88,16 @@ export function SearchPage() {
           onChange={(next) => setParams(searchParams(q, next))}
         />
       </div>
+      <p role="status" className="visually-hidden">
+        {settledStatus(search, q, page)}
+      </p>
       {q ? (
-        <Results type={type} q={q} page={page} onPageChange={(next) => setParams(searchParams(q, type, next))} />
+        <>
+          <h2 ref={headingRef} tabIndex={-1} className="visually-hidden">
+            Results
+          </h2>
+          <Results type={type} q={q} page={page} onPageChange={handlePageChange} />
+        </>
       ) : (
         <Notice title="Search millions of songs, albums, and artists">
           Results come from MusicBrainz, the open music encyclopedia. Open any result to rate it.
@@ -77,6 +105,13 @@ export function SearchPage() {
       )}
     </>
   );
+}
+
+function settledStatus(search: ReturnType<typeof useSearch>, q: string, page: number): string {
+  if (!search.data || search.isPlaceholderData) return "";
+  const { total, pages } = search.data;
+  if (total === 0) return `No results for "${q}"`;
+  return `${pluralize(total, "result")} for "${q}"${pages > 1 ? `, page ${page} of ${pages}` : ""}`;
 }
 
 interface ResultsProps {
@@ -104,48 +139,22 @@ interface ResultListProps<K extends Kind> extends Omit<ResultsProps, "type"> {
 
 function ResultList<K extends Kind>({ type, q, page, onPageChange, render }: ResultListProps<K>) {
   const search = useSearch(type, q, page);
-  const listRef = useRef<HTMLUListElement>(null);
   const refreshing = search.isPlaceholderData;
-
-  useEffect(() => {
-    if (!refreshing && search.data) {
-      const announcement = document.querySelector("[data-search-announcement]") as HTMLElement | null;
-      if (announcement) announcement.focus();
-      if (listRef.current?.scrollIntoView) {
-        listRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-  }, [refreshing, search.data]);
-
-  const statusText = search.isPending
-    ? ""
-    : search.isError
-      ? ""
-      : search.data.items.length === 0
-        ? `No results for "${q}"`
-        : `${search.data.items.length} results for "${q}"${search.data.pages > 1 ? `, page ${page} of ${search.data.pages}` : ""}`;
 
   if (search.isPending) return <RowsSkeleton label="Loading results" />;
   if (search.isError) return <ErrorNotice error={search.error} onRetry={() => search.refetch()} />;
-  if (search.data.items.length === 0 && page > 1) {
-    return (
+  if (search.data.items.length === 0 && !refreshing) {
+    return page > 1 ? (
       <Notice title="Past the end">
-        Page {page} has no results.{" "}
-        <Link to="/search" onClick={() => onPageChange(1)}>
-          Back to page 1
-        </Link>
+        Page {page} has no results. <Link to={`/search?${searchParams(q, type)}`}>Back to page 1</Link>
       </Notice>
+    ) : (
+      <Notice title={`No results for "${q}"`}>Check the spelling, or try another result type.</Notice>
     );
-  }
-  if (search.data.items.length === 0) {
-    return <Notice title={`No results for "${q}"`}>Check the spelling, or try another result type.</Notice>;
   }
   return (
     <>
-      <p role="status" className="visually-hidden" data-search-announcement tabIndex={-1}>
-        {statusText}
-      </p>
-      <ul className={cx(rows.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined} ref={listRef}>
+      <ul className={cx(rows.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined}>
         {search.data.items.map((item) => (
           <li key={item.mbid} className={rows.row}>
             {render(item)}

@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { AlbumSummary, ArtistSummary, Kind, Page, Rated, SongSummary } from "../../api/types";
 
@@ -33,7 +33,9 @@ export function useSearch<K extends Kind>(type: K, q: string, page: number) {
       return api.get<Page<SearchItems[K]>>(`/search?${params}`);
     },
     enabled: q !== "",
-    placeholderData: keepPreviousData,
+    // only a page change within the same type and query keeps the previous page
+    placeholderData: (previous, previousQuery) =>
+      previousQuery?.queryKey[1] === type && previousQuery.queryKey[2] === q ? previous : undefined,
   });
 }
 
