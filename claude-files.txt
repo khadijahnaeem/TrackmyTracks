@@ -105,8 +105,13 @@ web/src/app/AppShell.tsx
 web/src/app/NotFoundPage.tsx
 web/src/app/router.test.tsx
 web/src/app/router.ts
+web/src/features/auth/api.test.tsx
+web/src/features/auth/api.ts
+web/src/features/auth/redirects.test.ts
+web/src/features/auth/redirects.ts
 web/src/features/auth/routes.ts
 web/src/features/auth/useMe.ts
+web/src/features/auth/useUnauthorizedRedirect.ts
 web/src/features/catalog/routes.ts
 web/src/features/history/routes.ts
 web/src/features/home/FreshReviews.tsx
