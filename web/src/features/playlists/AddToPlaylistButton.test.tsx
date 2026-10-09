@@ -122,4 +122,34 @@ describe("AddToPlaylistButton", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("retries adding to the first created playlist if add fails", async () => {
+    let addAttempt = 0;
+    let createCount = 0;
+    mockFetch({
+      ...loggedIn([]),
+      "POST /api/playlists": () => {
+        createCount++;
+        return { status: 201, body: playlist(2, "Road trip") };
+      },
+      "POST /api/playlists/2/songs": () => {
+        addAttempt++;
+        return addAttempt === 1
+          ? { status: 500, body: { error: { code: "server_error", message: "Server error" } } }
+          : { status: 201, body: detail(2, "Road trip") };
+      },
+    });
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} />);
+
+    await openPicker();
+    await userEvent.type(screen.getByLabelText("New playlist"), "Road trip");
+    await userEvent.click(screen.getByRole("button", { name: "Create and add" }));
+
+    expect(await screen.findByText(/Server error/)).toBeInTheDocument();
+    expect(createCount).toBe(1);
+
+    await userEvent.click(screen.getByRole("button", { name: "Create and add" }));
+    expect(await screen.findByText("Added to Road trip")).toBeInTheDocument();
+    expect(createCount).toBe(1);
+  });
 });

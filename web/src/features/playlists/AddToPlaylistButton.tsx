@@ -141,7 +141,8 @@ function PlaylistChoices({ username, mbid }: { username: string; mbid: string })
 
 function NewPlaylistForm({ mbid }: { mbid: string }) {
   const [name, setName] = useState("");
-  const [created, setCreated] = useState<string | null>(null);
+  const [createdPlaylistId, setCreatedPlaylistId] = useState<number | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const createPlaylist = useCreatePlaylist();
   const addSong = useAddSong();
   const error = createPlaylist.error ?? addSong.error;
@@ -149,10 +150,16 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     try {
-      const playlist = await createPlaylist.mutateAsync({ name, description: null, is_public: true });
-      await addSong.mutateAsync({ playlistId: playlist.id, mbid });
-      setCreated(playlist.name);
+      let playlistId = createdPlaylistId;
+      if (!playlistId) {
+        const playlist = await createPlaylist.mutateAsync({ name, description: null, is_public: true });
+        playlistId = playlist.id;
+        setCreatedPlaylistId(playlist.id);
+      }
+      await addSong.mutateAsync({ playlistId, mbid });
+      setStatusMessage(`Added to ${name}`);
       setName("");
+      setCreatedPlaylistId(null);
     } catch {
       // the failed mutation renders its own error below
     }
@@ -164,7 +171,11 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
         label="New playlist"
         value={name}
         maxLength={100}
-        onChange={(event) => setName(event.target.value)}
+        onChange={(event) => {
+          setName(event.target.value);
+          setCreatedPlaylistId(null);
+          setStatusMessage(null);
+        }}
         error={error ? errorMessage(error) : undefined}
       />
       <Button
@@ -175,9 +186,9 @@ function NewPlaylistForm({ mbid }: { mbid: string }) {
       >
         Create and add
       </Button>
-      {created && (
+      {(statusMessage || error) && (
         <p role="status" className={styles.note}>
-          Added to {created}
+          {statusMessage}
         </p>
       )}
     </form>

@@ -59,7 +59,10 @@ export function useDeletePlaylist(id: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => api.delete<void>(`/playlists/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["playlists"] }),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["playlist", id] });
+      return queryClient.invalidateQueries({ queryKey: ["playlists"] });
+    },
   });
 }
 
