@@ -44,6 +44,14 @@ export const noContent = () => new HttpResponse(null, { status: 204 });
 
 const capitalize = (field: string) => field.charAt(0).toUpperCase() + field.slice(1);
 
+export async function jsonBody(request: Request): Promise<Record<string, unknown>> {
+  const data: unknown = await request.json().catch(() => null);
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw invalid("Request body must be a JSON object");
+  }
+  return data as Record<string, unknown>;
+}
+
 export function optionalText(
   data: Record<string, unknown>,
   field: string,

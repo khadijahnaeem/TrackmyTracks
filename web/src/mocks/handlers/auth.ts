@@ -1,17 +1,9 @@
 import { http, type HttpHandler } from "msw";
-import { conflict, created, invalid, noContent, requiredText, route, unauthorized } from "../respond";
+import { conflict, created, invalid, jsonBody, noContent, requiredText, route, unauthorized } from "../respond";
 import { currentUser, findUserByName, logIn, logOut, nextId, state, userPayload } from "../store";
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/;
-
-async function bodyOf(request: Request): Promise<Record<string, unknown>> {
-  const data: unknown = await request.json().catch(() => null);
-  if (typeof data !== "object" || data === null || Array.isArray(data)) {
-    throw invalid("Request body must be a JSON object");
-  }
-  return data as Record<string, unknown>;
-}
 
 function emailOf(data: Record<string, unknown>): string {
   return requiredText(data, "email", 254).toLowerCase();
@@ -29,7 +21,7 @@ export const authHandlers: HttpHandler[] = [
   http.post(
     "/api/auth/register",
     route(async ({ request }) => {
-      const data = await bodyOf(request);
+      const data = await jsonBody(request);
       const email = emailOf(data);
       if (!EMAIL_PATTERN.test(email)) throw invalid("Enter a valid email address");
       const username = requiredText(data, "username", 30).toLowerCase();
@@ -50,7 +42,7 @@ export const authHandlers: HttpHandler[] = [
   http.post(
     "/api/auth/login",
     route(async ({ request }) => {
-      const data = await bodyOf(request);
+      const data = await jsonBody(request);
       const email = emailOf(data);
       const user = state().users.find((row) => row.email === email);
       if (!user || user.password !== data.password) throw unauthorized("Email or password is incorrect");
