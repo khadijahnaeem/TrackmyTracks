@@ -1,6 +1,8 @@
 import { Link } from "react-router";
-import type { SongSummary } from "../../api/types";
-import { Skeleton } from "../../ui";
+import type { Rated, SongSummary } from "../../api/types";
+import { cx, formatDuration, Skeleton } from "../../ui";
+import { AddToPlaylistButton } from "../playlists/AddToPlaylistButton";
+import { RatingControl } from "../ratings/RatingControl";
 import rows from "./rows.module.css";
 
 export function SongTitle({ song }: { song: SongSummary }) {
@@ -26,5 +28,23 @@ export function RowsSkeleton({ label }: { label: string }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+export function TrackRow({ song, index }: { song: Rated<SongSummary>; index: number }) {
+  return (
+    <li className={cx(rows.row, rows.track)}>
+      <span className={rows.index}>{index}</span>
+      <div className={rows.main}>
+        <SongTitle song={song} />
+      </div>
+      <span className={rows.duration}>{song.length_ms !== null && formatDuration(song.length_ms)}</span>
+      <div className={rows.rating}>
+        <RatingControl compact kind="song" mbid={song.mbid} rating={song.rating} title={song.title} />
+      </div>
+      <div className={rows.add}>
+        <AddToPlaylistButton mbid={song.mbid} />
+      </div>
+    </li>
   );
 }

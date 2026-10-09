@@ -64,3 +64,45 @@
   font-variant-numeric: tabular-nums;
   line-height: var(--leading-sm);
 }
+
+.index {
+  grid-area: index;
+  text-align: right;
+}
+
+/* tracks share columns so ratings line up down the list */
+.track {
+  display: grid;
+  grid-template-areas: "index main duration rating add";
+  grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto auto;
+}
+
+.track .main {
+  grid-area: main;
+}
+
+.track .duration {
+  grid-area: duration;
+}
+
+.rating {
+  grid-area: rating;
+}
+
+.add {
+  grid-area: add;
+}
+
+@media (max-width: 640px) {
+  .track {
+    grid-template-areas:
+      "index main add"
+      ". rating duration";
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+    row-gap: var(--space-2);
+  }
+
+  .track .duration {
+    justify-self: end;
+  }
+}
