@@ -122,6 +122,8 @@ web/src/features/home/sampleData.ts
 web/src/features/playlists/routes.ts
 web/src/main.tsx
 web/src/mocks/browser.ts
+web/src/mocks/catalog.test.ts
+web/src/mocks/catalog.ts
 web/src/mocks/handlers/auth.ts
 web/src/mocks/handlers/catalog.ts
 web/src/mocks/handlers/history.ts
@@ -129,6 +131,7 @@ web/src/mocks/handlers/playlists.ts
 web/src/mocks/handlers/ratings.ts
 web/src/mocks/respond.test.ts
 web/src/mocks/respond.ts
+web/src/mocks/seed.ts
 web/src/mocks/testing.ts
 web/src/test/fetch.ts
 web/src/test/render.tsx
