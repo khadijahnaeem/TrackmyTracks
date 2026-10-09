@@ -5,11 +5,15 @@ import styles from "./Stars.module.css";
 
 const STAR_PATH = "M12 2l2.9 6.26 6.9.74-5.13 4.66 1.43 6.79L12 17.27 5.9 20.45l1.43-6.79L2.2 9l6.9-.74z";
 
+// derived values like 3.7 step to the next half star in the pressed direction
+const stepUp = (current: number) => Math.floor(current * 2 + 1) / 2;
+const stepDown = (current: number) => Math.ceil(current * 2 - 1) / 2;
+
 const KEY_STEPS: Record<string, (current: number) => number> = {
-  ArrowRight: (current) => current + 0.5,
-  ArrowUp: (current) => current + 0.5,
-  ArrowLeft: (current) => current - 0.5,
-  ArrowDown: (current) => current - 0.5,
+  ArrowRight: stepUp,
+  ArrowUp: stepUp,
+  ArrowLeft: stepDown,
+  ArrowDown: stepDown,
   Home: () => 0.5,
   End: () => 5,
 };
@@ -19,6 +23,7 @@ interface StarsProps {
   label: string;
   onChange?: (stars: number) => void;
   size?: "sm" | "md";
+  describedBy?: string;
 }
 
 function clamp(stars: number): number {
@@ -37,7 +42,7 @@ function StarRow({ className }: { className: string }) {
   );
 }
 
-export function Stars({ value, label, onChange, size = "md" }: StarsProps) {
+export function Stars({ value, label, onChange, size = "md", describedBy }: StarsProps) {
   const [preview, setPreview] = useState<number | null>(null);
   const shown = preview ?? value ?? 0;
   const className = cx(styles.stars, styles[size], onChange && styles.interactive);
@@ -80,6 +85,7 @@ export function Stars({ value, label, onChange, size = "md" }: StarsProps) {
       aria-valuemin={0.5}
       aria-valuemax={5}
       aria-valuenow={value ?? undefined}
+      aria-describedby={describedBy}
       aria-valuetext={value === null ? "Not rated" : `${value} out of 5 stars`}
       className={className}
       onPointerMove={(event) => setPreview(starsAt(event))}
