@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { AlbumSummary, ArtistSummary, Kind, Page, Rated, SongSummary } from "../../api/types";
 
@@ -33,6 +33,7 @@ export function useSearch<K extends Kind>(type: K, q: string, page: number) {
       return api.get<Page<SearchItems[K]>>(`/search?${params}`);
     },
     enabled: q !== "",
+    placeholderData: keepPreviousData,
   });
 }
 

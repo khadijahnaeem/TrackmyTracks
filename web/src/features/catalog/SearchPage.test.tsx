@@ -102,4 +102,41 @@ describe("SearchPage", () => {
     expect(await screen.findByRole("link", { name: "Karma Police (live)" })).toBeInTheDocument();
     expect(router.state.location.search).toBe("?type=song&q=karma&page=2");
   });
+
+  it("keeps focus inside results area when paging", async () => {
+    mockFetch({
+      ...ME,
+      "GET /api/search?type=song&q=karma&page=1": { body: pageOf([karmaPolice], 3) },
+      "GET /api/search?type=song&q=karma&page=2": {
+        body: { ...pageOf([{ ...karmaPolice, mbid: "second", title: "Karma Police (live)" }], 3), page: 2 },
+      },
+    });
+    renderAt("/search?q=karma");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Next" }));
+
+    const focusedElement = document.activeElement;
+    expect(focusedElement).toHaveAttribute("data-search-announcement");
+  });
+
+  it("announces result count and page", async () => {
+    mockFetch({
+      ...ME,
+      "GET /api/search?type=song&q=karma&page=1": { body: pageOf([karmaPolice], 3) },
+    });
+    renderAt("/search?q=karma");
+
+    expect(await screen.findByRole("status")).toHaveTextContent("1 results for \"karma\", page 1 of 3");
+  });
+
+  it("handles out of range pages by showing a back link", async () => {
+    mockFetch({
+      ...ME,
+      "GET /api/search?type=song&q=karma&page=99": { body: pageOf([], 3) },
+    });
+    renderAt("/search?q=karma&page=99");
+
+    expect(await screen.findByText("Past the end")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to page 1" })).toBeInTheDocument();
+  });
 });

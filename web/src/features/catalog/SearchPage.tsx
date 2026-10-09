@@ -1,8 +1,9 @@
-import type { FormEvent, ReactNode } from "react";
+import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
 import type { AlbumSummary, ArtistSummary, Kind, SongSummary } from "../../api/types";
 import {
   Button,
+  cx,
   ErrorNotice,
   formatDuration,
   Notice,
@@ -38,7 +39,8 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q")?.trim() ?? "";
   const type = parseType(params.get("type"));
-  const page = Math.max(1, Number(params.get("page")) || 1);
+  const pageValue = params.get("page");
+  const page = pageValue && Number.isInteger(Number(pageValue)) && Number(pageValue) > 0 ? Number(pageValue) : 1;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,22 +104,55 @@ interface ResultListProps<K extends Kind> extends Omit<ResultsProps, "type"> {
 
 function ResultList<K extends Kind>({ type, q, page, onPageChange, render }: ResultListProps<K>) {
   const search = useSearch(type, q, page);
+  const listRef = useRef<HTMLUListElement>(null);
+  const refreshing = search.isPlaceholderData;
+
+  useEffect(() => {
+    if (!refreshing && search.data) {
+      const announcement = document.querySelector("[data-search-announcement]") as HTMLElement | null;
+      if (announcement) announcement.focus();
+      if (listRef.current?.scrollIntoView) {
+        listRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [refreshing, search.data]);
+
+  const statusText = search.isPending
+    ? ""
+    : search.isError
+      ? ""
+      : search.data.items.length === 0
+        ? `No results for "${q}"`
+        : `${search.data.items.length} results for "${q}"${search.data.pages > 1 ? `, page ${page} of ${search.data.pages}` : ""}`;
 
   if (search.isPending) return <RowsSkeleton label="Loading results" />;
   if (search.isError) return <ErrorNotice error={search.error} onRetry={() => search.refetch()} />;
+  if (search.data.items.length === 0 && page > 1) {
+    return (
+      <Notice title="Past the end">
+        Page {page} has no results.{" "}
+        <Link to="/search" onClick={() => onPageChange(1)}>
+          Back to page 1
+        </Link>
+      </Notice>
+    );
+  }
   if (search.data.items.length === 0) {
     return <Notice title={`No results for "${q}"`}>Check the spelling, or try another result type.</Notice>;
   }
   return (
     <>
-      <ul className={rows.list}>
+      <p role="status" className="visually-hidden" data-search-announcement tabIndex={-1}>
+        {statusText}
+      </p>
+      <ul className={cx(rows.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined} ref={listRef}>
         {search.data.items.map((item) => (
           <li key={item.mbid} className={rows.row}>
             {render(item)}
           </li>
         ))}
       </ul>
-      <Pagination page={page} pages={search.data.pages} onPageChange={onPageChange} />
+      <Pagination page={page} pages={search.data.pages} onPageChange={onPageChange} disabled={refreshing} />
     </>
   );
 }
@@ -131,7 +166,7 @@ function SongResult({ song }: { song: SongSummary }) {
           <Link to={`/artists/${song.artist.mbid}`}>{song.artist.name}</Link>
         </span>
       </div>
-      <span className={rows.duration}>{song.length_ms !== null && formatDuration(song.length_ms)}</span>
+      {song.length_ms !== null && <span className={rows.duration}>{formatDuration(song.length_ms)}</span>}
       <AddToPlaylistButton mbid={song.mbid} />
     </>
   );
