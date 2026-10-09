@@ -1,4 +1,5 @@
 The following files were generated or modified by Claude code
+
 .editorconfig
 .env.example
 .gitattributes
@@ -7,7 +8,6 @@ The following files were generated or modified by Claude code
 .gitignore
 CLAUDE.md
 README.md
-The following files were generated or modified by Claude code
 api/app/__init__.py
 api/app/auth/__init__.py
 api/app/auth/routes.py
