@@ -54,26 +54,28 @@ web/
   src/
     main.tsx                starts the worker before rendering when import.meta.env.MODE is "mock"
     mocks/
-      browser.ts            setupWorker over every feature's handlers
-      store.ts              state, persistence, rules, serializers
-      seed.ts               catalog, users, ratings, playlists
-      respond.ts            json, error, and delay helpers shared by handlers
+      browser.ts            setupWorker over every feature's handlers, 250 ms delay
+      seed.ts               recorded catalog, users, ratings, playlists
+      catalog.ts            static catalog lookups, summaries, search
+      store.ts              persisted state, session, rating summaries
+      respond.ts            route wrapper, errors, text and page helpers
+      testing.ts            msw/node server and a fetch helper for handler tests
       handlers/
         auth.ts             A0
         catalog.ts          A0, search and detail routes
         ratings.ts          A1, slice 07
         playlists.ts        A1, slice 08
         history.ts          A1, slice 09
-      store.test.ts
+      *.test.ts             next to each module and handler file
 ```
 
-Handlers split by feature like Flask blueprints, so a feature slice only touches its own handler file. `browser.ts` composes the arrays once in A0, with empty arrays exported from the files A1 fills in.
+Handlers split by feature like Flask blueprints, so a feature slice only touches its own handler file and its test. Shared reads such as rating summaries live in `store.ts`, while each feature's writes and validation live in its handler file. `browser.ts` composes the arrays once in A0, with empty arrays exported from the files A1 fills in.
 
 Unhandled requests to `/api/*` log a warning naming the route, so a page calling a route no handler serves shows up at once instead of hanging.
 
 ## Store
 
-One module owns all mock state and follows the backend rules the UI displays:
+The store and the handlers together follow the backend rules the UI displays:
 
 - Ratings are half stars on the wire, stored as `score` 1 to 10
 - Album and artist effective ratings follow the 001 spec: an explicit rating overrides, otherwise the rounded average of the user's song ratings for that album or artist, with `is_derived` and `song_count`
@@ -89,7 +91,7 @@ State persists under one versioned `localStorage` key. A seed change bumps the v
 
 ## Seed data
 
-- About four artists, six albums, and thirty songs, starting from the API fixtures (Radiohead, OK Computer, Karma Police) plus a few more artists, all with real MusicBrainz IDs and titles recorded once during A0
+- Four artists and five albums with full tracklists, about fifty songs: Radiohead's OK Computer and In Rainbows from the API fixtures, plus Portishead's Dummy, Björk's Homogenic, and Massive Attack's Mezzanine, all with real MusicBrainz IDs and titles recorded once during A0
 - Three seed users with ratings and reviews spread across the catalog, so community averages and review lists are populated
 - One demo account, its email and password listed in the README section for `dev:mock`
 - One public playlist per seed user
@@ -109,7 +111,8 @@ Handlers answer with the contract error shape `{"error": {"code", "message"}}` a
 
 ## Testing
 
-- `store.test.ts` covers the rules that make the mock trustworthy: effective and community ratings including the override and its removal, trimming and length limits, username rules, and the error cases above
+- `store.test.ts` covers effective and community ratings including the override and its removal, persistence, and stale saved state
+- Each handler file has a test that runs its handlers under `msw/node` and checks the contract responses, validation messages, and the error cases above
 - Page and hook tests stay on `mockFetch` as the 001 plans write them
 - `npm run build` is checked to contain no MSW code
 

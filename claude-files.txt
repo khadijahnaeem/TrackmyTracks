@@ -71,6 +71,7 @@ docs/superpowers/plans/001-local-prototype/08-playlists.md
 docs/superpowers/plans/001-local-prototype/09-history.md
 docs/superpowers/plans/001-local-prototype/10-integration.md
 docs/superpowers/plans/002-home-page.md
+docs/superpowers/plans/003-ui-first.md
 docs/superpowers/specs/001-local-prototype-design.md
 docs/superpowers/specs/002-home-page-design.md
 docs/superpowers/specs/003-ui-first-design.md
