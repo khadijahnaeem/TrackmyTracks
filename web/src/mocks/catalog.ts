@@ -75,15 +75,20 @@ export const artistTopSongs = (artistMbid: string): string[] => lookup<SeedArtis
 export const songsBy = (artistMbid: string): string[] =>
   SEED_SONGS.filter((song) => song.artistMbid === artistMbid).map((song) => song.mbid);
 
-const LABELS: Record<Kind, () => { mbid: string; label: string }[]> = {
-  artist: () => SEED_ARTISTS.map((row) => ({ mbid: row.mbid, label: row.name })),
-  album: () => SEED_ALBUMS.map((row) => ({ mbid: row.mbid, label: row.title })),
-  song: () => SEED_SONGS.map((row) => ({ mbid: row.mbid, label: row.title })),
+// case, accents, and curly apostrophes never block a match
+const fold = (text: string): string =>
+  text.normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[\u2018\u2019]/g, "'").toLowerCase();
+
+const toLabels = <T extends { mbid: string }>(rows: T[], label: (row: T) => string) =>
+  rows.map((row) => ({ mbid: row.mbid, folded: fold(label(row)) }));
+
+const LABELS: Record<Kind, { mbid: string; folded: string }[]> = {
+  artist: toLabels(SEED_ARTISTS, (row) => row.name),
+  album: toLabels(SEED_ALBUMS, (row) => row.title),
+  song: toLabels(SEED_SONGS, (row) => row.title),
 };
 
 export function searchCatalog(kind: Kind, query: string): string[] {
-  const needle = query.toLowerCase();
-  return LABELS[kind]()
-    .filter((row) => row.label.toLowerCase().includes(needle))
-    .map((row) => row.mbid);
+  const needle = fold(query);
+  return LABELS[kind].filter((row) => row.folded.includes(needle)).map((row) => row.mbid);
 }

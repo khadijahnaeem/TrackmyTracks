@@ -11,7 +11,10 @@ import {
 } from "./catalog";
 import {
   AIRBAG,
+  BJORK,
   IN_RAINBOWS,
+  ITS_A_FIRE,
+  JOGA,
   OK_COMPUTER,
   PARANOID_ANDROID,
   RADIOHEAD,
@@ -51,6 +54,13 @@ describe("catalog", () => {
   test("search matches case insensitively", () => {
     expect(searchCatalog("song", "PARANOID")).toContain(PARANOID_ANDROID);
     expect(searchCatalog("artist", "radio")).toEqual([RADIOHEAD]);
+  });
+
+  test("search ignores accents and curly apostrophes", () => {
+    expect(searchCatalog("artist", "bjork")).toEqual([BJORK]);
+    expect(searchCatalog("song", "joga")).toContain(JOGA);
+    expect(searchCatalog("song", "it's a fire")).toContain(ITS_A_FIRE);
+    expect(searchCatalog("song", "It’s A FIRE")).toContain(ITS_A_FIRE);
   });
 
   test("songs by artist and on album come from the seed", () => {
