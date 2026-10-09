@@ -133,6 +133,10 @@ web/src/features/home/TrendingTracks.tsx
 web/src/features/home/routes.ts
 web/src/features/home/sampleData.test.ts
 web/src/features/home/sampleData.ts
+web/src/features/playlists/AddToPlaylistButton.module.css
+web/src/features/playlists/AddToPlaylistButton.test.tsx
+web/src/features/playlists/AddToPlaylistButton.tsx
+web/src/features/playlists/api.ts
 web/src/features/playlists/routes.ts
 web/src/features/ratings/RatingControl.module.css
 web/src/features/ratings/RatingControl.test.tsx
