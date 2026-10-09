@@ -14,6 +14,8 @@
 
 **Branch:** `slice/05-auth`. Requires slices 02 and 03 merged.
 
+**Phases:** Tasks 2 to 4 run in A1 against the mock, which needs slice 11 merged, and the auth handlers come from [003](../003-ui-first.md) Task 5. Task 1 runs in B.
+
 **Merge early:** push Task 1 as its own pull request as soon as it passes, slices 07 and 08 need `public_user` and working login.
 
 ---

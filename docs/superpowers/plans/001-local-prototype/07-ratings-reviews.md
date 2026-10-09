@@ -14,6 +14,8 @@
 
 **Branch:** `slice/07-ratings-reviews`. Requires slice 04 merged and slice 05 Task 1 merged, for `public_user` and the login endpoints used in manual checks.
 
+**Phases:** Task 3 runs in A1 against the mock, and [003](../003-ui-first.md) Task 7 adds the ratings and reviews handlers. Tasks 1 and 2 run in B.
+
 **Merge early:** slice 06's page tasks import `RatingControl` and `ReviewList`, so open the pull request as soon as Task 3 passes.
 
 ---

@@ -14,6 +14,8 @@
 
 **Branch:** `slice/10-integration`. Requires slices 01 to 09 merged. Task 1 can start once 04 is merged.
 
+**Phases:** [003](../003-ui-first.md) Task 10 runs first and removes the mock, then this slice follows.
+
 ---
 
 ### Task 1: Seed command
