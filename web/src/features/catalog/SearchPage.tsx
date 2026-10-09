@@ -176,7 +176,7 @@ function SongResult({ song }: { song: SongSummary }) {
         </span>
       </div>
       {song.length_ms !== null && <span className={rows.duration}>{formatDuration(song.length_ms)}</span>}
-      <AddToPlaylistButton mbid={song.mbid} />
+      <AddToPlaylistButton mbid={song.mbid} title={song.title} />
     </>
   );
 }
