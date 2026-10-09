@@ -18,7 +18,8 @@ The repo is built slice by slice, so most of the architecture below is planned, 
 
 - Slice 01 provides `docker-compose.yml`, `docker/initdb/`, `.env.example`, and the README setup guide
 - Slices 01 to 04 are merged. The remaining work is built UI first and follows the phases in `docs/superpowers/plans/003-ui-first.md`: a browser mock API, then every web task against it, then the API tasks, then integration
-- `api/` arrives with slice 02 and `web/` with slice 03, the browser mock under `web/src/mocks/` arrives with slice 11 (003 Tasks 2 to 6)
+- `api/` arrives with slice 02 and `web/` with slice 03
+- The browser mock under `web/src/mocks/` arrives with slice 11 (003 Tasks 2 to 6)
 - `frontend/` and `css/` hold the team's earlier homepage prototype. They predate the plan and are not part of it
 
 ## Commands
