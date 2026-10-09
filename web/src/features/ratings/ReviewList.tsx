@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Kind } from "../../api/types";
-import { ErrorNotice, formatDate, Notice, Pagination, Skeleton, Stars } from "../../ui";
+import { cx, ErrorNotice, formatDate, Notice, Pagination, Skeleton, Stars } from "../../ui";
 import { useReviews } from "./api";
 import styles from "./ReviewList.module.css";
 
@@ -18,6 +18,7 @@ export function ReviewList({ kind, mbid }: ReviewListProps) {
 function ReviewListBody({ kind, mbid }: ReviewListProps) {
   const [page, setPage] = useState(1);
   const reviews = useReviews(kind, mbid, page);
+  const refreshing = reviews.isPlaceholderData;
 
   if (reviews.isPending) return <ReviewSkeleton />;
   if (reviews.isError) return <ErrorNotice error={reviews.error} onRetry={() => reviews.refetch()} />;
@@ -27,7 +28,7 @@ function ReviewListBody({ kind, mbid }: ReviewListProps) {
 
   return (
     <>
-      <ol className={styles.list}>
+      <ol className={cx(styles.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined}>
         {reviews.data.items.map((review) => (
           <li key={review.id} className={styles.review}>
             <div className={styles.meta}>
@@ -43,7 +44,7 @@ function ReviewListBody({ kind, mbid }: ReviewListProps) {
           </li>
         ))}
       </ol>
-      <Pagination page={page} pages={reviews.data.pages} onPageChange={setPage} />
+      <Pagination page={page} pages={reviews.data.pages} onPageChange={setPage} disabled={refreshing} />
     </>
   );
 }

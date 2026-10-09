@@ -5,6 +5,10 @@
   list-style: none;
 }
 
+.refreshing {
+  opacity: 0.6;
+}
+
 .review {
   display: flex;
   flex-direction: column;
