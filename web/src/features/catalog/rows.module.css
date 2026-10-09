@@ -1,0 +1,117 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-16);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+.title {
+  max-width: 100%;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.duration,
+.index {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-sm);
+}
+
+.track .index {
+  grid-area: index;
+  text-align: right;
+}
+
+/* the list owns the columns and each row inherits them, so ratings line up */
+.trackList {
+  display: grid;
+  grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto auto;
+}
+
+.track {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-areas: "index main duration rating add";
+  grid-template-columns: subgrid;
+}
+
+.track .main {
+  grid-area: main;
+}
+
+.track .duration {
+  grid-area: duration;
+}
+
+.rating {
+  grid-area: rating;
+}
+
+.add {
+  grid-area: add;
+}
+
+@media (max-width: 640px) {
+  .trackList {
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+  }
+
+  .track {
+    grid-template-areas:
+      "index main add"
+      ". rating duration";
+    row-gap: var(--space-2);
+  }
+
+  .track .duration {
+    justify-self: end;
+  }
+}

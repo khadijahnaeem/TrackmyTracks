@@ -50,6 +50,22 @@ describe("AddToPlaylistButton", () => {
     );
   });
 
+  it("names the song for logged out visitors", async () => {
+    mockFetch({ "GET /api/auth/me": { body: { user: null } } });
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} title="Karma Police" />);
+
+    expect(await screen.findByRole("link", { name: "Log in to add Karma Police" })).toBeInTheDocument();
+  });
+
+  it("names the song on the trigger", async () => {
+    mockFetch(loggedIn([]));
+    renderWithProviders(<AddToPlaylistButton mbid={MBID} title="Karma Police" />);
+
+    expect(
+      await screen.findByRole("button", { name: "Add to playlist for Karma Police", expanded: false }),
+    ).toBeInTheDocument();
+  });
+
   it("adds the song to a chosen playlist", async () => {
     mockFetch({
       ...loggedIn([playlist(1, "Late nights")]),

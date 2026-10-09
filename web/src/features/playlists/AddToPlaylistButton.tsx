@@ -16,28 +16,52 @@ const STATUS_LABELS: Record<Exclude<AddStatus, "pending">, string> = {
   failed: "Try again",
 };
 
-export function AddToPlaylistButton({ mbid }: { mbid: string }) {
+interface AddToPlaylistButtonProps {
+  mbid: string;
+  title?: string;
+}
+
+// the title extends the accessible name after the visible text, so each row's button is distinct
+function Label({ children, title, prefix }: { children: string; title?: string; prefix: string }) {
+  return (
+    <>
+      {children}
+      {title && (
+        <>
+          {" "}
+          <span className="visually-hidden">{`${prefix}${title}`}</span>
+        </>
+      )}
+    </>
+  );
+}
+
+export function AddToPlaylistButton({ mbid, title }: AddToPlaylistButtonProps) {
   const { user, isLoading } = useMe();
   const location = useLocation();
 
   if (isLoading) {
     return (
       <Button variant="ghost" disabled>
-        Add to playlist
+        <Label title={title} prefix="for ">
+          Add to playlist
+        </Label>
       </Button>
     );
   }
   if (!user) {
     return (
       <Link to={loginHref(location.pathname + location.search)} className={buttonClassName("ghost")}>
-        Log in to add
+        <Label title={title} prefix="">
+          Log in to add
+        </Label>
       </Link>
     );
   }
-  return <PlaylistPicker username={user.username} mbid={mbid} />;
+  return <PlaylistPicker username={user.username} mbid={mbid} title={title} />;
 }
 
-function PlaylistPicker({ username, mbid }: { username: string; mbid: string }) {
+function PlaylistPicker({ username, mbid, title }: { username: string; mbid: string; title?: string }) {
   const [open, setOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -72,7 +96,9 @@ function PlaylistPicker({ username, mbid }: { username: string; mbid: string }) 
         aria-controls={panelId}
         onClick={() => setOpen((current) => !current)}
       >
-        Add to playlist
+        <Label title={title} prefix="for ">
+          Add to playlist
+        </Label>
       </Button>
       {open && (
         <div id={panelId} role="dialog" aria-label="Add to playlist" className={styles.panel}>
