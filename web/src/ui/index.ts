@@ -4,6 +4,7 @@ export { Card } from "./Card";
 export { cx } from "./cx";
 export { formatAverage, formatDate, formatDuration, pluralize } from "./format";
 export { ErrorNotice, Notice } from "./Notice";
+export { NotFoundState } from "./NotFoundState";
 export { PageHeader } from "./PageHeader";
 export { Pagination } from "./Pagination";
 export { SegmentedControl } from "./SegmentedControl";
