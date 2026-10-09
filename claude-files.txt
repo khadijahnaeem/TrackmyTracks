@@ -1,5 +1,4 @@
 The following files were generated or modified by Claude code
-
 .editorconfig
 .env.example
 .gitattributes
@@ -8,6 +7,7 @@ The following files were generated or modified by Claude code
 .gitignore
 CLAUDE.md
 README.md
+The following files were generated or modified by Claude code
 api/app/__init__.py
 api/app/auth/__init__.py
 api/app/auth/routes.py
@@ -134,6 +134,14 @@ web/src/features/home/routes.ts
 web/src/features/home/sampleData.test.ts
 web/src/features/home/sampleData.ts
 web/src/features/playlists/routes.ts
+web/src/features/ratings/RatingControl.module.css
+web/src/features/ratings/RatingControl.test.tsx
+web/src/features/ratings/RatingControl.tsx
+web/src/features/ratings/ReviewComposer.tsx
+web/src/features/ratings/ReviewList.module.css
+web/src/features/ratings/ReviewList.test.tsx
+web/src/features/ratings/ReviewList.tsx
+web/src/features/ratings/api.ts
 web/src/main.tsx
 web/src/mocks/browser.ts
 web/src/mocks/catalog.test.ts
