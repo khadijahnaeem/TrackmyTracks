@@ -15,6 +15,11 @@
   grid-area: aside;
 }
 
+/* extra aside items such as the playlist button keep their own width */
+.aside > :not(:first-child) {
+  align-self: flex-start;
+}
+
 .content {
   display: flex;
   flex-direction: column;

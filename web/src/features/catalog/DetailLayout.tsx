@@ -29,9 +29,14 @@ export function DetailSkeleton() {
       <title>Loading | TrackmyTracks</title>
       <Skeleton width="6rem" height="var(--leading-xs)" />
       <Skeleton width="min(24rem, 80%)" height="var(--leading-3xl)" />
-      <DetailLayout aside={<Skeleton height="calc(var(--space-16) * 3)" />}>
-        <RowsSkeleton label="Loading tracks" />
-      </DetailLayout>
+      <div className={styles.layout}>
+        <div className={styles.aside}>
+          <Skeleton height="calc(var(--space-16) * 3)" />
+        </div>
+        <div className={styles.content}>
+          <RowsSkeleton label="Loading tracks" />
+        </div>
+      </div>
     </div>
   );
 }
