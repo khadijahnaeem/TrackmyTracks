@@ -76,7 +76,7 @@ describe("RatingControl", () => {
     renderWithProviders(<RatingControl kind="song" mbid={SONG} rating={RATED} />);
 
     expect(screen.getByText("3.7 from 12 ratings")).toBeInTheDocument();
-    await userEvent.click(await screen.findByRole("button", { name: "Clear your rating" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Clear rating" }));
 
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
@@ -92,7 +92,7 @@ describe("RatingControl", () => {
 
     const slider = await screen.findByRole("slider", { name: "Your rating" });
     expect(slider).toHaveAccessibleDescription(DERIVED_TEXT);
-    expect(screen.queryByRole("button", { name: "Clear your rating" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Clear rating" })).not.toBeInTheDocument();
   });
 
   it("asks logged out visitors to log in", async () => {
@@ -224,11 +224,11 @@ describe("RatingControl", () => {
     });
     renderWithProviders(<RatingControl kind="album" mbid={ALBUM} rating={RATED} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Clear your rating" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Clear rating" }));
 
     expect(await screen.findByText(DERIVED_TEXT)).toBeInTheDocument();
     expect(screen.getByRole("slider", { name: "Your rating" })).toHaveAttribute("aria-valuenow", "3.7");
-    expect(screen.queryByRole("button", { name: "Clear your rating" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Clear rating" })).not.toBeInTheDocument();
   });
 
   it("words the clear button for a saved review", async () => {
@@ -236,8 +236,7 @@ describe("RatingControl", () => {
     const reviewed: RatingSummary = { ...RATED, mine: { ...RATED.mine!, review: "Great" } };
     renderWithProviders(<RatingControl kind="song" mbid={SONG} rating={reviewed} />);
 
-    const clear = await screen.findByRole("button", { name: "Clear your rating" });
-    expect(clear).toHaveTextContent("Clear rating and review");
+    expect(await screen.findByRole("button", { name: "Clear rating and review" })).toBeInTheDocument();
   });
 
   it("drops a stale clear error once a save is attempted", async () => {
@@ -248,7 +247,7 @@ describe("RatingControl", () => {
     });
     renderWithProviders(<RatingControl kind="song" mbid={SONG} rating={RATED} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Clear your rating" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Clear rating" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not clear");
     await pressKey("{End}");
 
@@ -265,7 +264,7 @@ describe("RatingControl", () => {
 
     await pressKey("{End}");
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not save");
-    await userEvent.click(screen.getByRole("button", { name: "Clear your rating" }));
+    await userEvent.click(screen.getByRole("button", { name: "Clear rating" }));
 
     await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
   });

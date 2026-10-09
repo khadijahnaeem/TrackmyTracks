@@ -109,11 +109,10 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
               {mine && !mine.is_derived && (
                 <Button
                   variant="ghost"
-                  aria-label="Clear your rating"
                   loading={clear.isPending}
                   onClick={clearRating}
                 >
-                  {mine.review ? "Clear rating and review" : "Clear"}
+                  {mine.review ? "Clear rating and review" : "Clear rating"}
                 </Button>
               )}
             </div>
