@@ -4,7 +4,7 @@ import re
 import threading
 import time
 import unicodedata
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from itertools import islice
 
@@ -21,6 +21,9 @@ UNAVAILABLE = "Music catalog is unavailable, try again"
 SEARCH_PAGE_SIZE = 25
 # the most results musicbrainz returns per request
 MB_MAX_LIMIT = 100
+# ranked search windows are reused across pages for a while, so paging stays consistent and cheap
+SEARCH_CACHE_SECONDS = 600
+SEARCH_CACHE_SIZE = 256
 LUCENE_SPECIAL = re.compile(r'([+\-&|!(){}\[\]^"~*?:\\/])')
 JSON_ARRAY_GAP = re.compile(r"[\s,\[\]]*")
 WORD = re.compile(r"\w+")
@@ -30,8 +33,6 @@ WORD = re.compile(r"\w+")
 class ArtistData:
     mbid: str
     name: str
-    # only search knows how often an artist was played
-    listens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -49,8 +50,6 @@ class SongData:
     disambiguation: str | None
     length_ms: int | None
     artist: ArtistData
-    # only search knows how often a recording was played
-    listens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -63,6 +62,8 @@ class AlbumDetail:
 class SearchResults[T]:
     items: list[T]
     total: int
+    # listen counts by mbid, only for the kinds search ranks by popularity
+    listens: dict[str, int] | None = None
 
 
 def _artist(credit: list[dict]) -> ArtistData:
@@ -83,14 +84,13 @@ def _album(group: dict) -> AlbumData:
     )
 
 
-def _song(recording: dict, listens: int | None = None) -> SongData:
+def _song(recording: dict) -> SongData:
     return SongData(
         recording["id"],
         recording["title"],
         recording.get("disambiguation") or None,
         recording.get("length"),
         _artist(recording["artist-credit"]),
-        listens,
     )
 
 
@@ -110,9 +110,10 @@ def _words(text: str) -> set[str]:
     return set(WORD.findall("".join(c for c in decomposed if not unicodedata.combining(c))))
 
 
-def _page[T](items: list[T], page: int) -> SearchResults[T]:
+def _page[T](window: tuple[list[T], dict[str, int]], page: int) -> SearchResults[T]:
+    items, listens = window
     offset = (page - 1) * SEARCH_PAGE_SIZE
-    return SearchResults(items[offset : offset + SEARCH_PAGE_SIZE], len(items))
+    return SearchResults(items[offset : offset + SEARCH_PAGE_SIZE], len(items), listens)
 
 
 def json_array_items(chunks: Iterable[bytes]) -> Iterator[dict]:
@@ -148,6 +149,8 @@ class MusicBrainzClient:
         self._listenbrainz_auth = {"Authorization": f"Token {listenbrainz_token}"}
         self._lock = threading.Lock()
         self._next_request_at = 0.0
+        self._windows: dict[tuple[str, str], tuple[float, tuple[list, dict[str, int]]]] = {}
+        self._windows_lock = threading.Lock()
 
     def get_artist(self, mbid: str) -> ArtistData:
         data = self._mb(f"/artist/{mbid}")
@@ -197,19 +200,17 @@ class MusicBrainzClient:
         ]
 
     def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
-        # artists with nothing released are dropped, so the top matches are filtered and paged here
+        return _page(self._window("artist", query, self._artist_window), page)
+
+    def _artist_window(self, query: str) -> tuple[list[ArtistData], dict[str, int] | None]:
+        # artists with nothing released are dropped, so the top matches are filtered here
         matches = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)["artists"]
         mbids = [artist["id"] for artist in matches]
         listens = self._listens("artist", mbids)
         # without listen counts nothing can be judged unreleased, so every match stays
         published = set(mbids) if listens is None else self._published(mbids, listens)
-        counts = listens or {}
-        artists = [
-            ArtistData(artist["id"], artist["name"], counts.get(artist["id"], 0))
-            for artist in matches
-            if artist["id"] in published
-        ]
-        return _page(artists, page)
+        artists = [ArtistData(a["id"], a["name"]) for a in matches if a["id"] in published]
+        return artists, listens
 
     def search_albums(self, query: str, page: int) -> SearchResults[AlbumData]:
         lucene = f"releasegroup:({_escape(query)}) AND primarytype:album"
@@ -218,20 +219,44 @@ class MusicBrainzClient:
         return SearchResults([_album(group) for group in data["release-groups"]], data["count"])
 
     def search_songs(self, query: str, page: int) -> SearchResults[SongData]:
+        return _page(self._window("song", query, self._song_window), page)
+
+    def _song_window(self, query: str) -> tuple[list[SongData], dict[str, int] | None]:
         # musicbrainz ties thousands of matches at full score, so the top matches are reranked here
         recordings = self._mb("/recording", query=_escape(query), limit=MB_MAX_LIMIT)["recordings"]
-        listens = self._listens("recording", [recording["id"] for recording in recordings]) or {}
-        terms = _words(query)
+        listens = self._listens("recording", [recording["id"] for recording in recordings])
+        counts, terms = listens or {}, _words(query)
 
         # recordings matching more of the query lead, then the most played
         def rank(recording: dict) -> tuple[int, int]:
             names = " ".join(credit["name"] for credit in recording["artist-credit"])
             text = f"{recording['title']} {recording.get('disambiguation', '')} {names}"
-            return -len(terms & _words(text)), -listens.get(recording["id"], 0)
+            return -len(terms & _words(text)), -counts.get(recording["id"], 0)
 
-        ranked = sorted(recordings, key=rank)
-        songs = [_song(recording, listens.get(recording["id"], 0)) for recording in ranked]
-        return _page(songs, page)
+        return [_song(recording) for recording in sorted(recordings, key=rank)], listens
+
+    def _window[T](
+        self,
+        kind: str,
+        query: str,
+        build: Callable[[str], tuple[list[T], dict[str, int] | None]],
+    ) -> tuple[list[T], dict[str, int]]:
+        key = (kind, " ".join(query.casefold().split()))
+        with self._windows_lock:
+            cached = self._windows.get(key)
+        if cached and cached[0] > time.monotonic():
+            return cached[1]
+        items, listens = build(query)
+        if listens is None:
+            # a window ranked without listen counts is not kept, so a ListenBrainz blip passes
+            return items, {}
+        with self._windows_lock:
+            self._windows.pop(key, None)
+            self._windows[key] = (time.monotonic() + SEARCH_CACHE_SECONDS, (items, listens))
+            # the oldest window goes first once the cache is full
+            while len(self._windows) > SEARCH_CACHE_SIZE:
+                del self._windows[next(iter(self._windows))]
+        return items, listens
 
     def _listens(self, kind: str, mbids: list[str]) -> dict[str, int] | None:
         """Listen counts by mbid, or None when ListenBrainz cannot answer"""
