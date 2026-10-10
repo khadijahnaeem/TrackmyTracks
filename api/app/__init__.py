@@ -11,6 +11,7 @@ from app.history.routes import bp as history_bp
 from app.musicbrainz import MusicBrainzClient
 from app.playlists.routes import bp as playlists_bp
 from app.ratings.routes import bp as ratings_bp
+from app.seed import seed_command
 
 
 def create_app(overrides: dict | None = None) -> Flask:
@@ -32,4 +33,5 @@ def create_app(overrides: dict | None = None) -> Flask:
     )
     for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp, history_bp):
         app.register_blueprint(blueprint)
+    app.cli.add_command(seed_command)
     return app
