@@ -1,5 +1,6 @@
 .stars {
   position: relative;
+  --star-pad: 0;
   display: inline-flex;
   flex: none;
 }
@@ -45,7 +46,7 @@
 
 .fill {
   position: absolute;
-  inset: var(--star-pad, 0) auto var(--star-pad, 0) 0;
+  inset: var(--star-pad) auto var(--star-pad) 0;
   overflow: hidden;
   pointer-events: none;
 }

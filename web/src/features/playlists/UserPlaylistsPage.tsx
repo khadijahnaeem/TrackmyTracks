@@ -100,7 +100,9 @@ function PlaylistCard({ playlist }: { playlist: Playlist }) {
   return (
     <Card className={styles.card}>
       <h2 className={styles.cardTitle}>
-        <Link to={`/playlists/${playlist.id}`}>{playlist.name}</Link>
+        <Link to={`/playlists/${playlist.id}`} className={styles.cardLink}>
+          {playlist.name}
+        </Link>
       </h2>
       <p className={styles.meta}>
         {pluralize(playlist.song_count, "song")}
