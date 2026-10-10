@@ -16,6 +16,7 @@ from app.ratings.service import (
 )
 
 bp = Blueprint("ratings", __name__, url_prefix="/api")
+COLLECTIONS: dict[str, Kind] = {"songs": "song", "albums": "album", "artists": "artist"}
 
 
 @bp.put("/ratings")
@@ -35,9 +36,6 @@ def put_rating():
 def delete_rating(kind: str, mbid: uuid.UUID):
     user = require_user()
     return clear_rating(user, parse_kind(kind), str(mbid))
-
-
-COLLECTIONS: dict[str, Kind] = {"songs": "song", "albums": "album", "artists": "artist"}
 
 
 @bp.get("/<any(songs, albums, artists):collection>/<uuid:mbid>/reviews")

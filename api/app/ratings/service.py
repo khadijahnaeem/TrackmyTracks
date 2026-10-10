@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import lazyload
 
 from app.auth.serializers import public_user
 from app.catalog.service import find_cached, get_or_cache
@@ -73,6 +74,7 @@ def reviews_page(kind: Kind, mbid: str, page: int) -> dict:
         return page_payload([], page, 0, PER_PAGE)
     query = (
         select(Rating)
+        .options(lazyload(Rating.song), lazyload(Rating.album), lazyload(Rating.artist))
         .where(getattr(Rating, f"{kind}_id") == entity.id, Rating.review.is_not(None))
         .order_by(Rating.updated_at.desc(), Rating.id.desc())
     )

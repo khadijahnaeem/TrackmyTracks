@@ -49,6 +49,15 @@ def test_invalid_rating_is_rejected(client, alice, body):
     assert response.json["error"]["code"] == "validation_error"
 
 
+@pytest.mark.parametrize(("stars", "score"), [(0.5, 1), (5, 10)])
+def test_boundary_stars_are_accepted(client, alice, stars, score):
+    response = _put(client, stars=stars)
+
+    assert response.status_code == 200
+    assert db.session.scalar(select(Rating.score)) == score
+    assert response.json["rating"]["mine"]["stars"] == stars
+
+
 def test_rating_caches_the_song_and_returns_its_summary(client, alice):
     response = _put(client, stars=3.5, review="  Still gets me  ")
 
@@ -93,8 +102,32 @@ def test_empty_review_clears_it(client, alice):
     assert response.json["rating"]["mine"]["review"] is None
 
 
+def test_null_review_clears_it(client, alice):
+    _put(client, review="First take")
+    response = _put(client, review=None)
+
+    assert response.json["rating"]["mine"]["review"] is None
+
+
 def test_unknown_mbid_is_not_found(client, alice):
     assert _put(client, mbid=UNKNOWN).status_code == 404
+
+
+def test_clearing_requires_login(client):
+    response = client.delete(f"/api/ratings/song/{KARMA_POLICE}")
+
+    assert response.status_code == 401
+    assert response.json["error"]["code"] == "unauthorized"
+
+
+def test_clearing_an_invalid_kind_is_rejected(client, alice):
+    response = client.delete(f"/api/ratings/playlist/{KARMA_POLICE}")
+
+    assert response.status_code == 422
+    assert response.json["error"] == {
+        "code": "validation_error",
+        "message": "Kind must be song, album, or artist",
+    }
 
 
 def test_clearing_an_album_override_restores_the_average(client, alice):

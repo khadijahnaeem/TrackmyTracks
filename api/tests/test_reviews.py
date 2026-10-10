@@ -31,6 +31,17 @@ def test_reviews_are_newest_first_and_skip_rating_only_rows(client, song, make_u
     assert (body["page"], body["pages"], body["total"]) == (1, 1, 2)
 
 
+def test_artist_reviews_are_listed(client, make_artist, make_user, rate):
+    artist = make_artist()
+    rate(make_user("alice"), artist, 4, review="Never misses")
+
+    response = client.get(f"/api/artists/{artist.mbid}/reviews")
+
+    assert [(r["user"], r["stars"], r["review"]) for r in response.json["items"]] == [
+        ({"username": "alice"}, 4.0, "Never misses")
+    ]
+
+
 def test_whitespace_review_never_reaches_the_feed(client, make_user, login):
     login(make_user())
     client.put(
