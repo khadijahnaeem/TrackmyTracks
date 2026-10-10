@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 import pytest
+
+from app.extensions import db
 
 
 @pytest.fixture
@@ -39,6 +43,19 @@ def test_lists_every_kind_newest_first(client, make_user, catalog, rate):
     assert song_entry["review"] == "Great opener"
     assert "T" in song_entry["updated_at"]
     assert (body["page"], body["pages"], body["total"]) == (1, 1, 3)
+
+
+def test_orders_by_update_time_not_insertion(client, make_user, catalog, rate):
+    alice = make_user()
+    _, _, songs = catalog
+    first = rate(alice, songs[0], 4)
+    second = rate(alice, songs[1], 3)
+    first.updated_at = second.updated_at + timedelta(minutes=1)
+    db.session.commit()
+
+    response = _history(client)
+
+    assert [e["item"]["title"] for e in response.json["items"]] == ["Airbag", "Lucky"]
 
 
 def test_filters_by_kind(client, make_user, catalog, rate):
