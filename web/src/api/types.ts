@@ -20,6 +20,8 @@ export interface SongSummary {
   artist: ArtistSummary;
 }
 
+export type SearchSong = SongSummary & { listens: number };
+
 export interface MyRating {
   stars: number;
   is_derived: boolean;

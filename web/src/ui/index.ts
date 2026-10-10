@@ -2,7 +2,7 @@ export { Button } from "./Button";
 export { buttonClassName } from "./buttonClassName";
 export { Card } from "./Card";
 export { cx } from "./cx";
-export { formatAverage, formatDate, formatDuration, pluralize } from "./format";
+export { formatAverage, formatCount, formatDate, formatDuration, pluralize } from "./format";
 export { ErrorNotice, Notice } from "./Notice";
 export { NotFoundState } from "./NotFoundState";
 export { PageHeader } from "./PageHeader";

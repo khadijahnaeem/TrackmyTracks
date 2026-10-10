@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client";
-import type { AlbumSummary, ArtistSummary, Kind, Page, Rated, SongSummary } from "../../api/types";
+import type { AlbumSummary, ArtistSummary, Kind, Page, Rated, SearchSong, SongSummary } from "../../api/types";
 
 export interface SearchItems {
-  song: SongSummary;
+  song: SearchSong;
   album: AlbumSummary;
   artist: ArtistSummary;
 }

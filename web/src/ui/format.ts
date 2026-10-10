@@ -14,6 +14,17 @@ export function formatDate(iso: string): string {
   return DATE_FORMAT.format(new Date(iso));
 }
 
+const COMPACT_FORMAT = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+
+function plural(count: number, noun: string): string {
+  return count === 1 ? noun : `${noun}s`;
+}
+
 export function pluralize(count: number, noun: string): string {
-  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+  return `${count} ${plural(count, noun)}`;
+}
+
+// big counts read as 3.9M rather than 3,893,589
+export function formatCount(count: number, noun: string): string {
+  return `${COMPACT_FORMAT.format(count)} ${plural(count, noun)}`;
 }
