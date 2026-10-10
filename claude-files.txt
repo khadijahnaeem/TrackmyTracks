@@ -25,6 +25,7 @@ api/app/models.py
 api/app/musicbrainz.py
 api/app/playlists/__init__.py
 api/app/playlists/routes.py
+api/app/playlists/service.py
 api/app/ratings/__init__.py
 api/app/ratings/queries.py
 api/app/ratings/routes.py
@@ -49,6 +50,9 @@ api/tests/fixtures/musicbrainz/search-albums.json
 api/tests/fixtures/musicbrainz/search-artists.json
 api/tests/fixtures/musicbrainz/search-songs.json
 api/tests/fixtures/musicbrainz/top-recordings.json
+api/tests/playlists/__init__.py
+api/tests/playlists/conftest.py
+api/tests/playlists/test_playlist_crud.py
 api/tests/test_auth.py
 api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py
