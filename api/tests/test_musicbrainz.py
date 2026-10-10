@@ -120,6 +120,18 @@ def test_only_listenbrainz_requests_carry_the_token(mb, api):
     assert "Authorization" not in musicbrainz
 
 
+def test_top_songs_skips_rows_without_artist_credits(mb, api):
+    rows = load_fixture("top-recordings")
+    # karma police loses its credit list and paranoid android has an empty one
+    rows[0] = {key: value for key, value in rows[0].items() if key != "artist_mbids"}
+    rows[2] = rows[2] | {"artist_mbids": []}
+    api.get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}", json=rows)
+
+    songs = mb.top_songs(RADIOHEAD_DATA)
+
+    assert [song.title for song in songs] == ["No Surprises", "All I Need", "Creep", "15 Step"]
+
+
 def test_top_songs_is_empty_without_listening_data(mb, api):
     api.get(f"{LB_ROOT}/popularity/top-recordings-for-artist/{RADIOHEAD}", status=404)
 
@@ -269,6 +281,17 @@ def test_search_songs_pages_the_ranked_window(mb, api, monkeypatch):
     assert results.total == 7
 
 
+def test_search_songs_keeps_musicbrainz_order_when_listenbrainz_fails(mb, api):
+    recordings = [_recording(f"{n}0000000-0000-4000-8000-000000000000", "Lore") for n in range(3)]
+    api.get(f"{MB_ROOT}/recording", json={"count": 3, "offset": 0, "recordings": recordings})
+    api.post(f"{LB_ROOT}/popularity/recording", status=503)
+
+    results = mb.search_songs("lore", page=1)
+
+    assert [song.mbid for song in results.items] == [r["id"] for r in recordings]
+    assert {song.listens for song in results.items} == {0}
+
+
 def test_search_songs_without_matches_asks_nothing_else(mb, api):
     api.get(f"{MB_ROOT}/recording", json={"count": 0, "offset": 0, "recordings": []})
 
@@ -378,6 +401,20 @@ def test_search_artists_skips_the_recording_lookup_when_every_match_was_heard(mb
     results = mb.search_artists("radiohead", page=1)
 
     assert results.total == search["count"]
+    assert len(api.calls) == 2
+
+
+@pytest.mark.parametrize("status", [400, 401, 503])
+def test_search_artists_keeps_every_match_when_listenbrainz_fails(mb, api, status):
+    search = load_fixture("search-artists")
+    api.get(f"{MB_ROOT}/artist", json=search)
+    api.post(f"{LB_ROOT}/popularity/artist", status=status)
+
+    results = mb.search_artists("radiohead", page=1)
+
+    assert results.total == len(search["artists"])
+    assert {artist.listens for artist in results.items} == {0}
+    # nothing is filtered, so the recording lookup never runs
     assert len(api.calls) == 2
 
 
