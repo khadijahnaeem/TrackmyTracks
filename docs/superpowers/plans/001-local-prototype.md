@@ -39,7 +39,7 @@ B   02, 04 --> 05 Task 1 --> 06 Tasks 1 and 2, 07 Tasks 1 and 2, 08 Tasks 1 and 
 C   all --> 003 Task 10 --> 10
 ```
 
-Web tasks run against `npm run dev:mock`. Any route or shape a page changes updates this index in the same pull request, and each B task is checked against this index and its handler file in `web/src/mocks/handlers/` before it runs.
+Any route or shape a page changes updates this index in the same pull request.
 
 Each slice is one branch named `slice/NN-name` and one pull request. Merge to `main` as soon as a slice's tasks pass review, since later slices build on it.
 
@@ -197,13 +197,6 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/ratings/RatingControl.tsx` | 07 | `RatingControl({kind, mbid, rating, title?, compact?})`, self-contained, pass `title` on compact rows |
 | `src/features/ratings/ReviewList.tsx` | 07 | `ReviewList({kind, mbid})`, no heading or outer margin, the page wraps it in a Reviews section |
 | `src/features/playlists/AddToPlaylistButton.tsx` | 08 | `AddToPlaylistButton({mbid, title?})`, pass `title` on song rows so each button has a distinct accessible name |
-| `src/mocks/browser.ts` | 11 (003 Task 2) | `startMockApi(): Promise<void>`, starts `setupWorker` over a leading 250 ms delay then every feature's handlers |
-| `src/mocks/respond.ts` | 11 (003 Task 2) | `MockApiError {status, code}`, `unauthorized(message?)`, `invalid(message)`, `notFound(message)`, `conflict(message)`, `route(resolver)`, `created(body)`, `noContent()`, `requiredText(data, field, maxLength)`, `optionalText(data, field, maxLength)`, `pageArg(url)`, `pagePayload(items, page, total, perPage)`, `paginate(all, page, perPage)`, `isUnhandledApiRequest(request)` |
-| `src/mocks/testing.ts` | 11 (003 Tasks 2 and 4) | `useMockServer(...handlers)` registers an `msw/node` server and resets the store before each test, `call<T>(method, path, body?) -> {status, body}` |
-| `src/mocks/handlers/<feature>.ts` | 11, then 05 to 09 | `authHandlers`, `catalogHandlers`, `ratingsHandlers`, `playlistsHandlers`, `historyHandlers`, each `HttpHandler[]`, filled by the feature that owns the routes |
-| `src/mocks/seed.ts` | 11 (003 Task 3) | `SEED_ARTISTS`, `SEED_ALBUMS`, `SEED_SONGS`, `SEED_USERS`, `SEED_RATINGS`, `SEED_PLAYLISTS`, `DEMO_LOGIN`, and the `MockUser`, `MockRating`, `MockPlaylist` record types |
-| `src/mocks/catalog.ts` | 11 (003 Task 3) | `artistSummary(mbid)`, `albumSummary(mbid)`, `songSummary(mbid)`, `SUMMARIES`, `hasEntity(kind, mbid)`, `albumTracks`, `artistAlbums`, `artistTopSongs`, `songsBy`, `songsOn`, `searchCatalog(kind, query)` |
-| `src/mocks/store.ts` | 11 (003 Task 4) | `state()`, `save()`, `resetStore()`, `nextId()`, `now()`, `STORAGE_KEY`, `STORE_VERSION`, `currentUser()`, `requireUser()`, `logIn(user)`, `logOut()`, `userPayload(user)`, `publicUser(userId)`, `findUserByName(username)`, `ratingSummary(kind, mbid)`, `rated(kind, mbid, summary)`, and re-exports the `Mock*` record types |
 
 Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08).
 
