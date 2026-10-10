@@ -9,7 +9,7 @@ A social music discovery and review web app where users can rate songs, write re
 
 ## Running locally
 
-Requires Docker Desktop and Python 3.
+Requires Docker Desktop, Python 3.12, and Node 22 or newer.
 
 ### Database
 
@@ -20,7 +20,7 @@ cp .env.example .env
 py -c "import secrets; print(secrets.token_hex(32))"    # python3 on macOS and Linux
 ```
 
-Paste the printed value into `SECRET_KEY` in `.env`. Copy your user token from https://listenbrainz.org/settings/ into `LISTENBRAINZ_TOKEN`, then start Postgres. Run this again each day before working.
+Paste the printed value into `SECRET_KEY` in `.env`. Copy your user token from https://listenbrainz.org/settings/ into `LISTENBRAINZ_TOKEN`. The API needs it for listen counts, which rank search results and pick each artist's top songs, so search fails without it. Then start Postgres, and run this again each day before working.
 
 ```bash
 docker compose up -d --wait
@@ -32,6 +32,8 @@ Postgres 16 listens on `localhost:5433` with a `trackmytracks` database for deve
 docker compose down -v
 docker compose up -d --wait
 ```
+
+After a wipe, run `flask db upgrade` and `flask seed` from the API terminal to rebuild the schema and the demo accounts.
 
 ### API
 
@@ -70,4 +72,4 @@ From the activated API terminal in `api/`, run `flask seed`. It caches four albu
 
 ## Workflow
 
-Plans live in `docs/superpowers/plans/`. Each slice is a branch named `slice/NN-name` and one pull request into `main`, which needs one approving review and a green CI run.
+Plans live in `docs/superpowers/plans/`. Each change is a branch named `<type>/<topic>` and one pull request into `main`, which needs one approving review and a green CI run. The type matches the commit prefix, one of `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, or `ci`, and the topic is a few kebab case words, like `feat/search-listen-counts` or `docs/readme-refresh`. The original build used `slice/NN-name` branches, one per slice plan.
