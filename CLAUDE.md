@@ -14,7 +14,7 @@ The design and the work breakdown are already written. Read them before changing
 
 ## Current state
 
-The repo is built slice by slice, so most of the architecture below is planned, not yet present. Check which folders exist before assuming a command works.
+The repo is built slice by slice, and the architecture below is in place.
 
 - Slice 01 provides `docker-compose.yml`, `docker/initdb/`, `.env.example`, and the README setup guide
 - Slices 01 to 09 are merged, and slice 10 integrates them into a demoable prototype

@@ -62,7 +62,7 @@ Vite proxies `/api` to Flask, so the browser only ever talks to port 5173. Run t
 
 ### Demo data
 
-From the activated API terminal in `api/`, run `flask seed`. It caches four albums from MusicBrainz and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
+From the activated API terminal in `api/`, run `flask seed`. It caches four albums from MusicBrainz, about half a minute on the first run, and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
 
 ### Earlier prototype
 

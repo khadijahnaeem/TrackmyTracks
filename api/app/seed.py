@@ -1,9 +1,12 @@
+from collections.abc import Iterable
+
 import click
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from werkzeug.security import generate_password_hash
 
 from app.catalog.service import get_or_cache_album, get_or_cache_artist
+from app.errors import CatalogUnavailable
 from app.extensions import db
 from app.models import Album, Playlist, PlaylistSong, Rating, User
 
@@ -29,7 +32,7 @@ REVIEWS = {
 }
 
 
-def seed(catalog) -> dict[str, int]:
+def seed(catalog: Iterable[tuple[str, str]]) -> dict[str, int]:
     albums: list[Album] = []
     for artist_mbid, album_mbid in catalog:
         get_or_cache_artist(artist_mbid)
@@ -87,7 +90,11 @@ def _demo_playlist(owner: User, albums: list[Album]) -> None:
 @click.command("seed")
 def seed_command() -> None:
     """Cache the demo catalog and create demo users"""
-    result = seed(CATALOG)
+    click.echo("Caching the demo catalog from MusicBrainz, this takes about half a minute")
+    try:
+        result = seed(CATALOG)
+    except CatalogUnavailable as error:
+        raise click.ClickException(error.message) from error
     click.echo(f"Seeded {result['artists']} artists, {result['albums']} albums, demo users:")
     for username in DEMO_USERS:
         click.echo(f"  {username}@example.com / {DEMO_PASSWORD}")

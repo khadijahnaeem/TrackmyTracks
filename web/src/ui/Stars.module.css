@@ -1,6 +1,7 @@
 .stars {
-  position: relative;
   --star-pad: 0;
+
+  position: relative;
   display: inline-flex;
   flex: none;
 }

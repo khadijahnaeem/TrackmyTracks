@@ -20,12 +20,12 @@ This file is the index. The work is split into ten slices, each a self-contained
 | 02 | [API foundation](001-local-prototype/02-api-foundation.md) | Dev 1 | 1 | 01 | done |
 | 03 | [Web foundation](001-local-prototype/03-web-foundation.md) | Dev 2 | 1 | nothing | done |
 | 04 | [Music catalog service](001-local-prototype/04-music-catalog.md) | Dev 3 | 1 to 2 | nothing for Task 1, 02 Task 1 for Tasks 2 and 3, 02 for Tasks 4 and 5 | done |
-| 11 | [Mock API](003-ui-first.md) Tasks 2 to 6 | Dev 2 | 2 | 03 | A0 |
-| 05 | [Auth](001-local-prototype/05-auth.md) | Dev 1 | 2 | 02, 03 | A1 web tasks, B API tasks |
-| 06 | [Catalog pages](001-local-prototype/06-catalog-pages.md) | Dev 2 | 2 to 4 | 04, then 07 Task 3 and 08 Task 3 for the page tasks | A1 web tasks, B API tasks |
-| 07 | [Ratings and reviews](001-local-prototype/07-ratings-reviews.md) | Dev 3 | 2 to 4 | 04, 05 Task 1 | A1 web tasks, B API tasks |
-| 08 | [Playlists](001-local-prototype/08-playlists.md) | Dev 4 | 2 to 4 | 04, 05 Task 1 | A1 web tasks, B API tasks |
-| 09 | [History](001-local-prototype/09-history.md) | Dev 1 | 3 to 4 | 02, 03 | A1 web tasks, B API tasks |
+| 11 | [Mock API](003-ui-first.md) Tasks 2 to 6 | Dev 2 | 2 | 03 | done |
+| 05 | [Auth](001-local-prototype/05-auth.md) | Dev 1 | 2 | 02, 03 | done |
+| 06 | [Catalog pages](001-local-prototype/06-catalog-pages.md) | Dev 2 | 2 to 4 | 04, then 07 Task 3 and 08 Task 3 for the page tasks | done |
+| 07 | [Ratings and reviews](001-local-prototype/07-ratings-reviews.md) | Dev 3 | 2 to 4 | 04, 05 Task 1 | done |
+| 08 | [Playlists](001-local-prototype/08-playlists.md) | Dev 4 | 2 to 4 | 04, 05 Task 1 | done |
+| 09 | [History](001-local-prototype/09-history.md) | Dev 1 | 3 to 4 | 02, 03 | done |
 | 10 | [Integration](001-local-prototype/10-integration.md) | All | 6 to 7 | all | C |
 
 The remaining work is built UI first. A0 is the browser mock API, A1 is every web task running against it, B is the API tasks built to the contract the finished pages use, and C is integration, which starts with [003](003-ui-first.md) Task 10 removing the mock. The Depends on column describes the API tasks, and the Day column is the original estimate from before the UI first order. Every web task depends on slice 11 instead, and keeps the web task order below.
