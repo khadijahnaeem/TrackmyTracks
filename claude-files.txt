@@ -50,6 +50,7 @@ api/tests/fixtures/musicbrainz/search-artists.json
 api/tests/fixtures/musicbrainz/search-songs.json
 api/tests/fixtures/musicbrainz/top-recordings.json
 api/tests/test_auth.py
+api/tests/test_catalog_routes.py
 api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py
 api/tests/test_errors.py
