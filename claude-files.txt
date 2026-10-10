@@ -53,6 +53,7 @@ api/tests/fixtures/musicbrainz/top-recordings.json
 api/tests/playlists/__init__.py
 api/tests/playlists/conftest.py
 api/tests/playlists/test_playlist_crud.py
+api/tests/playlists/test_playlist_songs.py
 api/tests/test_auth.py
 api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py

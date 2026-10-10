@@ -1,20 +1,26 @@
+import uuid
+
 from flask import Blueprint
 from sqlalchemy import select
 
 from app.auth.session import current_user, require_user
-from app.errors import NotFound, ValidationError
+from app.catalog.service import get_or_cache_song
+from app.errors import Conflict, NotFound, ValidationError
 from app.extensions import db
 from app.http import json_body, optional_text, required_text
-from app.models import Playlist, User
+from app.models import Playlist, PlaylistSong, User
 from app.playlists.service import (
     owned_playlist_or_404,
     playlist_detail,
     playlist_payload,
+    renumber,
     song_counts,
+    touch,
     visible_playlist_or_404,
 )
 
 bp = Blueprint("playlists", __name__, url_prefix="/api")
+MAX_SONGS = 500
 
 
 def _fields(data: dict, partial: bool) -> dict:
@@ -28,6 +34,13 @@ def _fields(data: dict, partial: bool) -> dict:
             raise ValidationError("Visibility must be true or false")
         fields["is_public"] = data["is_public"]
     return fields
+
+
+def _mbid(data: dict) -> str:
+    try:
+        return str(uuid.UUID(data.get("mbid")))
+    except (TypeError, ValueError, AttributeError):
+        raise ValidationError("A valid MusicBrainz ID is required") from None
 
 
 @bp.get("/users/<username>/playlists")
@@ -76,3 +89,50 @@ def delete_playlist(playlist_id: int):
     db.session.delete(owned_playlist_or_404(playlist_id, require_user()))
     db.session.commit()
     return "", 204
+
+
+@bp.post("/playlists/<int:playlist_id>/songs")
+def add_song(playlist_id: int):
+    user = require_user()
+    mbid = _mbid(json_body())
+    owned_playlist_or_404(playlist_id, user)
+    song = get_or_cache_song(mbid)
+    # caching commits, so the row lock is taken after it
+    playlist = owned_playlist_or_404(playlist_id, user, lock=True)
+    if any(entry.song_id == song.id for entry in playlist.entries):
+        raise Conflict("Song is already in this playlist")
+    if len(playlist.entries) >= MAX_SONGS:
+        raise ValidationError(f"Playlists hold up to {MAX_SONGS} songs")
+    playlist.entries.append(PlaylistSong(song=song, position=len(playlist.entries) + 1))
+    touch(playlist)
+    db.session.commit()
+    return playlist_detail(playlist), 201
+
+
+@bp.delete("/playlists/<int:playlist_id>/songs/<uuid:mbid>")
+def remove_song(playlist_id: int, mbid: uuid.UUID):
+    playlist = owned_playlist_or_404(playlist_id, require_user(), lock=True)
+    entry = next((e for e in playlist.entries if e.song.mbid == str(mbid)), None)
+    if entry is None:
+        raise NotFound("Song is not in this playlist")
+    playlist.entries.remove(entry)
+    renumber(playlist.entries)
+    touch(playlist)
+    db.session.commit()
+    return playlist_detail(playlist)
+
+
+@bp.put("/playlists/<int:playlist_id>/songs")
+def reorder_songs(playlist_id: int):
+    user = require_user()
+    mbids = json_body().get("mbids")
+    if not isinstance(mbids, list) or not all(isinstance(mbid, str) for mbid in mbids):
+        raise ValidationError("Mbids must be a list of MusicBrainz IDs")
+    playlist = owned_playlist_or_404(playlist_id, user, lock=True)
+    by_mbid = {entry.song.mbid: entry for entry in playlist.entries}
+    if len(mbids) != len(by_mbid) or set(mbids) != set(by_mbid):
+        raise ValidationError("Reorder must list every song in the playlist exactly once")
+    renumber([by_mbid[mbid] for mbid in mbids])
+    touch(playlist)
+    db.session.commit()
+    return playlist_detail(playlist)
