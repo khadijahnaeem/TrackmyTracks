@@ -63,6 +63,7 @@ def test_artist_search_hides_artists_with_nothing_released(client):
     assert body["total"] == len(names) == 13
     assert "Gazz" in names
     assert "Fake Plastic Radiohead" not in names
+    assert body["items"][0] == {"mbid": RADIOHEAD, "name": "Radiohead", "listens": 134659628}
 
 
 def test_search_caches_nothing(client):

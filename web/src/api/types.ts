@@ -20,6 +20,8 @@ export interface SongSummary {
   artist: ArtistSummary;
 }
 
+// search results also say how often each one was played
+export type SearchArtist = ArtistSummary & { listens: number };
 export type SearchSong = SongSummary & { listens: number };
 
 export interface MyRating {

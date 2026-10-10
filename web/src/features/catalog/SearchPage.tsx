@@ -1,6 +1,6 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
-import type { AlbumSummary, ArtistSummary, Kind, SearchSong } from "../../api/types";
+import type { AlbumSummary, Kind, SearchArtist, SearchSong } from "../../api/types";
 import {
   Button,
   cx,
@@ -197,12 +197,13 @@ function AlbumResult({ album }: { album: AlbumSummary }) {
   );
 }
 
-function ArtistResult({ artist }: { artist: ArtistSummary }) {
+function ArtistResult({ artist }: { artist: SearchArtist }) {
   return (
     <div className={rows.main}>
       <Link to={`/artists/${artist.mbid}`} className={rows.title}>
         {artist.name}
       </Link>
+      {artist.listens > 0 && <span className={rows.meta}>{formatCount(artist.listens, "listen")}</span>}
     </div>
   );
 }

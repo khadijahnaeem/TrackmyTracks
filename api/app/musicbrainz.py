@@ -30,6 +30,8 @@ WORD = re.compile(r"\w+")
 class ArtistData:
     mbid: str
     name: str
+    # only search knows how often an artist was played
+    listens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -196,10 +198,16 @@ class MusicBrainzClient:
 
     def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
         # artists with nothing released are dropped, so the top matches are filtered and paged here
-        data = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)
-        artists = [ArtistData(a["id"], a["name"]) for a in data["artists"]]
-        published = self._published([artist.mbid for artist in artists])
-        return _page([artist for artist in artists if artist.mbid in published], page)
+        matches = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)["artists"]
+        mbids = [artist["id"] for artist in matches]
+        listens = self._listens("artist", mbids)
+        published = self._published(mbids, listens)
+        artists = [
+            ArtistData(artist["id"], artist["name"], listens.get(artist["id"], 0))
+            for artist in matches
+            if artist["id"] in published
+        ]
+        return _page(artists, page)
 
     def search_albums(self, query: str, page: int) -> SearchResults[AlbumData]:
         lucene = f"releasegroup:({_escape(query)}) AND primarytype:album"
@@ -235,9 +243,9 @@ class MusicBrainzClient:
         # anything nobody has played comes back as null
         return {row[f"{kind}_mbid"]: row["total_listen_count"] or 0 for row in rows}
 
-    def _published(self, mbids: list[str]) -> set[str]:
-        # one batch call clears every artist someone has listened to
-        heard = {mbid for mbid, count in self._listens("artist", mbids).items() if count}
+    def _published(self, mbids: list[str], listens: dict[str, int]) -> set[str]:
+        # anyone someone has listened to has released something
+        heard = {mbid for mbid, count in listens.items() if count}
         unheard = [mbid for mbid in mbids if mbid not in heard]
         if not unheard:
             return heard

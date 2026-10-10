@@ -68,6 +68,24 @@ describe("SearchPage", () => {
     expect(screen.queryByText(/0 listens/)).not.toBeInTheDocument();
   });
 
+  it("says how often each artist was played", async () => {
+    mockFetch({
+      ...ME,
+      "GET /api/search?type=artist&q=radiohead&page=1": {
+        body: pageOf([
+          { mbid: "radiohead", name: "Radiohead", listens: 134659628 },
+          { mbid: "gazz", name: "Gazz", listens: 0 },
+        ]),
+      },
+    });
+
+    renderAt("/search?type=artist&q=radiohead");
+
+    expect(await screen.findByText("134.7M listens")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Gazz" })).toBeInTheDocument();
+    expect(screen.queryByText(/0 listens/)).not.toBeInTheDocument();
+  });
+
   it("shows skeleton rows while results load", () => {
     mockFetch({
       ...ME,
