@@ -49,7 +49,10 @@ def test_song_search_includes_disambiguation_and_artist(client):
 
 def test_search_caches_nothing(client):
     for kind in ("song", "album", "artist"):
-        client.get("/api/search", query_string={"type": kind, "q": "radiohead"})
+        assert (
+            client.get("/api/search", query_string={"type": kind, "q": "radiohead"}).status_code
+            == 200
+        )
 
     for model in (Song, Album, Artist):
         assert db.session.scalar(select(func.count()).select_from(model)) == 0

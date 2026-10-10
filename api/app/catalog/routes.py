@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from flask import Blueprint, request
@@ -10,7 +11,7 @@ from app.errors import ValidationError
 from app.extensions import db
 from app.http import page_arg, page_payload, required_text
 from app.kinds import KINDS, Kind
-from app.models import Album
+from app.models import Album, Artist, Song
 from app.musicbrainz import SEARCH_PAGE_SIZE, musicbrainz
 from app.ratings.queries import rating_summaries
 
@@ -71,8 +72,8 @@ def song_detail(mbid: UUID):
     return {"song": _rated("song", [get_or_cache_song(str(mbid))])[0]}
 
 
-# one ratings query per kind no matter how many entities the page shows
-def _rated(kind: Kind, entities: list) -> list[dict]:
+# a fixed number of ratings queries runs per kind no matter how many entities the page shows
+def _rated(kind: Kind, entities: Sequence[Song | Album | Artist]) -> list[dict]:
     user = current_user()
-    ratings = rating_summaries(user.id if user else None, kind, [e.id for e in entities])
+    ratings = rating_summaries(user.id if user else None, kind, [entity.id for entity in entities])
     return [{**SUMMARIES[kind](entity), "rating": ratings[entity.id]} for entity in entities]
