@@ -11,6 +11,7 @@ README.md
 api/app/__init__.py
 api/app/auth/__init__.py
 api/app/auth/routes.py
+api/app/auth/serializers.py
 api/app/auth/session.py
 api/app/catalog/__init__.py
 api/app/catalog/routes.py
@@ -48,6 +49,7 @@ api/tests/fixtures/musicbrainz/search-albums.json
 api/tests/fixtures/musicbrainz/search-artists.json
 api/tests/fixtures/musicbrainz/search-songs.json
 api/tests/fixtures/musicbrainz/top-recordings.json
+api/tests/test_auth.py
 api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py
 api/tests/test_errors.py
