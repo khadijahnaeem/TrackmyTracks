@@ -49,6 +49,7 @@ api/tests/fixtures/musicbrainz/artist-albums.json
 api/tests/fixtures/musicbrainz/artist-popularity.json
 api/tests/fixtures/musicbrainz/artist-recordings.json
 api/tests/fixtures/musicbrainz/artist.json
+api/tests/fixtures/musicbrainz/recording-popularity.json
 api/tests/fixtures/musicbrainz/recording.json
 api/tests/fixtures/musicbrainz/release-group.json
 api/tests/fixtures/musicbrainz/release.json

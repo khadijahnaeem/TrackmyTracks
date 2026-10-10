@@ -3,7 +3,8 @@ import json
 import re
 import threading
 import time
-from collections.abc import Callable, Iterable, Iterator
+import unicodedata
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from itertools import islice
 
@@ -22,6 +23,7 @@ SEARCH_PAGE_SIZE = 25
 MB_MAX_LIMIT = 100
 LUCENE_SPECIAL = re.compile(r'([+\-&|!(){}\[\]^"~*?:\\/])')
 JSON_ARRAY_GAP = re.compile(r"[\s,\[\]]*")
+WORD = re.compile(r"\w+")
 
 
 @dataclass(frozen=True)
@@ -95,6 +97,17 @@ def _earliest_release(releases: list[dict]) -> str:
 
 def _escape(query: str) -> str:
     return LUCENE_SPECIAL.sub(r"\\\1", query)
+
+
+def _words(text: str) -> set[str]:
+    # case and accents never decide a match, so bjork finds Bjork with its umlaut
+    decomposed = unicodedata.normalize("NFKD", text.casefold())
+    return set(WORD.findall("".join(c for c in decomposed if not unicodedata.combining(c))))
+
+
+def _page[T](items: list[T], page: int) -> SearchResults[T]:
+    offset = (page - 1) * SEARCH_PAGE_SIZE
+    return SearchResults(items[offset : offset + SEARCH_PAGE_SIZE], len(items))
 
 
 def json_array_items(chunks: Iterable[bytes]) -> Iterator[dict]:
@@ -183,35 +196,43 @@ class MusicBrainzClient:
         data = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)
         artists = [ArtistData(a["id"], a["name"]) for a in data["artists"]]
         published = self._published([artist.mbid for artist in artists])
-        kept = [artist for artist in artists if artist.mbid in published]
-        offset = (page - 1) * SEARCH_PAGE_SIZE
-        return SearchResults(kept[offset : offset + SEARCH_PAGE_SIZE], len(kept))
+        return _page([artist for artist in artists if artist.mbid in published], page)
 
     def search_albums(self, query: str, page: int) -> SearchResults[AlbumData]:
         lucene = f"releasegroup:({_escape(query)}) AND primarytype:album"
-        return self._search("release-group", "release-groups", lucene, page, _album)
+        offset = (page - 1) * SEARCH_PAGE_SIZE
+        data = self._mb("/release-group", query=lucene, limit=SEARCH_PAGE_SIZE, offset=offset)
+        return SearchResults([_album(group) for group in data["release-groups"]], data["count"])
 
     def search_songs(self, query: str, page: int) -> SearchResults[SongData]:
-        return self._search("recording", "recordings", _escape(query), page, _song)
+        # musicbrainz ties thousands of matches at full score, so the top matches are reranked here
+        recordings = self._mb("/recording", query=_escape(query), limit=MB_MAX_LIMIT)["recordings"]
+        listens = self._listens("recording", [recording["id"] for recording in recordings])
+        terms = _words(query)
 
-    def _search[T](
-        self, entity: str, key: str, query: str, page: int, parse: Callable[[dict], T]
-    ) -> SearchResults[T]:
-        offset = (page - 1) * SEARCH_PAGE_SIZE
-        data = self._mb(f"/{entity}", query=query, limit=SEARCH_PAGE_SIZE, offset=offset)
-        return SearchResults([parse(item) for item in data[key]], data["count"])
+        # recordings matching more of the query lead, then the most played
+        def rank(recording: dict) -> tuple[int, int]:
+            names = " ".join(credit["name"] for credit in recording["artist-credit"])
+            text = f"{recording['title']} {recording.get('disambiguation', '')} {names}"
+            return -len(terms & _words(text)), -listens.get(recording["id"], 0)
 
-    def _published(self, mbids: list[str]) -> set[str]:
+        return _page([_song(recording) for recording in sorted(recordings, key=rank)], page)
+
+    def _listens(self, kind: str, mbids: list[str]) -> dict[str, int]:
         if not mbids:
-            return set()
-        # one batch call clears every artist someone has listened to
+            return {}
         rows = self._request(
-            f"{LB_ROOT}/popularity/artist",
+            f"{LB_ROOT}/popularity/{kind}",
             {},
             self._listenbrainz_auth,
-            body={"artist_mbids": mbids},
+            body={f"{kind}_mbids": mbids},
         )
-        heard = {row["artist_mbid"] for row in rows if row["total_listen_count"]}
+        # anything nobody has played comes back as null
+        return {row[f"{kind}_mbid"]: row["total_listen_count"] or 0 for row in rows}
+
+    def _published(self, mbids: list[str]) -> set[str]:
+        # one batch call clears every artist someone has listened to
+        heard = {mbid for mbid, count in self._listens("artist", mbids).items() if count}
         unheard = [mbid for mbid in mbids if mbid not in heard]
         if not unheard:
             return heard

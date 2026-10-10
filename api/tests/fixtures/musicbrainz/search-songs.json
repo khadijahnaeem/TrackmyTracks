@@ -1,35 +1,1463 @@
 {
-  "count": 34017,
+  "count": 490651,
   "offset": 0,
   "recordings": [
     {
-      "id": "7e2c01ee-4ab2-41c7-9b4a-57f712053183",
-      "title": "Karma Police",
-      "disambiguation": "live, 2003‐06‐04: Electric Lady Studios, New York City, NY, USA",
-      "length": null,
+      "id": "88b546cd-e91f-4732-af5b-a2bf8a15cc15",
+      "title": "Mothers and Fathers",
+      "length": 224000,
       "artist-credit": [
         {
-          "name": "Radiohead",
-          "joinphrase": "",
+          "name": "Dom Fera",
           "artist": {
-            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
-            "name": "Radiohead"
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
           }
         }
       ]
     },
     {
-      "id": "6a29ed9f-b78c-4281-902a-8ff78af43f67",
-      "title": "Karma Police",
-      "disambiguation": "live, 1997-12-19: Hammerstein Ballroom, New York City, NY, USA",
-      "length": 253720,
+      "id": "e2ba695c-d279-4f45-92bd-3023e98c8094",
+      "title": "Marked",
+      "length": null,
       "artist-credit": [
         {
-          "name": "Radiohead",
-          "joinphrase": "",
+          "name": "Dom Fera",
           "artist": {
-            "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
-            "name": "Radiohead"
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a4bcbe62-5c4a-46e9-8ce6-1e12b9fbc5d7",
+      "title": "Lately",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1475f714-999f-4768-913f-0a3917d221bc",
+      "title": "My Part (Demo)",
+      "length": 224533,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "901c7abe-dab8-4ae3-9e64-48d5934d90ea",
+      "title": "The Reckoning",
+      "length": 139212,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9a4e7931-a9af-4af3-9f57-c7ea41edf0e3",
+      "title": "Higher Soon",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "94e368f6-832c-430a-96ba-e9beb99be797",
+      "title": "Lore",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7711ba65-e5bb-40fb-997f-bf835937551a",
+      "title": "Traffic Lights",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2c76879b-8b23-43c4-bc3b-136efd85e0f5",
+      "title": "All Day",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b6167b17-cf87-4356-bd67-a609345773d5",
+      "title": "Wrong With Me",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f60454ff-3bed-4f4e-b07d-a392e322644e",
+      "title": "Straight Ahead",
+      "length": 205800,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a11247b7-88cc-41b1-996c-62b757e89904",
+      "title": "Easy Thing",
+      "length": 222680,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c02262f9-c77e-4c20-9903-ac9e1577763b",
+      "title": "Karaoke Downtown",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0469e009-fc7b-4098-be59-3cf5b74835d5",
+      "title": "My Problem",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "09f3e82e-ff2f-4562-9607-cb66dbce2915",
+      "title": "Space Frogs",
+      "length": 119000,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4948016-a178-4ca2-993f-1c0604f37448",
+      "title": "Nothing to Say",
+      "length": 170702,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b0bac0bb-d74f-4a3e-b9cf-85d1ae53fb33",
+      "title": "Karaoke Downtown",
+      "length": 175000,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1813bc0c-07c3-4005-a4d1-02b48820327e",
+      "title": "Want Me to (Demo)",
+      "length": 162900,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cdcb0868-8fa0-4f78-8651-eec50fcc9000",
+      "title": "Monster Song (Demo)",
+      "length": 174310,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "657e9d8e-499b-4cda-a8ba-3f442ae3e635",
+      "title": "Hold Me to the Light",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6ae6392-182e-43ee-a390-f797c15bf152",
+      "title": "Anybody Else",
+      "length": 158000,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "44ae6448-6ecd-4c8d-af23-17b50ecfe378",
+      "title": "Midnights in October (Shannon’s Song)",
+      "length": 213574,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f7f48fb5-eff8-4aae-8c38-0b8b032d11ec",
+      "title": "Northern Star",
+      "length": 216973,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "32400131-24ab-40aa-8dc0-9abd55870367",
+      "title": "Breathe",
+      "length": 201000,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5562c7f3-dc31-4ab3-be76-215a6b3b2d2c",
+      "title": "Wires Crossed",
+      "length": 182727,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1f9bcbb4-eb9c-4747-b594-eb38061c5b19",
+      "title": "Neighborhood",
+      "length": 189213,
+      "artist-credit": [
+        {
+          "name": "Dom Fera",
+          "artist": {
+            "id": "c80f5cca-b709-4c26-8ca5-c3cca966ccf2",
+            "name": "Dom Fera"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d66f5c8-7a0b-48e6-bed8-8783bfd7f924",
+      "title": "Star Dom",
+      "length": 216512,
+      "artist-credit": [
+        {
+          "name": "Tayls",
+          "artist": {
+            "id": "bbff0604-eac7-4ec6-97a4-3dc01d3ec822",
+            "name": "Tayls"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ea6fa7c6-5b3a-499c-8f84-bd772a69bf78",
+      "title": "Star Dom",
+      "length": 293106,
+      "artist-credit": [
+        {
+          "name": "Sumuposauttaja",
+          "artist": {
+            "id": "e0bd347a-4073-44f8-83cc-27a1a438acdf",
+            "name": "Sumuposauttaja"
+          }
+        }
+      ]
+    },
+    {
+      "id": "337c7239-1715-49ec-a6b0-edd2b01964f6",
+      "title": "Northern Star",
+      "length": 186373,
+      "artist-credit": [
+        {
+          "name": "Kyau & Albert",
+          "artist": {
+            "id": "088acc1e-6762-4350-8bd7-c8f6fb5178ec",
+            "name": "Kyau & Albert"
+          }
+        }
+      ]
+    },
+    {
+      "id": "55563f83-aefd-45e2-8bfb-3414432ff4c3",
+      "title": "Northern Star",
+      "length": 190000,
+      "artist-credit": [
+        {
+          "name": "Steven Dunston",
+          "artist": {
+            "id": "50e14506-c772-4133-b5d4-125cd3b813be",
+            "name": "Steven Dunston"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f1237ac6-6b07-486d-9dee-d546a6f7ffe2",
+      "title": "Northern Star",
+      "length": 248360,
+      "artist-credit": [
+        {
+          "name": "Melanie C",
+          "artist": {
+            "id": "25b509ef-48ad-461b-a0bc-94cdddb8c919",
+            "name": "Melanie C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e534dac2-24b7-4c05-afb0-bbea38149241",
+      "title": "Northern Star",
+      "length": 344000,
+      "artist-credit": [
+        {
+          "name": "Jeremy Rowe",
+          "artist": {
+            "id": "84573895-edf8-4df5-9a49-e15361ada86a",
+            "name": "Jeremy Rowe"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5c19fb51-d73d-4b78-bdad-ad282a517e45",
+      "title": "Northern Star",
+      "length": 233000,
+      "artist-credit": [
+        {
+          "name": "Norma MacDonald",
+          "artist": {
+            "id": "66c83fe3-9ba5-4ada-b7af-4c9dbb62ea44",
+            "name": "Norma MacDonald"
+          }
+        }
+      ]
+    },
+    {
+      "id": "25bb3b93-d084-4da2-98c7-0966e76f23e7",
+      "title": "Northern Star",
+      "length": 284000,
+      "artist-credit": [
+        {
+          "name": "Tom Cochrane",
+          "artist": {
+            "id": "825a918f-09fa-40ee-9c27-b0921d48bdbb",
+            "name": "Tom Cochrane"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bf4b6495-84f8-4b91-862f-bf8510371c43",
+      "title": "Northern Star",
+      "length": 249000,
+      "artist-credit": [
+        {
+          "name": "Winther-John",
+          "artist": {
+            "id": "ec308df8-88ac-4a95-b808-90cd45618190",
+            "name": "Winther-John"
+          }
+        }
+      ]
+    },
+    {
+      "id": "03bdca35-bde0-4032-8f7a-c6e4ba0ec704",
+      "title": "Northern Star",
+      "length": 262901,
+      "artist-credit": [
+        {
+          "name": "Kajsa Vala",
+          "artist": {
+            "id": "b6290316-b425-49c3-a007-24a45a638ecb",
+            "name": "Kajsa Vala"
+          }
+        },
+        {
+          "name": "WHO KILLED BAMBI",
+          "artist": {
+            "id": "03b7af4d-7370-4667-b607-ba5680dc42e4",
+            "name": "Who Killed Bambi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6abe7eb3-f684-4998-8382-62d734eb67c5",
+      "title": "Northern Star",
+      "length": 173000,
+      "artist-credit": [
+        {
+          "name": "Ann Reed",
+          "artist": {
+            "id": "b9af8094-59d8-497d-9db9-9973ae00c443",
+            "name": "Ann Reed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "754bb2cd-b829-4406-9a71-746f2bb9ac9d",
+      "title": "Northern Star",
+      "disambiguation": "part of “Essence of Trance [25 Years of RAM]” DJ-mix",
+      "length": 302626,
+      "artist-credit": [
+        {
+          "name": "RAM",
+          "artist": {
+            "id": "83db1a5a-e47b-4fcd-9c78-6ff5f3ff5e38",
+            "name": "RAM"
+          }
+        },
+        {
+          "name": "Susana",
+          "artist": {
+            "id": "dfb054dd-11fa-4362-acf4-aebca0105ba6",
+            "name": "Susana"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7064bbbd-648a-453b-a955-50d1ae5e5d0c",
+      "title": "Northern Star",
+      "length": 211278,
+      "artist-credit": [
+        {
+          "name": "RAM",
+          "artist": {
+            "id": "83db1a5a-e47b-4fcd-9c78-6ff5f3ff5e38",
+            "name": "RAM"
+          }
+        },
+        {
+          "name": "Susana",
+          "artist": {
+            "id": "dfb054dd-11fa-4362-acf4-aebca0105ba6",
+            "name": "Susana"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8b237e59-170b-41e1-bc1e-8d04b8995f74",
+      "title": "Northern Star",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Roger Morris",
+          "artist": {
+            "id": "af881c10-d731-499d-ae86-7d8185461866",
+            "name": "Roger Morris"
+          }
+        }
+      ]
+    },
+    {
+      "id": "446d80c9-672f-4178-bada-d1b59b810f65",
+      "title": "Northern Star",
+      "length": 241000,
+      "artist-credit": [
+        {
+          "name": "Cosmic Culture",
+          "artist": {
+            "id": "762753d8-d182-4826-a64c-1d68913e6a2f",
+            "name": "Cosmic Culture"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ec833d37-5421-4a13-86c5-4324a9ac038e",
+      "title": "Northern Star",
+      "length": 278000,
+      "artist-credit": [
+        {
+          "name": "Sarnath",
+          "artist": {
+            "id": "78cfd62a-e5f0-45ee-92a3-7694615717cb",
+            "name": "Sarnath"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d20383f4-ac1e-46c1-9cc5-d1891ed5d7fb",
+      "title": "Northern Star",
+      "length": 348527,
+      "artist-credit": [
+        {
+          "name": "Dismyth",
+          "artist": {
+            "id": "4989e97f-5b19-45e1-95ab-479fbd8e53bd",
+            "name": "Dismyth"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a4412e36-e7cb-430f-a386-6d625662a123",
+      "title": "Northern Star",
+      "length": 197000,
+      "artist-credit": [
+        {
+          "name": "Geneviève Racette",
+          "artist": {
+            "id": "ed51a41b-1050-4458-b8f5-e7a669508ea9",
+            "name": "Geneviève Racette"
+          }
+        }
+      ]
+    },
+    {
+      "id": "6d192d5c-116e-4856-9b3c-a5839fab4c12",
+      "title": "Northern Star",
+      "length": 203000,
+      "artist-credit": [
+        {
+          "name": "Geneviève Racette",
+          "artist": {
+            "id": "ed51a41b-1050-4458-b8f5-e7a669508ea9",
+            "name": "Geneviève Racette"
+          }
+        }
+      ]
+    },
+    {
+      "id": "81235e5c-a5f7-455a-9cb4-cd1cd74e6e98",
+      "title": "Northern Star",
+      "length": 247000,
+      "artist-credit": [
+        {
+          "name": "Melanie C",
+          "artist": {
+            "id": "25b509ef-48ad-461b-a0bc-94cdddb8c919",
+            "name": "Melanie C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a733b75f-7d27-4280-8928-12d31afad053",
+      "title": "Northern Star",
+      "length": 278000,
+      "artist-credit": [
+        {
+          "name": "Melanie C",
+          "artist": {
+            "id": "25b509ef-48ad-461b-a0bc-94cdddb8c919",
+            "name": "Melanie C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2cad1348-1e7b-4a0a-bf2f-72e60df3601f",
+      "title": "Northern Star",
+      "length": 233000,
+      "artist-credit": [
+        {
+          "name": "Girls in My Pocket",
+          "artist": {
+            "id": "c0a14724-a1ce-489e-8c27-1c137e391b0b",
+            "name": "Girls in My Pocket"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dd8d96dc-50d8-4e16-8505-3777f3f1035f",
+      "title": "Northern Star",
+      "length": 238000,
+      "artist-credit": [
+        {
+          "name": "Singleton",
+          "artist": {
+            "id": "f488b7c4-5854-4a50-ab80-d2bcee7ec6db",
+            "name": "Singleton"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ffe18ed-828d-452e-a2c8-f80c22de47fc",
+      "title": "Northern Star",
+      "length": 209480,
+      "artist-credit": [
+        {
+          "name": "Everdawn",
+          "artist": {
+            "id": "294389bb-3877-4876-bb5e-12ce64b1de10",
+            "name": "Everdawn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "14497b3a-b4e4-4415-abfa-a5d1cc13490f",
+      "title": "Northern Star",
+      "length": 286000,
+      "artist-credit": [
+        {
+          "name": "Tony Mills",
+          "artist": {
+            "id": "2f4ea662-afa9-4483-9233-b7007a018512",
+            "name": "Tony Mills"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cbb2b9a7-2d20-41b6-9882-c1f98d8f4434",
+      "title": "Northern Star",
+      "length": 299401,
+      "artist-credit": [
+        {
+          "name": "Steve Steinman",
+          "artist": {
+            "id": "02efde8e-7f30-4237-b51d-42e332e72c72",
+            "name": "Steve Steinman"
+          }
+        },
+        {
+          "name": "Emily Clark",
+          "artist": {
+            "id": "d5580d55-e6f9-4185-96c0-013b8cfc151e",
+            "name": "Emily Clark"
+          }
+        }
+      ]
+    },
+    {
+      "id": "da92171b-b7f1-4d68-9d98-6e5cabb93600",
+      "title": "Northern Star",
+      "length": 210000,
+      "artist-credit": [
+        {
+          "name": "Simon Taylor",
+          "artist": {
+            "id": "cb20a592-98f5-460b-8877-c13fb9d7240d",
+            "name": "Simon Taylor"
+          }
+        }
+      ]
+    },
+    {
+      "id": "71ac9a31-afac-407f-ae0e-e6d37eb61ad7",
+      "title": "Northern Star",
+      "length": 240560,
+      "artist-credit": [
+        {
+          "name": "Pallas",
+          "artist": {
+            "id": "be51870d-2bdc-4586-b55a-d18d21e301c3",
+            "name": "Pallas"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ba2de536-292e-4d96-9e18-a29eb7a7d4c2",
+      "title": "Northern Star",
+      "length": 162220,
+      "artist-credit": [
+        {
+          "name": "High Valley",
+          "artist": {
+            "id": "f5db378d-81c8-4f8c-a7bb-b554877732a9",
+            "name": "High Valley"
+          }
+        }
+      ]
+    },
+    {
+      "id": "35de1c66-5aa4-4069-b858-d4077a8bd263",
+      "title": "Northern Star",
+      "length": 322173,
+      "artist-credit": [
+        {
+          "name": "Christine McVie",
+          "artist": {
+            "id": "21551f7d-93f2-4cb7-ba71-7f260058e923",
+            "name": "Christine McVie"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f3e7eea7-9378-4d57-b667-532384aac94c",
+      "title": "Northern Star",
+      "length": 267586,
+      "artist-credit": [
+        {
+          "name": "Christine McVie",
+          "artist": {
+            "id": "21551f7d-93f2-4cb7-ba71-7f260058e923",
+            "name": "Christine McVie"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fb0ea8b6-5ead-4d14-ae9a-e34d5cce2ea1",
+      "title": "Northern Star",
+      "length": 120000,
+      "artist-credit": [
+        {
+          "name": "The Elites",
+          "artist": {
+            "id": "3516d9f0-5735-4a94-b1c9-b3ab4f24ae66",
+            "name": "The Elites"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a4ec4379-0e63-4126-900f-d790a0b111dc",
+      "title": "Northern Star",
+      "length": 283894,
+      "artist-credit": [
+        {
+          "name": "KEPIK",
+          "artist": {
+            "id": "e4ddfd35-bb6c-43b1-857f-1ebe7d1219da",
+            "name": "KEPIK"
+          }
+        },
+        {
+          "name": "ELUDE",
+          "artist": {
+            "id": "451294fa-0320-406f-ac9a-c0c3bfc252df",
+            "name": "ELUDE"
+          }
+        },
+        {
+          "name": "Luma",
+          "artist": {
+            "id": "ec39c9be-8802-46c5-9a2f-757b5555c32d",
+            "name": "Luma"
+          }
+        }
+      ]
+    },
+    {
+      "id": "141e2849-22f3-4e25-8d1e-85f9f717af25",
+      "title": "Northern Star",
+      "length": 204472,
+      "artist-credit": [
+        {
+          "name": "Julia Okrusko",
+          "artist": {
+            "id": "e3a9f883-ed76-4d7b-958b-22336154d52c",
+            "name": "Julia Okrusko"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1d4357e5-7b85-4f57-8c04-0ccae58da077",
+      "title": "Northern Star",
+      "length": 750120,
+      "artist-credit": [
+        {
+          "name": "Lord Gorgoroth",
+          "artist": {
+            "id": "c54cfb48-f5db-4e7c-aec5-2f7f61d6ed3f",
+            "name": "Lord Gorgoroth"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2fac07bc-f392-4496-b357-9218dc19604b",
+      "title": "Northern Star",
+      "length": 192080,
+      "artist-credit": [
+        {
+          "name": "NAMBYAR",
+          "artist": {
+            "id": "19382dd2-3c98-43a5-b320-133802103496",
+            "name": "Nambyar"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a0208e13-190e-457c-9f1e-8c832aa9c0cb",
+      "title": "Northern Star",
+      "length": 238000,
+      "artist-credit": [
+        {
+          "name": "Cosmic Culture",
+          "artist": {
+            "id": "762753d8-d182-4826-a64c-1d68913e6a2f",
+            "name": "Cosmic Culture"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7fbd0421-bc58-4be1-9959-5c020b10ade8",
+      "title": "Northern Star",
+      "length": 164707,
+      "artist-credit": [
+        {
+          "name": "Fortunate Ones",
+          "artist": {
+            "id": "9665e485-d031-4f01-b8c4-3d65b113cd49",
+            "name": "Fortunate Ones"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ee345fc9-854b-4c2d-b122-1af68f801d24",
+      "title": "Northern Star",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Hole",
+          "artist": {
+            "id": "1dcc8968-f2cd-441c-beda-6270f70f2863",
+            "name": "Hole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e8037c90-cffd-4a3c-8110-d7fb11bd3486",
+      "title": "Northern Star",
+      "disambiguation": "live, 1993-12-11: Shrine Auditorium, Los Angeles, CA, USA",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Hole",
+          "artist": {
+            "id": "1dcc8968-f2cd-441c-beda-6270f70f2863",
+            "name": "Hole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "5263db9a-8565-4e26-a7ca-c8e16cca60ab",
+      "title": "Northern Star",
+      "disambiguation": "live, 1999-05-09: Music Midtown, Atlanta, GA, USA",
+      "length": 400000,
+      "artist-credit": [
+        {
+          "name": "Hole",
+          "artist": {
+            "id": "1dcc8968-f2cd-441c-beda-6270f70f2863",
+            "name": "Hole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "680844b9-c730-4a37-8529-5d8460b36ff1",
+      "title": "Northern Star",
+      "length": 308000,
+      "artist-credit": [
+        {
+          "name": "Dead End Scene",
+          "artist": {
+            "id": "11f04616-4d77-409d-b0e3-8bed08ba3e4e",
+            "name": "Dead End Scene"
+          }
+        }
+      ]
+    },
+    {
+      "id": "396d796a-e108-4fe0-abbc-8fade4dbf165",
+      "title": "Northern Star",
+      "length": 298000,
+      "artist-credit": [
+        {
+          "name": "Hole",
+          "artist": {
+            "id": "1dcc8968-f2cd-441c-beda-6270f70f2863",
+            "name": "Hole"
+          }
+        }
+      ]
+    },
+    {
+      "id": "357e5982-e53b-454b-bc17-5c1f1622b248",
+      "title": "Northern Star",
+      "length": 321320,
+      "artist-credit": [
+        {
+          "name": "Pernilla Aidt",
+          "artist": {
+            "id": "6e1293f4-4553-4ddc-bca0-aebf8872f5f2",
+            "name": "Pernilla Aidt"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b8d0c624-8387-45ca-b37a-6533360d6cef",
+      "title": "Northern Star",
+      "length": 382000,
+      "artist-credit": [
+        {
+          "name": "Kyau vs. Albert",
+          "artist": {
+            "id": "088acc1e-6762-4350-8bd7-c8f6fb5178ec",
+            "name": "Kyau & Albert"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d525c973-2e5f-4fb5-afcb-6588a98e6944",
+      "title": "Northern Star",
+      "length": 277226,
+      "artist-credit": [
+        {
+          "name": "Alice Peacock",
+          "artist": {
+            "id": "d85122eb-7738-4608-86ec-7d4b09605e7d",
+            "name": "Alice Peacock"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33f41003-3fd0-443c-bcc3-7053f57e6687",
+      "title": "Northern Star",
+      "length": 285640,
+      "artist-credit": [
+        {
+          "name": "Molly Johnson",
+          "artist": {
+            "id": "f5ffbd35-39a0-4a5c-80ac-6678928da8d5",
+            "name": "Molly Johnson"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0a1eb331-7926-49ac-b549-1c3e3c2bfa2e",
+      "title": "Northern Star",
+      "length": 241106,
+      "artist-credit": [
+        {
+          "name": "Llynya",
+          "artist": {
+            "id": "51d2d486-734b-4591-84f2-a1cd9e4d2f87",
+            "name": "Llynya"
+          }
+        }
+      ]
+    },
+    {
+      "id": "623af0d1-880d-43c0-871e-3619ad4a6e76",
+      "title": "Northern Star",
+      "length": 280000,
+      "artist-credit": [
+        {
+          "name": "Melanie C",
+          "artist": {
+            "id": "25b509ef-48ad-461b-a0bc-94cdddb8c919",
+            "name": "Melanie C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "032e9d08-f510-4f56-ad73-903731c91cb4",
+      "title": "Northern Star",
+      "length": 205000,
+      "artist-credit": [
+        {
+          "name": "Jangli Jaggas",
+          "artist": {
+            "id": "98ace00b-26a0-4c16-91e2-55124d979f58",
+            "name": "Jangli Jaggas"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fa3b0346-1565-40de-b5e9-3475c5d0b8d3",
+      "title": "Northern Star",
+      "length": 245840,
+      "artist-credit": [
+        {
+          "name": "Studio Grande",
+          "artist": {
+            "id": "496dd4ec-8af4-46bf-939f-0be6a34caae3",
+            "name": "Studio Grande"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7c5ee0d7-536f-4722-b87d-7888b00e1aa0",
+      "title": "Northern Star",
+      "length": 322213,
+      "artist-credit": [
+        {
+          "name": "David Linx",
+          "artist": {
+            "id": "97f8219d-b96e-4763-8231-4b54083d83d0",
+            "name": "David Linx"
+          }
+        },
+        {
+          "name": "Rhoda Scott",
+          "artist": {
+            "id": "c56e08d5-5ffa-46dd-8cd4-577ec9a4630c",
+            "name": "Rhoda Scott"
+          }
+        },
+        {
+          "name": "André Ceccarelli",
+          "artist": {
+            "id": "68a155b4-0345-44be-ab3f-dc88f68960ec",
+            "name": "André Ceccarelli"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cb8bc9ab-b14a-48bf-9120-51bc8ecb4c5a",
+      "title": "Northern Star",
+      "length": 200000,
+      "artist-credit": [
+        {
+          "name": "Darryl Wezy",
+          "artist": {
+            "id": "ee9932e4-b75f-4604-ad87-fd62549bc8e4",
+            "name": "Darryl Wezy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9d637f0a-1fb0-4c4f-806d-aafae3a89d70",
+      "title": "Northern Star",
+      "length": 198000,
+      "artist-credit": [
+        {
+          "name": "Darryl Wezy",
+          "artist": {
+            "id": "ee9932e4-b75f-4604-ad87-fd62549bc8e4",
+            "name": "Darryl Wezy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d25a1adf-f09a-4de5-84fa-4b6a510f27cb",
+      "title": "Northern Star",
+      "length": 200176,
+      "artist-credit": [
+        {
+          "name": "Darryl Wezy",
+          "artist": {
+            "id": "ee9932e4-b75f-4604-ad87-fd62549bc8e4",
+            "name": "Darryl Wezy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c345b2ab-1814-4d24-8238-0b33416c5b64",
+      "title": "Northern Star",
+      "length": 299000,
+      "artist-credit": [
+        {
+          "name": "Youngteam",
+          "artist": {
+            "id": "e8fe30ee-14dd-40b9-8311-c830f879836e",
+            "name": "Youngteam"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e95bb2c-0558-46e4-9056-bee23ed66ee3",
+      "title": "Northern Star",
+      "length": 52000,
+      "artist-credit": [
+        {
+          "name": "King Crimson",
+          "artist": {
+            "id": "b38225b8-8e5f-42aa-bcdc-7bae5b5bdab3",
+            "name": "King Crimson"
+          }
+        }
+      ]
+    },
+    {
+      "id": "598e2d2e-33b1-4e1a-b7ff-f2b8d7d06713",
+      "title": "Northern Star",
+      "length": 243000,
+      "artist-credit": [
+        {
+          "name": "Llynya",
+          "artist": {
+            "id": "51d2d486-734b-4591-84f2-a1cd9e4d2f87",
+            "name": "Llynya"
+          }
+        }
+      ]
+    },
+    {
+      "id": "678d907a-4e13-440d-922d-058ed63360dc",
+      "title": "Northern Star",
+      "length": 344000,
+      "artist-credit": [
+        {
+          "name": "DJ Rob Tech",
+          "artist": {
+            "id": "5ef9212b-566e-4b54-82a6-67f08c33bad2",
+            "name": "DJ Rob Tech"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f48084b0-06a7-4c0f-836c-aab35b0abfda",
+      "title": "Northern Star",
+      "length": 214581,
+      "artist-credit": [
+        {
+          "name": "REIA",
+          "artist": {
+            "id": "ddad01ce-d128-419f-ae7f-9332161fecef",
+            "name": "REIA"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f9bf5392-2310-4c26-9432-c3259da9b8d3",
+      "title": "Northern Star",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "Klassy",
+          "artist": {
+            "id": "99a6db56-109e-4989-92e5-cc0a158aa05c",
+            "name": "Klassy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ad6eb89-fab7-4217-805d-9bd1a751943a",
+      "title": "Northern Star",
+      "length": 82602,
+      "artist-credit": [
+        {
+          "name": "Chris Norman",
+          "artist": {
+            "id": "197889a0-15b6-40bc-89b1-8859137bf823",
+            "name": "Chris Norman"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f32f14a5-b701-4e97-9527-951289b55792",
+      "title": "Northern Star",
+      "length": 249013,
+      "artist-credit": [
+        {
+          "name": "Melanie C",
+          "artist": {
+            "id": "25b509ef-48ad-461b-a0bc-94cdddb8c919",
+            "name": "Melanie C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3bd0f03-993a-49c8-a487-ca9815efc3cb",
+      "title": "Northern Star",
+      "length": null,
+      "artist-credit": [
+        {
+          "name": "The Oxbow Lake Band",
+          "artist": {
+            "id": "16c8e19e-a851-425a-904d-58c0a47b1aef",
+            "name": "The Oxbow Lake Band"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f22c9af1-07c4-4138-b2ff-a4809ec02f7d",
+      "title": "Northern Star",
+      "length": 175453,
+      "artist-credit": [
+        {
+          "name": "Cold Legistics",
+          "artist": {
+            "id": "6e44ba35-5bab-40d9-b0c8-a2fd8acb1e1e",
+            "name": "Cold Legistics"
+          }
+        }
+      ]
+    },
+    {
+      "id": "01e77862-1a99-41e3-a622-7e78c1b1a75f",
+      "title": "Northern Star",
+      "length": 241000,
+      "artist-credit": [
+        {
+          "name": "Cosmic Culture",
+          "artist": {
+            "id": "762753d8-d182-4826-a64c-1d68913e6a2f",
+            "name": "Cosmic Culture"
+          }
+        }
+      ]
+    },
+    {
+      "id": "952347d0-043b-4abb-8582-f58a0fb80c5b",
+      "title": "Northern Star",
+      "length": 270000,
+      "artist-credit": [
+        {
+          "name": "General Lafayette",
+          "artist": {
+            "id": "756820e5-b52c-4e27-91f7-fa92095f1806",
+            "name": "General Lafayette"
+          }
+        }
+      ]
+    },
+    {
+      "id": "18cc8c25-c762-4035-90af-26ac3fd1a34c",
+      "title": "Northern Star",
+      "length": 116500,
+      "artist-credit": [
+        {
+          "name": "Armagh",
+          "artist": {
+            "id": "4fdd4bf8-be98-48cc-8cd7-ed30ab7947ed",
+            "name": "Armagh"
+          }
+        }
+      ]
+    },
+    {
+      "id": "25eb5fc4-f680-4606-8083-11a6aa3dc4b1",
+      "title": "Northern Star",
+      "length": 190000,
+      "artist-credit": [
+        {
+          "name": "Steven Dunston",
+          "artist": {
+            "id": "50e14506-c772-4133-b5d4-125cd3b813be",
+            "name": "Steven Dunston"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0d9370c2-a00a-4bc7-a6a7-55374f50a7db",
+      "title": "Northern Star",
+      "length": 418000,
+      "artist-credit": [
+        {
+          "name": "VH Frenzy",
+          "artist": {
+            "id": "6cde544b-59bc-4b40-b1ca-9a28838ea143",
+            "name": "VH Frenzy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "10969c5d-11f2-4c4a-bd86-ba906d7f0924",
+      "title": "Northern Star",
+      "disambiguation": "live, 2007‐10‐31: Teatr Śląski, Katowice, Poland",
+      "length": 229000,
+      "artist-credit": [
+        {
+          "name": "Pallas",
+          "artist": {
+            "id": "be51870d-2bdc-4586-b55a-d18d21e301c3",
+            "name": "Pallas"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3a125081-8cff-4f22-bb6f-e80767394b2d",
+      "title": "Northern Star",
+      "length": 192080,
+      "artist-credit": [
+        {
+          "name": "NAMBYAR",
+          "artist": {
+            "id": "19382dd2-3c98-43a5-b320-133802103496",
+            "name": "Nambyar"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e7764040-b97d-4ffe-94e2-5f9bb76fbcb5",
+      "title": "Northern Star",
+      "length": 259066,
+      "artist-credit": [
+        {
+          "name": "Grand Magus",
+          "artist": {
+            "id": "83fbfa8e-616d-4da8-b8f7-aee37ec399f7",
+            "name": "Grand Magus"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3f404b98-a600-480f-a753-248cacffa705",
+      "title": "Northern Star",
+      "length": 246853,
+      "artist-credit": [
+        {
+          "name": "Lucia",
+          "artist": {
+            "id": "9ad0ca72-92b1-4a12-9d8a-0ba12fd5874b",
+            "name": "Lucia Cifarelli"
           }
         }
       ]
