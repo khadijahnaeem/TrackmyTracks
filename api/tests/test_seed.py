@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 
 from app.extensions import db
-from app.models import Playlist, Rating, User
+from app.models import Album, Artist, Playlist, PlaylistSong, Rating, User
 from app.ratings.queries import rating_summaries
 from app.seed import DEMO_USERS, seed
 from tests.fakes import OK_COMPUTER, RADIOHEAD
@@ -19,6 +19,7 @@ def test_seed_creates_users_ratings_and_a_playlist():
     assert result == {"artists": 1, "albums": 1, "users": 3}
     assert sorted(db.session.scalars(select(User.username))) == sorted(DEMO_USERS)
     assert _count(Playlist) == 1
+    assert _count(Rating) > 0
 
 
 def test_seed_makes_community_differ_from_each_user():
@@ -34,11 +35,12 @@ def test_seed_makes_community_differ_from_each_user():
 
 def test_seed_is_idempotent():
     seed(CATALOG)
-    counts = (_count(User), _count(Rating), _count(Playlist))
+    models = (User, Artist, Album, Rating, Playlist, PlaylistSong)
+    counts = [_count(model) for model in models]
 
     seed(CATALOG)
 
-    assert (_count(User), _count(Rating), _count(Playlist)) == counts
+    assert [_count(model) for model in models] == counts
 
 
 def test_seed_cli_reports_demo_login(app, monkeypatch):
