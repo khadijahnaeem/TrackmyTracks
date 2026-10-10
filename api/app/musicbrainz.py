@@ -47,6 +47,8 @@ class SongData:
     disambiguation: str | None
     length_ms: int | None
     artist: ArtistData
+    # only search knows how often a recording was played
+    listens: int | None = None
 
 
 @dataclass(frozen=True)
@@ -79,13 +81,14 @@ def _album(group: dict) -> AlbumData:
     )
 
 
-def _song(recording: dict) -> SongData:
+def _song(recording: dict, listens: int | None = None) -> SongData:
     return SongData(
         recording["id"],
         recording["title"],
         recording.get("disambiguation") or None,
         recording.get("length"),
         _artist(recording["artist-credit"]),
+        listens,
     )
 
 
@@ -216,7 +219,9 @@ class MusicBrainzClient:
             text = f"{recording['title']} {recording.get('disambiguation', '')} {names}"
             return -len(terms & _words(text)), -listens.get(recording["id"], 0)
 
-        return _page([_song(recording) for recording in sorted(recordings, key=rank)], page)
+        ranked = sorted(recordings, key=rank)
+        songs = [_song(recording, listens.get(recording["id"], 0)) for recording in ranked]
+        return _page(songs, page)
 
     def _listens(self, kind: str, mbids: list[str]) -> dict[str, int]:
         if not mbids:

@@ -27,8 +27,14 @@ def song_summary(song: Any) -> dict:
     }
 
 
+def song_result(song: Any) -> dict:
+    return {**song_summary(song), "listens": song.listens}
+
+
 SUMMARIES: dict[Kind, Callable[[Any], dict]] = {
     "song": song_summary,
     "album": album_summary,
     "artist": artist_summary,
 }
+# search rows also say how often a song was played
+SEARCH_RESULTS: dict[Kind, Callable[[Any], dict]] = {**SUMMARIES, "song": song_result}

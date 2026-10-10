@@ -158,7 +158,7 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `POST /api/auth/login {email, password}` | 05 | 200 `{user: User}` |
 | `POST /api/auth/logout` | 05 | 204 |
 | `GET /api/auth/me` | 05 | 200 `{user: User \| null}` |
-| `GET /api/search?type=&q=&page=` | 06 | `Page<ArtistSummary \| AlbumSummary \| SongSummary>` |
+| `GET /api/search?type=&q=&page=` | 06 | `Page<ArtistSummary \| AlbumSummary \| SongSummary & {listens: number}>`. Song and artist results come from the top 100 matches, reranked and filtered |
 | `GET /api/artists/<mbid>` | 06 | `{artist: ArtistSummary & {rating}, top_songs: (SongSummary & {rating})[], albums: AlbumSummary[]}` |
 | `GET /api/albums/<mbid>` | 06 | `{album: AlbumSummary & {rating}, tracks: (SongSummary & {rating, position})[]}` |
 | `GET /api/songs/<mbid>` | 06 | `{song: SongSummary & {rating}}` |

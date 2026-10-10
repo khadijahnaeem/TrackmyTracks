@@ -51,6 +51,23 @@ describe("SearchPage", () => {
     expect(router.state.location.search).toBe("?type=song&q=karma+police");
   });
 
+  it("says how often each song was played, and stays quiet for unplayed ones", async () => {
+    mockFetch({
+      ...ME,
+      "GET /api/search?type=song&q=karma&page=1": {
+        body: pageOf([
+          { ...karmaPolice, listens: 3893589 },
+          { ...karmaPolice, mbid: "cover", title: "Karma Police (cover)", listens: 0 },
+        ]),
+      },
+    });
+
+    renderAt("/search?type=song&q=karma");
+
+    expect(await screen.findByText("3.9M listens")).toBeInTheDocument();
+    expect(screen.queryByText(/0 listens/)).not.toBeInTheDocument();
+  });
+
   it("shows skeleton rows while results load", () => {
     mockFetch({
       ...ME,
