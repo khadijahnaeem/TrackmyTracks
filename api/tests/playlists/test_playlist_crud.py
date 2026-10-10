@@ -102,11 +102,15 @@ def test_owner_updates_fields_partially(client, login, make_user, make_playlist)
 
 
 def test_only_owner_can_change_or_delete(client, login, make_user, make_playlist):
-    url = f"/api/playlists/{make_playlist(make_user()).id}"
+    owner = make_user()
+    url = f"/api/playlists/{make_playlist(owner).id}"
     login(make_user("bob"))
 
     assert client.patch(url, json={"name": "Mine now"}).status_code == 404
     assert client.delete(url).status_code == 404
+
+    login(owner)
+    assert client.get(url).json["name"] == "Late nights"
 
 
 def test_owner_deletes_playlist(client, login, make_user, make_playlist, songs):

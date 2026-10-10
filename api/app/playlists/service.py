@@ -44,7 +44,7 @@ def renumber(entries: list[PlaylistSong]) -> None:
 
 
 def touch(playlist: Playlist) -> None:
-    playlist.updated_at = func.now()
+    playlist.updated_at = func.clock_timestamp()
 
 
 def playlist_payload(playlist: Playlist, song_count: int) -> dict:

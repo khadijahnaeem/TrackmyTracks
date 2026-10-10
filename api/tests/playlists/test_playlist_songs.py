@@ -56,6 +56,7 @@ def test_add_stops_at_the_cap(client, alice, make_playlist, songs, monkeypatch):
     response = client.post(f"/api/playlists/{playlist.id}/songs", json={"mbid": songs[1].mbid})
 
     assert response.status_code == 422
+    assert response.json["error"]["message"] == "Playlists hold up to 1 songs"
 
 
 def test_cap_is_500():
@@ -119,8 +120,19 @@ def test_reorder_requires_every_song_once(client, alice, make_playlist, songs, p
     assert response.status_code == 422
 
 
+def test_rejected_reorder_keeps_the_order(client, alice, make_playlist, songs):
+    playlist = make_playlist(alice, songs=songs)
+    mbids = [songs[0].mbid, songs[0].mbid, songs[1].mbid]
+
+    assert (
+        client.put(f"/api/playlists/{playlist.id}/songs", json={"mbids": mbids}).status_code == 422
+    )
+    assert _titles(client.get(f"/api/playlists/{playlist.id}")) == ["Airbag", "Lucky", "Let Down"]
+
+
 def test_song_routes_are_owner_only(client, login, make_user, make_playlist, songs, fake_mb):
-    playlist = make_playlist(make_user(), songs=songs[:1])
+    owner = make_user()
+    playlist = make_playlist(owner, songs=songs[:1])
     login(make_user("bob"))
     base = f"/api/playlists/{playlist.id}/songs"
 
@@ -128,3 +140,6 @@ def test_song_routes_are_owner_only(client, login, make_user, make_playlist, son
     assert client.delete(f"{base}/{songs[0].mbid}").status_code == 404
     assert client.put(base, json={"mbids": [songs[0].mbid]}).status_code == 404
     assert fake_mb.calls == []
+
+    login(owner)
+    assert _titles(client.get(f"/api/playlists/{playlist.id}")) == ["Airbag"]
