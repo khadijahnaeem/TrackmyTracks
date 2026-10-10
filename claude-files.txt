@@ -57,6 +57,7 @@ api/tests/playlists/conftest.py
 api/tests/playlists/test_playlist_crud.py
 api/tests/playlists/test_playlist_songs.py
 api/tests/test_auth.py
+api/tests/test_catalog_routes.py
 api/tests/test_catalog_service.py
 api/tests/test_effective_ratings.py
 api/tests/test_errors.py
