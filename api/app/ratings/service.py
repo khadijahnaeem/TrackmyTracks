@@ -1,11 +1,13 @@
 import uuid
 
-from sqlalchemy import delete, func
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 
+from app.auth.serializers import public_user
 from app.catalog.service import find_cached, get_or_cache
 from app.errors import NotFound, ValidationError
 from app.extensions import db
+from app.http import PER_PAGE, page_payload, paginate
 from app.kinds import KINDS, Kind
 from app.models import Album, Artist, Rating, Song, User
 from app.ratings.queries import rating_summaries
@@ -63,3 +65,25 @@ def clear_rating(user: User, kind: Kind, mbid: str) -> dict:
 
 def _rating_payload(user: User, kind: Kind, entity: Song | Album | Artist) -> dict:
     return {"mbid": entity.mbid, "rating": rating_summaries(user.id, kind, [entity.id])[entity.id]}
+
+
+def reviews_page(kind: Kind, mbid: str, page: int) -> dict:
+    entity = find_cached(kind, mbid)
+    if entity is None:
+        return page_payload([], page, 0, PER_PAGE)
+    query = (
+        select(Rating)
+        .where(getattr(Rating, f"{kind}_id") == entity.id, Rating.review.is_not(None))
+        .order_by(Rating.updated_at.desc(), Rating.id.desc())
+    )
+    return paginate(query, review_payload, page)
+
+
+def review_payload(rating: Rating) -> dict:
+    return {
+        "id": rating.id,
+        "user": public_user(rating.user),
+        "stars": rating.score / 2,
+        "review": rating.review,
+        "updated_at": rating.updated_at.isoformat(),
+    }
