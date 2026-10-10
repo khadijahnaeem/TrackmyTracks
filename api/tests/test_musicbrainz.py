@@ -1,3 +1,4 @@
+import json
 from itertools import islice
 
 import pytest
@@ -18,6 +19,22 @@ from tests.fakes import (
 
 RADIOHEAD_DATA = ArtistData(RADIOHEAD, "Radiohead")
 TOKEN = "test-token"
+# the search-artists matches that have listens or recordings, in relevance order
+PUBLISHED = [
+    "Radiohead",
+    "On a Friday",
+    "radiohead 3",
+    "DJ Radiohead",
+    "Radiohead 2",
+    "The Smile",
+    "Philip Selway",
+    "Ed O’Brien",
+    "In Rainbows",
+    "Colin Greenwood",
+    "Amnesiac Quartet",
+    "Gazz",
+    "Secret Society",
+]
 
 
 @pytest.fixture
@@ -217,20 +234,92 @@ def test_search_albums_limits_to_albums(mb, api):
     assert [album.title for album in results.items] == ["OK Computer", "OK Computer (8-bit)"]
 
 
+def _stub_published_checks(api):
+    api.post(f"{LB_ROOT}/popularity/artist", json=load_fixture("artist-popularity"))
+    api.get(f"{MB_ROOT}/recording", json=load_fixture("artist-recordings"))
+
+
 def test_search_escapes_lucene_syntax(mb, api):
     api.get(
         f"{MB_ROOT}/artist",
         json=load_fixture("search-artists"),
         match=[
             matchers.query_param_matcher(
-                {"query": 'AC\\/DC \\"live\\"', "limit": "25", "offset": "0", "fmt": "json"}
+                {"query": 'AC\\/DC \\"live\\"', "limit": "100", "fmt": "json"}
             )
         ],
     )
+    _stub_published_checks(api)
 
     results = mb.search_artists('AC/DC "live"', page=1)
 
     assert results.items[0].name == "Radiohead"
+
+
+def test_search_artists_drops_artists_with_nothing_released(mb, api):
+    api.get(f"{MB_ROOT}/artist", json=load_fixture("search-artists"))
+    _stub_published_checks(api)
+
+    results = mb.search_artists("radiohead", page=1)
+
+    assert [artist.name for artist in results.items] == PUBLISHED
+    assert results.total == len(PUBLISHED)
+
+
+def test_search_artists_looks_up_recordings_only_for_unheard_artists(mb, api):
+    matches = [artist["id"] for artist in load_fixture("search-artists")["artists"]]
+    heard = {
+        row["artist_mbid"] for row in load_fixture("artist-popularity") if row["total_listen_count"]
+    }
+    api.get(f"{MB_ROOT}/artist", json=load_fixture("search-artists"))
+    _stub_published_checks(api)
+
+    mb.search_artists("radiohead", page=1)
+
+    popularity, recordings = api.calls[1].request, api.calls[2].request
+    assert popularity.headers["Authorization"] == f"Token {TOKEN}"
+    assert json.loads(popularity.body) == {"artist_mbids": matches}
+    query = recordings.params["query"]
+    assert query.startswith("arid:(")
+    assert RADIOHEAD not in query
+    assert all(mbid in query for mbid in matches if mbid not in heard)
+
+
+def test_search_artists_pages_after_filtering(mb, api, monkeypatch):
+    monkeypatch.setattr("app.musicbrainz.SEARCH_PAGE_SIZE", 5)
+    api.get(f"{MB_ROOT}/artist", json=load_fixture("search-artists"))
+    _stub_published_checks(api)
+
+    results = mb.search_artists("radiohead", page=2)
+
+    assert [artist.name for artist in results.items] == PUBLISHED[5:10]
+    assert results.total == len(PUBLISHED)
+
+
+def test_search_artists_skips_the_recording_lookup_when_every_match_was_heard(mb, api):
+    search = load_fixture("search-artists")
+    api.get(f"{MB_ROOT}/artist", json=search)
+    api.post(
+        f"{LB_ROOT}/popularity/artist",
+        json=[
+            {"artist_mbid": artist["id"], "total_listen_count": 1} for artist in search["artists"]
+        ],
+    )
+
+    results = mb.search_artists("radiohead", page=1)
+
+    assert results.total == search["count"]
+    assert len(api.calls) == 2
+
+
+def test_search_artists_without_matches_asks_nothing_else(mb, api):
+    api.get(f"{MB_ROOT}/artist", json={"count": 0, "offset": 0, "artists": []})
+
+    results = mb.search_artists("zzqxjvkwq", page=1)
+
+    assert results.items == []
+    assert results.total == 0
+    assert len(api.calls) == 1
 
 
 def test_app_carries_a_musicbrainz_client():

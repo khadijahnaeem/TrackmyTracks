@@ -1,0 +1,90 @@
+{
+  "count": 6,
+  "offset": 0,
+  "recordings": [
+    {
+      "id": "f4b3f5d6-5979-4b2e-a1d3-278143aa5bc1",
+      "title": "Space Traveller",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "118b7a68-9249-4f5a-91f4-1fd046c07f8f",
+            "name": "DJ Radiohead"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9b5088f-246b-4933-8cd0-addc9f709a50",
+      "title": "I love D.O.G.E. and Traffiespart parts 1-6",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "33bfaa56-037f-4f7d-9a0a-c2412c636e56",
+            "name": "Radiohead 2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8549ca64-5671-4ef4-a6a4-1380cb4e68d7",
+      "title": "Die for operation epstein glory",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "33bfaa56-037f-4f7d-9a0a-c2412c636e56",
+            "name": "Radiohead 2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9dc7f86d-358e-4d93-b3e4-ff7d34d3d7be",
+      "title": "I love america the piano ballad",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "33bfaa56-037f-4f7d-9a0a-c2412c636e56",
+            "name": "Radiohead 2"
+          }
+        },
+        {
+          "artist": {
+            "id": "6a103bd5-cddc-4ba9-8fee-83ad3141df5d",
+            "name": "Skirlex"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e3b97d7f-4556-4ecf-b013-f30a71ac8e2e",
+      "title": "Greenland belongs to USA",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "33bfaa56-037f-4f7d-9a0a-c2412c636e56",
+            "name": "Radiohead 2"
+          }
+        },
+        {
+          "artist": {
+            "id": "d0b71526-b9cc-47f0-b006-3782a8575a13",
+            "name": "Metalica"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c661bca1-092d-46f1-a885-e8a12c128f4b",
+      "title": "Homosexualism is Demonic",
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "33bfaa56-037f-4f7d-9a0a-c2412c636e56",
+            "name": "Radiohead 2"
+          }
+        }
+      ]
+    }
+  ]
+}

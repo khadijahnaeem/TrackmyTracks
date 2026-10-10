@@ -27,6 +27,8 @@ ROUTES = {
     "/artist?query": "search-artists",
     "/release-group?query": "search-albums",
     "/recording?query": "search-songs",
+    "/recording?arid?query": "artist-recordings",
+    "/popularity/artist": "artist-popularity",
     f"/popularity/top-recordings-for-artist/{RADIOHEAD}": "top-recordings",
 }
 
@@ -43,10 +45,20 @@ class FakeMusicBrainz(MusicBrainzClient):
         self.routes = {path: load_fixture(name) for path, name in ROUTES.items()}
 
     def _mb(self, path: str, **params) -> dict:
-        return self._get(f"{MB_ROOT}{path}", params)
+        return self._request(f"{MB_ROOT}{path}", params)
 
-    def _get(self, url: str, params: dict, headers: dict | None = None, stream: bool = False):
+    def _request(
+        self,
+        url: str,
+        params: dict,
+        headers: dict | None = None,
+        stream: bool = False,
+        body: dict | None = None,
+    ):
         key = url.removeprefix(MB_ROOT).removeprefix(LB_ROOT)
+        # recordings looked up by artist id answer a different question than a song search
+        if params.get("query", "").startswith("arid:"):
+            key += "?arid"
         key += "".join(f"?{name}" for name in ("query", "artist") if name in params)
         self.calls.append(key)
         if self.unavailable:
