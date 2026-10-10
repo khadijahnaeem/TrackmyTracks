@@ -67,7 +67,7 @@ The legacy `frontend/` app runs with `npm run dev` from its own folder.
 
 ## Workflow
 
-- Each slice is a branch named `slice/NN-name` and one pull request into `main`, which needs one approving review and green CI
+- Each change is a branch named `<type>/<topic>` and one pull request into `main`, which needs one approving review and green CI. The type matches the commit prefix (`feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`) and the topic is a few kebab case words, like `feat/search-listen-counts`. The original slices used `slice/NN-name`
 - Each slice adds its own README section when it lands, so the README only describes folders that exist. README commands must work when pasted into a fresh terminal
 - Specs go in `docs/superpowers/specs/NNN-<topic>-design.md` and plans in `docs/superpowers/plans/NNN-<topic>.md`. A spec and its plan share a 3 digit ID, and IDs are never reused
 - Files use LF line endings, enforced by `.gitattributes` and `.editorconfig`

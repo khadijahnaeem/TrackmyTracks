@@ -72,4 +72,4 @@ From the activated API terminal in `api/`, run `flask seed`. It caches four albu
 
 ## Workflow
 
-Plans live in `docs/superpowers/plans/`. Each change is a branch named for its kind and topic, like `feat/search-listen-counts` or `docs/readme-refresh`, and one pull request into `main`, which needs one approving review and a green CI run. The original build used `slice/NN-name` branches, one per slice plan.
+Plans live in `docs/superpowers/plans/`. Each change is a branch named `<type>/<topic>` and one pull request into `main`, which needs one approving review and a green CI run. The type matches the commit prefix, one of `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, or `ci`, and the topic is a few kebab case words, like `feat/search-listen-counts` or `docs/readme-refresh`. The original build used `slice/NN-name` branches, one per slice plan.
