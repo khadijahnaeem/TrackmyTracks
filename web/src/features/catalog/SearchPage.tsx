@@ -1,10 +1,11 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
-import type { AlbumSummary, ArtistSummary, Kind, SongSummary } from "../../api/types";
+import type { AlbumSummary, ArtistSummary, Kind, SearchSong } from "../../api/types";
 import {
   Button,
   cx,
   ErrorNotice,
+  formatCount,
   formatDuration,
   Notice,
   PageHeader,
@@ -166,13 +167,14 @@ function ResultList<K extends Kind>({ type, q, page, onPageChange, render }: Res
   );
 }
 
-function SongResult({ song }: { song: SongSummary }) {
+function SongResult({ song }: { song: SearchSong }) {
   return (
     <>
       <div className={rows.main}>
         <SongTitle song={song} />
         <span className={rows.meta}>
           <Link to={`/artists/${song.artist.mbid}`}>{song.artist.name}</Link>
+          {song.listens > 0 && <span>{formatCount(song.listens, "listen")}</span>}
         </span>
       </div>
       {song.length_ms !== null && <span className={rows.duration}>{formatDuration(song.length_ms)}</span>}

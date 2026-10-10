@@ -242,6 +242,7 @@ def test_search_songs_breaks_ties_by_listens_then_keeps_musicbrainz_order(mb, ap
     results = mb.search_songs("karma police", page=1)
 
     assert [song.mbid for song in results.items] == [ids[2], ids[1], ids[0], ids[3]]
+    assert [song.listens for song in results.items] == [900, 5, 0, 0]
 
 
 def test_search_songs_matches_words_across_case_accents_and_disambiguation(mb, api):

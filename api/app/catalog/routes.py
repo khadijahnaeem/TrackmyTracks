@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from sqlalchemy import select
 
 from app.auth.session import current_user
-from app.catalog.serializers import SUMMARIES, album_summary
+from app.catalog.serializers import SEARCH_RESULTS, SUMMARIES, album_summary
 from app.catalog.service import get_or_cache_album, get_or_cache_artist, get_or_cache_song
 from app.errors import ValidationError
 from app.extensions import db
@@ -35,7 +35,7 @@ def search():
         "artist": client.search_artists,
     }
     results = searches[kind](query, page)
-    items = [SUMMARIES[kind](item) for item in results.items]
+    items = [SEARCH_RESULTS[kind](item) for item in results.items]
     return page_payload(items, page, results.total, SEARCH_PAGE_SIZE)
 
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatAverage, formatDate, formatDuration, pluralize } from "./format";
+import { formatAverage, formatCount, formatDate, formatDuration, pluralize } from "./format";
 
 describe("format", () => {
   it("shows averages with one decimal", () => {
@@ -19,5 +19,12 @@ describe("format", () => {
   it("pluralizes nouns", () => {
     expect(pluralize(1, "song")).toBe("1 song");
     expect(pluralize(3, "song")).toBe("3 songs");
+  });
+
+  it("shortens large counts", () => {
+    expect(formatCount(3893589, "listen")).toBe("3.9M listens");
+    expect(formatCount(40783, "listen")).toBe("40.8K listens");
+    expect(formatCount(950, "listen")).toBe("950 listens");
+    expect(formatCount(1, "listen")).toBe("1 listen");
   });
 });

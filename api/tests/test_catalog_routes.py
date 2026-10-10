@@ -45,7 +45,15 @@ def test_song_search_includes_disambiguation_and_artist(client):
         "disambiguation": "live, 1999-05-09: Music Midtown, Atlanta, GA, USA",
         "length_ms": 400000,
         "artist": {"mbid": "1dcc8968-f2cd-441c-beda-6270f70f2863", "name": "Hole"},
+        "listens": 0,
     }
+
+
+def test_song_search_carries_listen_counts(client):
+    query = {"type": "song", "q": "northern star dom fera"}
+    first = client.get("/api/search", query_string=query).json["items"][0]
+
+    assert (first["title"], first["listens"]) == ("Northern Star", 2042)
 
 
 def test_artist_search_hides_artists_with_nothing_released(client):
