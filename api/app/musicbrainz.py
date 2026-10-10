@@ -18,6 +18,8 @@ TIMEOUT_SECONDS = 5
 MIN_INTERVAL_SECONDS = 1.0
 UNAVAILABLE = "Music catalog is unavailable, try again"
 SEARCH_PAGE_SIZE = 25
+# the most results musicbrainz returns per request
+MB_MAX_LIMIT = 100
 LUCENE_SPECIAL = re.compile(r'([+\-&|!(){}\[\]^"~*?:\\/])')
 JSON_ARRAY_GAP = re.compile(r"[\s,\[\]]*")
 
@@ -159,7 +161,7 @@ class MusicBrainzClient:
 
     def top_songs(self, artist: ArtistData, limit: int = 5) -> list[SongData]:
         try:
-            rows = self._get(
+            rows = self._request(
                 f"{LB_ROOT}/popularity/top-recordings-for-artist/{artist.mbid}",
                 {},
                 self._listenbrainz_auth,
@@ -177,9 +179,13 @@ class MusicBrainzClient:
         ]
 
     def search_artists(self, query: str, page: int) -> SearchResults[ArtistData]:
-        return self._search(
-            "artist", "artists", _escape(query), page, lambda a: ArtistData(a["id"], a["name"])
-        )
+        # artists with nothing released are dropped, so the top matches are filtered and paged here
+        data = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)
+        artists = [ArtistData(a["id"], a["name"]) for a in data["artists"]]
+        published = self._published([artist.mbid for artist in artists])
+        kept = [artist for artist in artists if artist.mbid in published]
+        offset = (page - 1) * SEARCH_PAGE_SIZE
+        return SearchResults(kept[offset : offset + SEARCH_PAGE_SIZE], len(kept))
 
     def search_albums(self, query: str, page: int) -> SearchResults[AlbumData]:
         lucene = f"releasegroup:({_escape(query)}) AND primarytype:album"
@@ -195,6 +201,29 @@ class MusicBrainzClient:
         data = self._mb(f"/{entity}", query=query, limit=SEARCH_PAGE_SIZE, offset=offset)
         return SearchResults([parse(item) for item in data[key]], data["count"])
 
+    def _published(self, mbids: list[str]) -> set[str]:
+        if not mbids:
+            return set()
+        # one batch call clears every artist someone has listened to
+        rows = self._request(
+            f"{LB_ROOT}/popularity/artist",
+            {},
+            self._listenbrainz_auth,
+            body={"artist_mbids": mbids},
+        )
+        heard = {row["artist_mbid"] for row in rows if row["total_listen_count"]}
+        unheard = [mbid for mbid in mbids if mbid not in heard]
+        if not unheard:
+            return heard
+        # unheard artists are kept when any recording credits them
+        data = self._mb("/recording", query=f"arid:({' OR '.join(unheard)})", limit=MB_MAX_LIMIT)
+        credited = {
+            credit["artist"]["id"]
+            for recording in data["recordings"]
+            for credit in recording["artist-credit"]
+        }
+        return heard | credited.intersection(unheard)
+
     def _mb(self, path: str, **params) -> dict:
         # musicbrainz allows one request per second per client
         with self._lock:
@@ -202,14 +231,27 @@ class MusicBrainzClient:
             if wait > 0:
                 time.sleep(wait)
             try:
-                return self._get(f"{MB_ROOT}{path}", {**params, "fmt": "json"})
+                return self._request(f"{MB_ROOT}{path}", {**params, "fmt": "json"})
             finally:
                 self._next_request_at = time.monotonic() + MIN_INTERVAL_SECONDS
 
-    def _get(self, url: str, params: dict, headers: dict | None = None, stream: bool = False):
+    def _request(
+        self,
+        url: str,
+        params: dict,
+        headers: dict | None = None,
+        stream: bool = False,
+        body: dict | None = None,
+    ):
         try:
-            response = self._http.get(
-                url, params=params, headers=headers, timeout=TIMEOUT_SECONDS, stream=stream
+            response = self._http.request(
+                "GET" if body is None else "POST",
+                url,
+                params=params,
+                json=body,
+                headers=headers,
+                timeout=TIMEOUT_SECONDS,
+                stream=stream,
             )
         except requests.RequestException as error:
             raise CatalogUnavailable(UNAVAILABLE) from error

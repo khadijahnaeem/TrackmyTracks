@@ -47,6 +47,15 @@ def test_song_search_includes_disambiguation_and_artist(client):
     }
 
 
+def test_artist_search_hides_artists_with_nothing_released(client):
+    body = client.get("/api/search", query_string={"type": "artist", "q": "radiohead"}).json
+
+    names = [artist["name"] for artist in body["items"]]
+    assert body["total"] == len(names) == 13
+    assert "Gazz" in names
+    assert "Fake Plastic Radiohead" not in names
+
+
 def test_search_caches_nothing(client):
     for kind in ("song", "album", "artist"):
         assert (

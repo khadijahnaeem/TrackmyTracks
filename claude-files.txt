@@ -46,6 +46,8 @@ api/tests/__init__.py
 api/tests/conftest.py
 api/tests/fakes.py
 api/tests/fixtures/musicbrainz/artist-albums.json
+api/tests/fixtures/musicbrainz/artist-popularity.json
+api/tests/fixtures/musicbrainz/artist-recordings.json
 api/tests/fixtures/musicbrainz/artist.json
 api/tests/fixtures/musicbrainz/recording.json
 api/tests/fixtures/musicbrainz/release-group.json
