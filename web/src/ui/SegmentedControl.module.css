@@ -9,7 +9,7 @@
 }
 
 .segment {
-  height: var(--space-8);
+  height: var(--control-height);
   padding: 0 var(--space-4);
   background: transparent;
   border: 0;

@@ -23,6 +23,13 @@
   gap: var(--space-6);
 }
 
+.brand,
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+}
+
 .brand {
   font-family: var(--font-heading);
   font-size: var(--text-lg);

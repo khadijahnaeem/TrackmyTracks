@@ -47,6 +47,8 @@
 }
 
 .title {
+  margin-block: calc(-1 * var(--space-2));
+  padding-block: var(--space-2);
   font-weight: 600;
   overflow-wrap: anywhere;
 }

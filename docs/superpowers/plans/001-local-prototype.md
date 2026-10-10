@@ -20,12 +20,12 @@ This file is the index. The work is split into ten slices, each a self-contained
 | 02 | [API foundation](001-local-prototype/02-api-foundation.md) | Dev 1 | 1 | 01 | done |
 | 03 | [Web foundation](001-local-prototype/03-web-foundation.md) | Dev 2 | 1 | nothing | done |
 | 04 | [Music catalog service](001-local-prototype/04-music-catalog.md) | Dev 3 | 1 to 2 | nothing for Task 1, 02 Task 1 for Tasks 2 and 3, 02 for Tasks 4 and 5 | done |
-| 11 | [Mock API](003-ui-first.md) Tasks 2 to 6 | Dev 2 | 2 | 03 | A0 |
-| 05 | [Auth](001-local-prototype/05-auth.md) | Dev 1 | 2 | 02, 03 | A1 web tasks, B API tasks |
-| 06 | [Catalog pages](001-local-prototype/06-catalog-pages.md) | Dev 2 | 2 to 4 | 04, then 07 Task 3 and 08 Task 3 for the page tasks | A1 web tasks, B API tasks |
-| 07 | [Ratings and reviews](001-local-prototype/07-ratings-reviews.md) | Dev 3 | 2 to 4 | 04, 05 Task 1 | A1 web tasks, B API tasks |
-| 08 | [Playlists](001-local-prototype/08-playlists.md) | Dev 4 | 2 to 4 | 04, 05 Task 1 | A1 web tasks, B API tasks |
-| 09 | [History](001-local-prototype/09-history.md) | Dev 1 | 3 to 4 | 02, 03 | A1 web tasks, B API tasks |
+| 11 | [Mock API](003-ui-first.md) Tasks 2 to 6 | Dev 2 | 2 | 03 | done |
+| 05 | [Auth](001-local-prototype/05-auth.md) | Dev 1 | 2 | 02, 03 | done |
+| 06 | [Catalog pages](001-local-prototype/06-catalog-pages.md) | Dev 2 | 2 to 4 | 04, then 07 Task 3 and 08 Task 3 for the page tasks | done |
+| 07 | [Ratings and reviews](001-local-prototype/07-ratings-reviews.md) | Dev 3 | 2 to 4 | 04, 05 Task 1 | done |
+| 08 | [Playlists](001-local-prototype/08-playlists.md) | Dev 4 | 2 to 4 | 04, 05 Task 1 | done |
+| 09 | [History](001-local-prototype/09-history.md) | Dev 1 | 3 to 4 | 02, 03 | done |
 | 10 | [Integration](001-local-prototype/10-integration.md) | All | 6 to 7 | all | C |
 
 The remaining work is built UI first. A0 is the browser mock API, A1 is every web task running against it, B is the API tasks built to the contract the finished pages use, and C is integration, which starts with [003](003-ui-first.md) Task 10 removing the mock. The Depends on column describes the API tasks, and the Day column is the original estimate from before the UI first order. Every web task depends on slice 11 instead, and keeps the web task order below.
@@ -39,7 +39,7 @@ B   02, 04 --> 05 Task 1 --> 06 Tasks 1 and 2, 07 Tasks 1 and 2, 08 Tasks 1 and 
 C   all --> 003 Task 10 --> 10
 ```
 
-Web tasks run against `npm run dev:mock`. Any route or shape a page changes updates this index in the same pull request, and each B task is checked against this index and its handler file in `web/src/mocks/handlers/` before it runs.
+Any route or shape a page changes updates this index in the same pull request.
 
 Each slice is one branch named `slice/NN-name` and one pull request. Merge to `main` as soon as a slice's tasks pass review, since later slices build on it.
 
@@ -197,13 +197,6 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/ratings/RatingControl.tsx` | 07 | `RatingControl({kind, mbid, rating, title?, compact?})`, self-contained, pass `title` on compact rows |
 | `src/features/ratings/ReviewList.tsx` | 07 | `ReviewList({kind, mbid})`, no heading or outer margin, the page wraps it in a Reviews section |
 | `src/features/playlists/AddToPlaylistButton.tsx` | 08 | `AddToPlaylistButton({mbid, title?})`, pass `title` on song rows so each button has a distinct accessible name |
-| `src/mocks/browser.ts` | 11 (003 Task 2) | `startMockApi(): Promise<void>`, starts `setupWorker` over a leading 250 ms delay then every feature's handlers |
-| `src/mocks/respond.ts` | 11 (003 Task 2) | `MockApiError {status, code}`, `unauthorized(message?)`, `invalid(message)`, `notFound(message)`, `conflict(message)`, `route(resolver)`, `created(body)`, `noContent()`, `requiredText(data, field, maxLength)`, `optionalText(data, field, maxLength)`, `pageArg(url)`, `pagePayload(items, page, total, perPage)`, `paginate(all, page, perPage)`, `isUnhandledApiRequest(request)` |
-| `src/mocks/testing.ts` | 11 (003 Tasks 2 and 4) | `useMockServer(...handlers)` registers an `msw/node` server and resets the store before each test, `call<T>(method, path, body?) -> {status, body}` |
-| `src/mocks/handlers/<feature>.ts` | 11, then 05 to 09 | `authHandlers`, `catalogHandlers`, `ratingsHandlers`, `playlistsHandlers`, `historyHandlers`, each `HttpHandler[]`, filled by the feature that owns the routes |
-| `src/mocks/seed.ts` | 11 (003 Task 3) | `SEED_ARTISTS`, `SEED_ALBUMS`, `SEED_SONGS`, `SEED_USERS`, `SEED_RATINGS`, `SEED_PLAYLISTS`, `DEMO_LOGIN`, and the `MockUser`, `MockRating`, `MockPlaylist` record types |
-| `src/mocks/catalog.ts` | 11 (003 Task 3) | `artistSummary(mbid)`, `albumSummary(mbid)`, `songSummary(mbid)`, `SUMMARIES`, `hasEntity(kind, mbid)`, `albumTracks`, `artistAlbums`, `artistTopSongs`, `songsBy`, `songsOn`, `searchCatalog(kind, query)` |
-| `src/mocks/store.ts` | 11 (003 Task 4) | `state()`, `save()`, `resetStore()`, `nextId()`, `now()`, `STORAGE_KEY`, `STORE_VERSION`, `currentUser()`, `requireUser()`, `logIn(user)`, `logOut()`, `userPayload(user)`, `publicUser(userId)`, `findUserByName(username)`, `ratingSummary(kind, mbid)`, `rated(kind, mbid, summary)`, and re-exports the `Mock*` record types |
 
 Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08).
 

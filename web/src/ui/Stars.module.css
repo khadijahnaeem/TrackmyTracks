@@ -1,4 +1,6 @@
 .stars {
+  --star-pad: 0;
+
   position: relative;
   display: inline-flex;
   flex: none;
@@ -13,6 +15,10 @@
 }
 
 .interactive {
+  --star-pad: calc((var(--control-height) - var(--star-size)) / 2);
+
+  margin-block: calc(-1 * var(--star-pad));
+  padding-block: var(--star-pad);
   cursor: pointer;
   border-radius: var(--radius);
 }
@@ -41,7 +47,7 @@
 
 .fill {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: var(--star-pad) auto var(--star-pad) 0;
   overflow: hidden;
   pointer-events: none;
 }

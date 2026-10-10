@@ -60,17 +60,9 @@ npm run dev      # http://localhost:5173, open this one
 
 Vite proxies `/api` to Flask, so the browser only ever talks to port 5173. Run the web tests with `npm test` from `web/`.
 
-### Without the API
+### Demo data
 
-To work on the web app without Postgres or Flask, run the mock API from `web/`. Nothing else needs to run.
-
-```bash
-cd web
-npm install      # first time only
-npm run dev:mock # http://localhost:5173
-```
-
-Log in with `demo@trackmytracks.dev` and `listen-closely`, or register a new account. The mock keeps its data in the browser, so clear the site data for localhost:5173 to reset it.
+From the activated API terminal in `api/`, run `flask seed`. It caches four albums from MusicBrainz, about half a minute on the first run, and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
 
 ### Earlier prototype
 
