@@ -330,6 +330,9 @@ def test_search_artists_drops_artists_with_nothing_released(mb, api):
 
     assert [artist.name for artist in results.items] == PUBLISHED
     assert results.total == len(PUBLISHED)
+    listens = {artist.name: artist.listens for artist in results.items}
+    # DJ Radiohead has a recording but no listens, so it stays with a zero count
+    assert (listens["Radiohead"], listens["DJ Radiohead"]) == (134659628, 0)
 
 
 def test_search_artists_looks_up_recordings_only_for_unheard_artists(mb, api):
