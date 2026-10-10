@@ -7,6 +7,7 @@ from app.auth.routes import bp as auth_bp
 from app.catalog.routes import bp as catalog_bp
 from app.errors import register_error_handlers
 from app.extensions import db, migrate
+from app.history.routes import bp as history_bp
 from app.musicbrainz import MusicBrainzClient
 from app.playlists.routes import bp as playlists_bp
 from app.ratings.routes import bp as ratings_bp
@@ -29,6 +30,6 @@ def create_app(overrides: dict | None = None) -> Flask:
     app.extensions["musicbrainz"] = MusicBrainzClient(
         app.config["MB_USER_AGENT"], app.config["LISTENBRAINZ_TOKEN"]
     )
-    for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp):
+    for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp, history_bp):
         app.register_blueprint(blueprint)
     return app
