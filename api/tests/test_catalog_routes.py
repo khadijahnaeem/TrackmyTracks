@@ -18,7 +18,7 @@ from tests.fakes import AIRBAG, KARMA_POLICE, OK_COMPUTER, RADIOHEAD
 @pytest.mark.parametrize(
     ("kind", "query", "first"),
     [
-        ("song", "karma police", "Karma Police"),
+        ("song", "northern star dom fera", "Northern Star"),
         ("album", "ok computer", "OK Computer"),
         ("artist", "radiohead", "Radiohead"),
     ],
@@ -35,15 +35,16 @@ def test_search_returns_a_page_of_summaries(client, kind, query, first):
 
 
 def test_song_search_includes_disambiguation_and_artist(client):
-    body = client.get("/api/search", query_string={"type": "song", "q": "karma"}).json
+    query = {"type": "song", "q": "northern star hole live"}
+    body = client.get("/api/search", query_string=query).json
 
-    assert body["total"] == 34017
+    assert body["total"] == 100
     assert body["items"][1] == {
-        "mbid": "6a29ed9f-b78c-4281-902a-8ff78af43f67",
-        "title": "Karma Police",
-        "disambiguation": "live, 1997-12-19: Hammerstein Ballroom, New York City, NY, USA",
-        "length_ms": 253720,
-        "artist": {"mbid": RADIOHEAD, "name": "Radiohead"},
+        "mbid": "5263db9a-8565-4e26-a7ca-c8e16cca60ab",
+        "title": "Northern Star",
+        "disambiguation": "live, 1999-05-09: Music Midtown, Atlanta, GA, USA",
+        "length_ms": 400000,
+        "artist": {"mbid": "1dcc8968-f2cd-441c-beda-6270f70f2863", "name": "Hole"},
     }
 
 

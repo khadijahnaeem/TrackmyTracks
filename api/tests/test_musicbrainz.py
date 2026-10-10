@@ -196,21 +196,86 @@ def test_network_failure_is_unavailable(mb, api):
         mb.get_artist(RADIOHEAD)
 
 
-def test_search_songs_pages_and_parses(mb, api):
+def _recording(mbid: str, title: str, artist: str = "Dom Fera") -> dict:
+    credit = {"name": artist, "artist": {"id": RADIOHEAD, "name": artist}}
+    return {"id": mbid, "title": title, "artist-credit": [credit]}
+
+
+def _stub_song_search(api, recordings: list[dict], listens: dict[str, int | None]):
+    api.get(f"{MB_ROOT}/recording", json={"count": 99999, "offset": 0, "recordings": recordings})
+    api.post(
+        f"{LB_ROOT}/popularity/recording",
+        json=[{"recording_mbid": mbid, "total_listen_count": n} for mbid, n in listens.items()],
+    )
+
+
+def test_search_songs_puts_recordings_matching_every_word_first(mb, api):
     api.get(
         f"{MB_ROOT}/recording",
         json=load_fixture("search-songs"),
         match=[
             matchers.query_param_matcher(
-                {"query": "karma police", "limit": "25", "offset": "25", "fmt": "json"}
+                {"query": "northern star dom fera", "limit": "100", "fmt": "json"}
             )
         ],
     )
+    api.post(f"{LB_ROOT}/popularity/recording", json=load_fixture("recording-popularity"))
 
-    results = mb.search_songs("karma police", page=2)
+    results = mb.search_songs("northern star dom fera", page=1)
 
-    assert results.total == 34017
-    assert results.items[0].disambiguation.startswith("live, 2003")
+    top = [(song.title, song.artist.name) for song in results.items[:3]]
+    assert top == [
+        ("Northern Star", "Dom Fera"),
+        ("Northern Star", "Grand Magus"),
+        ("Anybody Else", "Dom Fera"),
+    ]
+    assert results.total == len(load_fixture("search-songs")["recordings"])
+
+
+def test_search_songs_breaks_ties_by_listens_then_keeps_musicbrainz_order(mb, api):
+    recordings = [
+        _recording(f"{n}0000000-0000-4000-8000-000000000000", "Karma Police") for n in range(4)
+    ]
+    ids = [recording["id"] for recording in recordings]
+    _stub_song_search(api, recordings, {ids[0]: None, ids[1]: 5, ids[2]: 900, ids[3]: 0})
+
+    results = mb.search_songs("karma police", page=1)
+
+    assert [song.mbid for song in results.items] == [ids[2], ids[1], ids[0], ids[3]]
+
+
+def test_search_songs_matches_words_across_case_accents_and_disambiguation(mb, api):
+    plain = _recording("10000000-0000-4000-8000-000000000000", "Joga")
+    accented = _recording("20000000-0000-4000-8000-000000000000", "Jóga", "BJÖRK")
+    live = _recording("30000000-0000-4000-8000-000000000000", "Joga", "Björk") | {
+        "disambiguation": "live, 1997"
+    }
+    _stub_song_search(api, [plain, accented, live], {})
+
+    results = mb.search_songs("joga bjork live", page=1)
+
+    assert [song.mbid for song in results.items] == [live["id"], accented["id"], plain["id"]]
+
+
+def test_search_songs_pages_the_ranked_window(mb, api, monkeypatch):
+    monkeypatch.setattr("app.musicbrainz.SEARCH_PAGE_SIZE", 3)
+    recordings = [_recording(f"{n}0000000-0000-4000-8000-000000000000", "Lore") for n in range(7)]
+    _stub_song_search(api, recordings, {})
+
+    results = mb.search_songs("lore", page=3)
+
+    assert [song.mbid for song in results.items] == [recordings[6]["id"]]
+    assert results.total == 7
+
+
+def test_search_songs_without_matches_asks_nothing_else(mb, api):
+    api.get(f"{MB_ROOT}/recording", json={"count": 0, "offset": 0, "recordings": []})
+
+    results = mb.search_songs("zzqxjvkwq", page=1)
+
+    assert results.items == []
+    assert results.total == 0
+    assert len(api.calls) == 1
 
 
 def test_search_albums_limits_to_albums(mb, api):

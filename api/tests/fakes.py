@@ -29,6 +29,7 @@ ROUTES = {
     "/recording?query": "search-songs",
     "/recording?arid?query": "artist-recordings",
     "/popularity/artist": "artist-popularity",
+    "/popularity/recording": "recording-popularity",
     f"/popularity/top-recordings-for-artist/{RADIOHEAD}": "top-recordings",
 }
 
