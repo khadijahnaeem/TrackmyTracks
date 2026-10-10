@@ -60,6 +60,10 @@ npm run dev      # http://localhost:5173, open this one
 
 Vite proxies `/api` to Flask, so the browser only ever talks to port 5173. Run the web tests with `npm test` from `web/`.
 
+### Demo data
+
+From the activated API terminal in `api/`, run `flask seed`. It caches four albums from MusicBrainz and creates three accounts, `alex`, `sam`, and `jordan`, all `@example.com` with password `listen-demo`. Safe to run more than once.
+
 ### Earlier prototype
 
 `frontend/` holds the first React prototype and needs Node 22 or newer. From `frontend/`, run `npm install` once, then `npm run dev`.
