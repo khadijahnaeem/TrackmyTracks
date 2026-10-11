@@ -3,12 +3,12 @@ import uuid
 from flask import Blueprint
 from sqlalchemy import select
 
-from app.auth.session import current_user, require_user
+from app.auth.session import current_user, require_user, user_or_404
 from app.catalog.service import get_or_cache_song
 from app.errors import Conflict, NotFound, ValidationError
 from app.extensions import db
-from app.http import json_body, optional_text, required_text
-from app.models import Playlist, PlaylistSong, User
+from app.http import json_body, optional_text, parse_mbid, required_text
+from app.models import Playlist, PlaylistSong
 from app.playlists.service import (
     owned_playlist_or_404,
     playlist_detail,
@@ -36,18 +36,9 @@ def _fields(data: dict, partial: bool) -> dict:
     return fields
 
 
-def _mbid(data: dict) -> str:
-    try:
-        return str(uuid.UUID(data.get("mbid")))
-    except (TypeError, ValueError, AttributeError):
-        raise ValidationError("A valid MusicBrainz ID is required") from None
-
-
 @bp.get("/users/<username>/playlists")
 def user_playlists(username: str):
-    owner = db.session.scalar(select(User).filter_by(username=username))
-    if owner is None:
-        raise NotFound("User not found")
+    owner = user_or_404(username)
     query = (
         select(Playlist)
         .where(Playlist.user_id == owner.id)
@@ -81,7 +72,7 @@ def update_playlist(playlist_id: int):
     for name, value in _fields(json_body(), partial=True).items():
         setattr(playlist, name, value)
     db.session.commit()
-    return playlist_payload(playlist, len(playlist.entries))
+    return playlist_payload(playlist, song_counts([playlist.id]).get(playlist.id, 0))
 
 
 @bp.delete("/playlists/<int:playlist_id>")
@@ -94,7 +85,7 @@ def delete_playlist(playlist_id: int):
 @bp.post("/playlists/<int:playlist_id>/songs")
 def add_song(playlist_id: int):
     user = require_user()
-    mbid = _mbid(json_body())
+    mbid = parse_mbid(json_body().get("mbid"))
     owned_playlist_or_404(playlist_id, user)
     song = get_or_cache_song(mbid)
     # caching commits, so the row lock is taken after it

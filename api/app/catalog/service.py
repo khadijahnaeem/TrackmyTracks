@@ -15,7 +15,8 @@ def get_or_cache_song(mbid: str) -> Song:
     song = find_cached("song", mbid)
     if song is not None:
         return song
-    song_id = _upsert_song(musicbrainz().get_song(mbid))
+    data = musicbrainz().get_song(mbid)
+    song_id = _upsert_songs([data])[data.mbid]
     db.session.commit()
     return db.session.get(Song, song_id)
 
@@ -25,13 +26,14 @@ def get_or_cache_album(mbid: str) -> Album:
     if album is not None and album.fetched_at is not None:
         return album
     detail = musicbrainz().get_album(mbid)
-    album_id = _upsert_album(detail.album, fetched_at=func.now())
-    for position, track in enumerate(detail.tracks, 1):
-        db.session.execute(
-            insert(AlbumSong)
-            .values(album_id=album_id, song_id=_upsert_song(track), position=position)
-            .on_conflict_do_nothing()
-        )
+    album_id = _upsert_albums([detail.album], fetched_at=func.now())[detail.album.mbid]
+    song_ids = _upsert_songs(detail.tracks)
+    if detail.tracks:
+        tracks = [
+            {"album_id": album_id, "song_id": song_ids[track.mbid], "position": position}
+            for position, track in enumerate(detail.tracks, 1)
+        ]
+        db.session.execute(insert(AlbumSong).values(tracks).on_conflict_do_nothing())
     db.session.commit()
     return db.session.get(Album, album_id)
 
@@ -45,15 +47,19 @@ def get_or_cache_artist(mbid: str) -> Artist:
     albums = client.get_artist_albums(data.mbid)
     top_songs = client.top_songs(data)
 
-    artist_id = _upsert_artist(data, fetched_at=func.now())
-    for album in albums:
-        _upsert_album(album)
-    for rank, song in enumerate(top_songs, 1):
-        row = {"artist_id": artist_id, "rank": rank, "song_id": _upsert_song(song)}
+    artist_id = _upsert_artists([data], fetched_at=func.now())[data.mbid]
+    _upsert_albums(albums)
+    song_ids = _upsert_songs(top_songs)
+    if top_songs:
+        ranks = [
+            {"artist_id": artist_id, "rank": rank, "song_id": song_ids[song.mbid]}
+            for rank, song in enumerate(top_songs, 1)
+        ]
+        statement = insert(ArtistTopSong).values(ranks)
         db.session.execute(
-            insert(ArtistTopSong)
-            .values(**row)
-            .on_conflict_do_update(index_elements=["artist_id", "rank"], set_=row)
+            statement.on_conflict_do_update(
+                index_elements=["artist_id", "rank"], set_={"song_id": statement.excluded.song_id}
+            )
         )
     db.session.commit()
     return db.session.get(Artist, artist_id)
@@ -66,35 +72,48 @@ def get_or_cache(kind: Kind, mbid: str) -> Song | Album | Artist:
     return _GETTERS[kind](mbid)
 
 
-def _upsert(model, values: dict, update: dict) -> int:
-    statement = insert(model).values(**values)
+def _upsert(model, rows: list[dict], update: dict) -> dict[str, int]:
+    """Inserts or updates rows by mbid in one statement, returning each mbid's id"""
+    if not rows:
+        return {}
+    # one statement cannot touch a row twice, so repeated mbids collapse first
+    unique = list({row["mbid"]: {**row, **update} for row in rows}.values())
+    statement = insert(model).values(unique)
     # a no-op update still hands back the id of the row that already exists
     statement = statement.on_conflict_do_update(
         index_elements=["mbid"], set_=update or {"mbid": statement.excluded.mbid}
     )
-    return db.session.execute(statement.returning(model.id)).scalar_one()
+    return dict(db.session.execute(statement.returning(model.mbid, model.id)).all())
 
 
-def _upsert_artist(data: ArtistData, **update) -> int:
-    return _upsert(Artist, {"mbid": data.mbid, "name": data.name, **update}, update)
+def _upsert_artists(artists: list[ArtistData], **update) -> dict[str, int]:
+    return _upsert(Artist, [{"mbid": a.mbid, "name": a.name} for a in artists], update)
 
 
-def _upsert_album(data: AlbumData, **update) -> int:
-    values = {
-        "mbid": data.mbid,
-        "title": data.title,
-        "release_year": data.release_year,
-        "artist_id": _upsert_artist(data.artist),
-    }
-    return _upsert(Album, {**values, **update}, update)
+def _upsert_albums(albums: list[AlbumData], **update) -> dict[str, int]:
+    artist_ids = _upsert_artists([album.artist for album in albums])
+    rows = [
+        {
+            "mbid": album.mbid,
+            "title": album.title,
+            "release_year": album.release_year,
+            "artist_id": artist_ids[album.artist.mbid],
+        }
+        for album in albums
+    ]
+    return _upsert(Album, rows, update)
 
 
-def _upsert_song(data: SongData) -> int:
-    values = {
-        "mbid": data.mbid,
-        "title": data.title,
-        "disambiguation": data.disambiguation,
-        "length_ms": data.length_ms,
-        "artist_id": _upsert_artist(data.artist),
-    }
-    return _upsert(Song, values, {})
+def _upsert_songs(songs: list[SongData]) -> dict[str, int]:
+    artist_ids = _upsert_artists([song.artist for song in songs])
+    rows = [
+        {
+            "mbid": song.mbid,
+            "title": song.title,
+            "disambiguation": song.disambiguation,
+            "length_ms": song.length_ms,
+            "artist_id": artist_ids[song.artist.mbid],
+        }
+        for song in songs
+    ]
+    return _upsert(Song, rows, {})

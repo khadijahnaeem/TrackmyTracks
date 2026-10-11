@@ -1,6 +1,7 @@
 from flask import session
+from sqlalchemy import select
 
-from app.errors import Unauthorized
+from app.errors import NotFound, Unauthorized
 from app.extensions import db
 from app.models import User
 
@@ -20,6 +21,13 @@ def require_user() -> User:
     user = current_user()
     if user is None:
         raise Unauthorized("Log in to continue")
+    return user
+
+
+def user_or_404(username: str) -> User:
+    user = db.session.scalar(select(User).filter_by(username=username))
+    if user is None:
+        raise NotFound("User not found")
     return user
 
 

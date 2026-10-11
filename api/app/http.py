@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Callable
 from math import ceil
 
@@ -6,6 +7,7 @@ from sqlalchemy import Select
 
 from app.errors import ValidationError
 from app.extensions import db
+from app.kinds import KINDS, Kind
 
 PER_PAGE = 20
 # keeps OFFSET far below the bigint limit
@@ -36,6 +38,19 @@ def required_text(data: dict, field: str, max_length: int) -> str:
     if value is None:
         raise ValidationError(f"{field.capitalize()} is required")
     return value
+
+
+def parse_kind(value, label: str = "Kind") -> Kind:
+    if value not in KINDS:
+        raise ValidationError(f"{label} must be song, album, or artist")
+    return value
+
+
+def parse_mbid(value) -> str:
+    try:
+        return str(uuid.UUID(value))
+    except (TypeError, ValueError, AttributeError) as error:
+        raise ValidationError("Mbid must be a MusicBrainz ID") from error
 
 
 def page_arg() -> int:

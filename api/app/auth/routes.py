@@ -1,4 +1,5 @@
 import re
+from functools import cache
 
 from flask import Blueprint
 from sqlalchemy import select
@@ -18,12 +19,16 @@ EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 USERNAME = re.compile(r"^[a-z0-9_]{3,30}$")
 USERNAME_RULE = "Username must be 3 to 30 lowercase letters, numbers, or underscores"
 MAX_PASSWORD = 128
-# unknown emails still pay for one hash check, so response time never reveals who is registered
-DECOY_HASH = generate_password_hash("decoy password that never matches")
 CONFLICTS = {
     "uq_users_email": "Email is already registered",
     "uq_users_username": "Username is taken",
 }
+
+
+# unknown emails still pay for one hash check, so response time never reveals who is registered
+@cache
+def _decoy_hash() -> str:
+    return generate_password_hash("decoy password that never matches")
 
 
 def _email(data: dict) -> str:
@@ -76,7 +81,7 @@ def login():
     if not isinstance(password, str) or len(password) > MAX_PASSWORD:
         raise Unauthorized("Email or password is incorrect")
     user = db.session.scalar(select(User).filter_by(email=email))
-    matches = check_password_hash(user.password_hash if user else DECOY_HASH, password)
+    matches = check_password_hash(user.password_hash if user else _decoy_hash(), password)
     if user is None or not matches:
         raise Unauthorized("Email or password is incorrect")
     log_in(user)

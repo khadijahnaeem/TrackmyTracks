@@ -182,12 +182,7 @@ class MusicBrainzClient:
 
     def top_songs(self, artist: ArtistData, limit: int = 5) -> list[SongData]:
         try:
-            rows = self._request(
-                f"{LB_ROOT}/popularity/top-recordings-for-artist/{artist.mbid}",
-                {},
-                self._listenbrainz_auth,
-                stream=True,
-            )
+            rows = self._lb(f"/popularity/top-recordings-for-artist/{artist.mbid}", stream=True)
         except NotFound:
             # artists nobody has listened to have no popularity data
             return []
@@ -263,12 +258,7 @@ class MusicBrainzClient:
         if not mbids:
             return {}
         try:
-            rows = self._request(
-                f"{LB_ROOT}/popularity/{kind}",
-                {},
-                self._listenbrainz_auth,
-                body={f"{kind}_mbids": mbids},
-            )
+            rows = self._lb(f"/popularity/{kind}", body={f"{kind}_mbids": mbids})
         except (CatalogUnavailable, NotFound) as error:
             # counts only rank and annotate, so search carries on with musicbrainz alone
             current_app.logger.warning("ListenBrainz %s popularity failed: %s", kind, error)
@@ -301,6 +291,9 @@ class MusicBrainzClient:
                 return self._request(f"{MB_ROOT}{path}", {**params, "fmt": "json"})
             finally:
                 self._next_request_at = time.monotonic() + MIN_INTERVAL_SECONDS
+
+    def _lb(self, path: str, **options):
+        return self._request(f"{LB_ROOT}{path}", {}, self._listenbrainz_auth, **options)
 
     def _request(
         self,

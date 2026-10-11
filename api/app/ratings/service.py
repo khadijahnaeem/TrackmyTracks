@@ -1,5 +1,3 @@
-import uuid
-
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import lazyload
@@ -9,24 +7,11 @@ from app.catalog.service import find_cached, get_or_cache
 from app.errors import NotFound, ValidationError
 from app.extensions import db
 from app.http import PER_PAGE, page_payload, paginate
-from app.kinds import KINDS, Kind
+from app.kinds import RATING_TARGETS, Kind
 from app.models import Album, Artist, Rating, Song, User
 from app.ratings.queries import rating_summaries
 
 REVIEW_MAX_LENGTH = 2000
-
-
-def parse_kind(value) -> Kind:
-    if value not in KINDS:
-        raise ValidationError("Kind must be song, album, or artist")
-    return value
-
-
-def parse_mbid(value) -> str:
-    try:
-        return str(uuid.UUID(value))
-    except (TypeError, ValueError, AttributeError) as error:
-        raise ValidationError("Mbid must be a MusicBrainz ID") from error
 
 
 def parse_stars(value) -> int:
@@ -43,7 +28,7 @@ def parse_stars(value) -> int:
 
 def save_rating(user: User, kind: Kind, mbid: str, changes: dict) -> dict:
     entity = get_or_cache(kind, mbid)
-    target = f"{kind}_id"
+    target = RATING_TARGETS[kind].key
     statement = insert(Rating).values(user_id=user.id, **{target: entity.id}, **changes)
     db.session.execute(
         statement.on_conflict_do_update(
@@ -58,7 +43,7 @@ def clear_rating(user: User, kind: Kind, mbid: str) -> dict:
     entity = find_cached(kind, mbid)
     if entity is None:
         raise NotFound(f"{kind.capitalize()} not found")
-    target = getattr(Rating, f"{kind}_id")
+    target = RATING_TARGETS[kind]
     db.session.execute(delete(Rating).where(Rating.user_id == user.id, target == entity.id))
     db.session.commit()
     return _rating_payload(user, kind, entity)
@@ -75,17 +60,20 @@ def reviews_page(kind: Kind, mbid: str, page: int) -> dict:
     query = (
         select(Rating)
         .options(lazyload(Rating.song), lazyload(Rating.album), lazyload(Rating.artist))
-        .where(getattr(Rating, f"{kind}_id") == entity.id, Rating.review.is_not(None))
+        .where(RATING_TARGETS[kind] == entity.id, Rating.review.is_not(None))
         .order_by(Rating.updated_at.desc(), Rating.id.desc())
     )
     return paginate(query, review_payload, page)
 
 
-def review_payload(rating: Rating) -> dict:
+def rating_fields(rating: Rating) -> dict:
     return {
         "id": rating.id,
-        "user": public_user(rating.user),
         "stars": rating.score / 2,
         "review": rating.review,
         "updated_at": rating.updated_at.isoformat(),
     }
+
+
+def review_payload(rating: Rating) -> dict:
+    return {**rating_fields(rating), "user": public_user(rating.user)}

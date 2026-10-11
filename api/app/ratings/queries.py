@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from sqlalchemy import and_, func, select
 
 from app.extensions import db
-from app.kinds import Kind
+from app.kinds import RATING_TARGETS, Kind
 from app.models import Rating
 from app.views import EFFECTIVE_RATINGS
 
@@ -25,9 +25,7 @@ def rating_summaries(user_id: int | None, kind: Kind, target_ids: Iterable[int])
 
 def _mine(user_id: int, kind: Kind, ids: list[int]) -> dict[int, dict]:
     view = EFFECTIVE_RATINGS[kind]
-    explicit = and_(
-        Rating.user_id == view.c.user_id, getattr(Rating, f"{kind}_id") == view.c.target_id
-    )
+    explicit = and_(Rating.user_id == view.c.user_id, RATING_TARGETS[kind] == view.c.target_id)
     rows = db.session.execute(
         select(view.c.target_id, view.c.stars, view.c.is_derived, view.c.song_count, Rating.review)
         .select_from(view)
