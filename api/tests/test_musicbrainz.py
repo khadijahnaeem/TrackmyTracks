@@ -254,7 +254,7 @@ def test_search_songs_breaks_ties_by_listens_then_keeps_musicbrainz_order(mb, ap
     results = mb.search_songs("karma police", page=1)
 
     assert [song.mbid for song in results.items] == [ids[2], ids[1], ids[0], ids[3]]
-    assert [song.listens for song in results.items] == [900, 5, 0, 0]
+    assert [results.listens.get(song.mbid, 0) for song in results.items] == [900, 5, 0, 0]
 
 
 def test_search_songs_matches_words_across_case_accents_and_disambiguation(mb, api):
@@ -289,7 +289,7 @@ def test_search_songs_keeps_musicbrainz_order_when_listenbrainz_fails(mb, api):
     results = mb.search_songs("lore", page=1)
 
     assert [song.mbid for song in results.items] == [r["id"] for r in recordings]
-    assert {song.listens for song in results.items} == {0}
+    assert results.listens == {}
 
 
 def test_search_songs_without_matches_asks_nothing_else(mb, api):
@@ -353,7 +353,7 @@ def test_search_artists_drops_artists_with_nothing_released(mb, api):
 
     assert [artist.name for artist in results.items] == PUBLISHED
     assert results.total == len(PUBLISHED)
-    listens = {artist.name: artist.listens for artist in results.items}
+    listens = {artist.name: results.listens.get(artist.mbid, 0) for artist in results.items}
     # DJ Radiohead has a recording but no listens, so it stays with a zero count
     assert (listens["Radiohead"], listens["DJ Radiohead"]) == (134659628, 0)
 
@@ -413,7 +413,7 @@ def test_search_artists_keeps_every_match_when_listenbrainz_fails(mb, api, statu
     results = mb.search_artists("radiohead", page=1)
 
     assert results.total == len(search["artists"])
-    assert {artist.listens for artist in results.items} == {0}
+    assert results.listens == {}
     # nothing is filtered, so the recording lookup never runs
     assert len(api.calls) == 2
 
@@ -432,3 +432,54 @@ def test_app_carries_a_musicbrainz_client():
     app = create_app()
 
     assert isinstance(app.extensions["musicbrainz"], MusicBrainzClient)
+
+
+def _lore_recordings(count: int) -> list[dict]:
+    return [_recording(f"{n:08d}-0000-4000-8000-000000000000", "Lore") for n in range(count)]
+
+
+def test_search_pages_share_one_window(mb, api):
+    recordings = _lore_recordings(30)
+    _stub_song_search(api, recordings, {})
+
+    first = mb.search_songs("lore", page=1)
+    second = mb.search_songs("  LORE ", page=2)
+
+    assert [song.mbid for song in first.items + second.items] == [r["id"] for r in recordings]
+    assert len(api.calls) == 2
+
+
+def test_search_windows_expire(mb, api, monkeypatch):
+    monkeypatch.setattr("app.musicbrainz.SEARCH_CACHE_SECONDS", 0)
+    _stub_song_search(api, _lore_recordings(3), {})
+
+    mb.search_songs("lore", page=1)
+    mb.search_songs("lore", page=1)
+
+    assert len(api.calls) == 4
+
+
+def test_search_does_not_keep_a_window_ranked_without_listens(mb, api):
+    recordings = _lore_recordings(2)
+    api.get(f"{MB_ROOT}/recording", json={"count": 2, "offset": 0, "recordings": recordings})
+    api.post(f"{LB_ROOT}/popularity/recording", status=503)
+    api.post(
+        f"{LB_ROOT}/popularity/recording",
+        json=[{"recording_mbid": recordings[1]["id"], "total_listen_count": 7}],
+    )
+
+    mb.search_songs("lore", page=1)
+    results = mb.search_songs("lore", page=1)
+
+    assert results.items[0].mbid == recordings[1]["id"]
+    assert len(api.calls) == 4
+
+
+def test_search_cache_drops_the_oldest_window(mb, api, monkeypatch):
+    monkeypatch.setattr("app.musicbrainz.SEARCH_CACHE_SIZE", 1)
+    _stub_song_search(api, _lore_recordings(2), {})
+
+    for query in ("lore", "saga", "lore"):
+        mb.search_songs(query, page=1)
+
+    assert len(api.calls) == 6
