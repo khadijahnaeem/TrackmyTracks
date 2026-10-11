@@ -108,6 +108,32 @@ def test_login_hides_which_part_was_wrong(client, make_user, body):
     }
 
 
+def test_login_checks_a_hash_even_for_unknown_emails(client, monkeypatch):
+    checked = []
+    monkeypatch.setattr(
+        "app.auth.routes.check_password_hash", lambda *args: checked.append(args) or False
+    )
+
+    response = client.post(LOGIN, json={"email": "nobody@example.com", "password": "password123"})
+
+    assert response.status_code == 401
+    assert len(checked) == 1
+
+
+def test_login_rejects_an_overlong_password_without_hashing(client, make_user, monkeypatch):
+    make_user("alice")
+    checked = []
+    monkeypatch.setattr(
+        "app.auth.routes.check_password_hash", lambda *args: checked.append(args) or True
+    )
+
+    response = client.post(LOGIN, json={"email": "alice@example.com", "password": "x" * 129})
+
+    assert response.status_code == 401
+    assert response.json["error"]["message"] == "Email or password is incorrect"
+    assert checked == []
+
+
 def test_logout_clears_the_session(client, make_user):
     make_user("alice")
     client.post(LOGIN, json={"email": "alice@example.com", "password": "password123"})

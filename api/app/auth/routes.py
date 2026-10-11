@@ -17,6 +17,9 @@ bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 USERNAME = re.compile(r"^[a-z0-9_]{3,30}$")
 USERNAME_RULE = "Username must be 3 to 30 lowercase letters, numbers, or underscores"
+MAX_PASSWORD = 128
+# unknown emails still pay for one hash check, so response time never reveals who is registered
+DECOY_HASH = generate_password_hash("decoy password that never matches")
 CONFLICTS = {
     "uq_users_email": "Email is already registered",
     "uq_users_username": "Username is taken",
@@ -40,7 +43,7 @@ def _username(data: dict) -> str:
 # passwords are never trimmed, spaces are valid characters
 def _password(data: dict) -> str:
     password = data.get("password")
-    if not isinstance(password, str) or not 8 <= len(password) <= 128:
+    if not isinstance(password, str) or not 8 <= len(password) <= MAX_PASSWORD:
         raise ValidationError("Password must be 8 to 128 characters")
     return password
 
@@ -69,12 +72,12 @@ def login():
     data = json_body()
     email = required_text(data, "email", 254).lower()
     password = data.get("password")
+    # no stored password is longer, so overlong input is wrong without the cost of hashing it
+    if not isinstance(password, str) or len(password) > MAX_PASSWORD:
+        raise Unauthorized("Email or password is incorrect")
     user = db.session.scalar(select(User).filter_by(email=email))
-    if (
-        user is None
-        or not isinstance(password, str)
-        or not check_password_hash(user.password_hash, password)
-    ):
+    matches = check_password_hash(user.password_hash if user else DECOY_HASH, password)
+    if user is None or not matches:
         raise Unauthorized("Email or password is incorrect")
     log_in(user)
     return {"user": user_payload(user)}

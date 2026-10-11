@@ -189,7 +189,7 @@ class MusicBrainzClient:
             # artists nobody has listened to have no popularity data
             return []
         # features and guest credits belong to the first credited artist
-        own = (row for row in rows if row["artist_mbids"][0] == artist.mbid)
+        own = (row for row in rows if row.get("artist_mbids", [])[:1] == [artist.mbid])
         # rows come most played first and can run to megabytes, so reading stops at the limit
         return [
             SongData(row["recording_mbid"], row["recording_name"], None, row.get("length"), artist)
@@ -201,9 +201,11 @@ class MusicBrainzClient:
         matches = self._mb("/artist", query=_escape(query), limit=MB_MAX_LIMIT)["artists"]
         mbids = [artist["id"] for artist in matches]
         listens = self._listens("artist", mbids)
-        published = self._published(mbids, listens)
+        # without listen counts nothing can be judged unreleased, so every match stays
+        published = set(mbids) if listens is None else self._published(mbids, listens)
+        counts = listens or {}
         artists = [
-            ArtistData(artist["id"], artist["name"], listens.get(artist["id"], 0))
+            ArtistData(artist["id"], artist["name"], counts.get(artist["id"], 0))
             for artist in matches
             if artist["id"] in published
         ]
@@ -218,7 +220,7 @@ class MusicBrainzClient:
     def search_songs(self, query: str, page: int) -> SearchResults[SongData]:
         # musicbrainz ties thousands of matches at full score, so the top matches are reranked here
         recordings = self._mb("/recording", query=_escape(query), limit=MB_MAX_LIMIT)["recordings"]
-        listens = self._listens("recording", [recording["id"] for recording in recordings])
+        listens = self._listens("recording", [recording["id"] for recording in recordings]) or {}
         terms = _words(query)
 
         # recordings matching more of the query lead, then the most played
@@ -231,15 +233,21 @@ class MusicBrainzClient:
         songs = [_song(recording, listens.get(recording["id"], 0)) for recording in ranked]
         return _page(songs, page)
 
-    def _listens(self, kind: str, mbids: list[str]) -> dict[str, int]:
+    def _listens(self, kind: str, mbids: list[str]) -> dict[str, int] | None:
+        """Listen counts by mbid, or None when ListenBrainz cannot answer"""
         if not mbids:
             return {}
-        rows = self._request(
-            f"{LB_ROOT}/popularity/{kind}",
-            {},
-            self._listenbrainz_auth,
-            body={f"{kind}_mbids": mbids},
-        )
+        try:
+            rows = self._request(
+                f"{LB_ROOT}/popularity/{kind}",
+                {},
+                self._listenbrainz_auth,
+                body={f"{kind}_mbids": mbids},
+            )
+        except (CatalogUnavailable, NotFound) as error:
+            # counts only rank and annotate, so search carries on with musicbrainz alone
+            current_app.logger.warning("ListenBrainz %s popularity failed: %s", kind, error)
+            return None
         # anything nobody has played comes back as null
         return {row[f"{kind}_mbid"]: row["total_listen_count"] or 0 for row in rows}
 
