@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client";
+import { keepPreviousPage } from "../../api/keepPreviousPage";
 import type {
   AlbumSummary,
   ArtistSummary,
@@ -35,36 +36,25 @@ export interface SongDetail {
 }
 
 export function useSearch<K extends Kind>(type: K, q: string, page: number) {
+  const queryKey = ["search", type, q, page];
   return useQuery({
-    queryKey: ["search", type, q, page],
+    queryKey,
     queryFn: () => {
       const params = new URLSearchParams({ type, q, page: String(page) });
       return api.get<Page<SearchItems[K]>>(`/search?${params}`);
     },
     enabled: q !== "",
-    // only a page change within the same type and query keeps the previous page
-    placeholderData: (previous, previousQuery) =>
-      previousQuery?.queryKey[1] === type && previousQuery.queryKey[2] === q ? previous : undefined,
+    placeholderData: keepPreviousPage(queryKey),
   });
 }
 
-export function useArtist(mbid: string) {
+function useDetail<T>(kind: Kind, mbid: string) {
   return useQuery({
-    queryKey: ["artist", mbid],
-    queryFn: () => api.get<ArtistDetail>(`/artists/${encodeURIComponent(mbid)}`),
+    queryKey: [kind, mbid],
+    queryFn: () => api.get<T>(`/${kind}s/${encodeURIComponent(mbid)}`),
   });
 }
 
-export function useAlbum(mbid: string) {
-  return useQuery({
-    queryKey: ["album", mbid],
-    queryFn: () => api.get<AlbumDetail>(`/albums/${encodeURIComponent(mbid)}`),
-  });
-}
-
-export function useSong(mbid: string) {
-  return useQuery({
-    queryKey: ["song", mbid],
-    queryFn: () => api.get<SongDetail>(`/songs/${encodeURIComponent(mbid)}`),
-  });
-}
+export const useArtist = (mbid: string) => useDetail<ArtistDetail>("artist", mbid);
+export const useAlbum = (mbid: string) => useDetail<AlbumDetail>("album", mbid);
+export const useSong = (mbid: string) => useDetail<SongDetail>("song", mbid);

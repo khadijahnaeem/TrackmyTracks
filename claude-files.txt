@@ -115,6 +115,7 @@ web/package.json
 web/public/favicon.svg
 web/src/api/client.test.ts
 web/src/api/client.ts
+web/src/api/keepPreviousPage.ts
 web/src/api/queryClient.ts
 web/src/api/types.ts
 web/src/app/App.tsx
@@ -200,6 +201,7 @@ web/src/ui/Button.tsx
 web/src/ui/Card.module.css
 web/src/ui/Card.tsx
 web/src/ui/Field.module.css
+web/src/ui/InlineError.tsx
 web/src/ui/NotFoundState.tsx
 web/src/ui/Notice.module.css
 web/src/ui/Notice.tsx
@@ -207,6 +209,7 @@ web/src/ui/PageHeader.module.css
 web/src/ui/PageHeader.tsx
 web/src/ui/Pagination.module.css
 web/src/ui/Pagination.tsx
+web/src/ui/SearchLink.tsx
 web/src/ui/SegmentedControl.module.css
 web/src/ui/SegmentedControl.tsx
 web/src/ui/Skeleton.module.css
@@ -225,6 +228,7 @@ web/src/ui/format.test.ts
 web/src/ui/format.ts
 web/src/ui/global.css
 web/src/ui/index.ts
+web/src/ui/pagedResults.ts
 web/src/ui/tokens.css
 web/tsconfig.app.json
 web/tsconfig.json

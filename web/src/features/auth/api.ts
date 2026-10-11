@@ -15,12 +15,14 @@ interface MeResponse {
   user: User | null;
 }
 
-const isNotMe = (query: Query) => query.queryKey[0] !== "me";
+// search results are the same for everyone, so a session change keeps them
+const USER_INDEPENDENT = new Set(["me", "search"]);
+const isUserData = (query: Query) => !USER_INDEPENDENT.has(query.queryKey[0] as string);
 
 // reset, not remove, so mounted observers drop private data and refetch as a guest
 export function clearSession(queryClient: QueryClient) {
   queryClient.setQueryData<MeResponse>(["me"], { user: null });
-  void queryClient.resetQueries({ predicate: isNotMe });
+  void queryClient.resetQueries({ predicate: isUserData });
 }
 
 function useSessionMutation<T>(path: string) {
@@ -32,7 +34,7 @@ function useSessionMutation<T>(path: string) {
     onSuccess: (data) => {
       queryClient.setQueryData<MeResponse>(["me"], data);
       // pages cached while logged out lack this user's ratings
-      void queryClient.invalidateQueries({ predicate: isNotMe });
+      void queryClient.invalidateQueries({ predicate: isUserData });
     },
   });
 }

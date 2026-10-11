@@ -7,10 +7,9 @@ from sqlalchemy import select
 from app.auth.session import current_user
 from app.catalog.serializers import SUMMARIES, album_summary
 from app.catalog.service import get_or_cache_album, get_or_cache_artist, get_or_cache_song
-from app.errors import ValidationError
 from app.extensions import db
-from app.http import page_arg, page_payload, required_text
-from app.kinds import KINDS, Kind
+from app.http import page_arg, page_payload, parse_kind, required_text
+from app.kinds import Kind
 from app.models import Album, Artist, Song
 from app.musicbrainz import SEARCH_PAGE_SIZE, musicbrainz
 from app.ratings.queries import rating_summaries
@@ -22,9 +21,7 @@ MAX_QUERY_LENGTH = 200
 
 @bp.get("/search")
 def search():
-    kind = request.args.get("type")
-    if kind not in KINDS:
-        raise ValidationError("Type must be song, album, or artist")
+    kind = parse_kind(request.args.get("type"), "Type")
     query = required_text({"query": request.args.get("q")}, "query", MAX_QUERY_LENGTH)
     page = page_arg()
 

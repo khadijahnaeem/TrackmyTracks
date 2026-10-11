@@ -1,7 +1,6 @@
-import { Link } from "react-router";
-import { buttonClassName } from "./buttonClassName";
 import { Notice } from "./Notice";
 import { PageHeader } from "./PageHeader";
+import { SearchLink } from "./SearchLink";
 
 interface NotFoundStateProps {
   title?: string;
@@ -17,14 +16,7 @@ export function NotFoundState({
   return (
     <>
       <PageHeader title={title} />
-      <Notice
-        title={noticeTitle}
-        action={
-          <Link to="/search" className={buttonClassName("primary")}>
-            Search music
-          </Link>
-        }
-      >
+      <Notice title={noticeTitle} action={<SearchLink />}>
         {message}
       </Notice>
     </>

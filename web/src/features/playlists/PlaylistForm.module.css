@@ -20,12 +20,6 @@
   accent-color: var(--color-accent);
 }
 
-.error {
-  color: var(--color-danger);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-}
-
 .actions {
   display: flex;
   flex-wrap: wrap;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
 import type { AlbumSummary, Kind, SearchArtist, SearchSong } from "../../api/types";
 import {
@@ -9,10 +9,12 @@ import {
   formatDuration,
   Notice,
   PageHeader,
+  pageParam,
   Pagination,
   pluralize,
   SegmentedControl,
   TextField,
+  useResultsFocus,
 } from "../../ui";
 import { AddToPlaylistButton } from "../playlists/AddToPlaylistButton";
 import { type SearchItems, useSearch } from "./api";
@@ -41,25 +43,14 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q")?.trim() ?? "";
   const type = parseType(params.get("type"));
-  const pageValue = params.get("page");
-  const page = pageValue && Number.isInteger(Number(pageValue)) && Number(pageValue) > 0 ? Number(pageValue) : 1;
+  const page = pageParam(params);
 
   // shares its query with the result list through the query cache
   const search = useSearch(type, q, page);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const focusResults = useRef(false);
-
-  // focus the results heading once a page change from the pagination control settles
-  useEffect(() => {
-    if (focusResults.current && !search.isPlaceholderData) {
-      focusResults.current = false;
-      headingRef.current?.focus();
-      headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [search.isPlaceholderData, search.data, search.isError]);
+  const { headingRef, focusOnSettle } = useResultsFocus(search);
 
   const handlePageChange = (next: number) => {
-    focusResults.current = true;
+    focusOnSettle();
     setParams(searchParams(q, type, next));
   };
 
@@ -155,7 +146,7 @@ function ResultList<K extends Kind>({ type, q, page, onPageChange, render }: Res
   }
   return (
     <>
-      <ul className={cx(rows.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined}>
+      <ul className={cx(rows.list, refreshing && "refreshing")} aria-busy={refreshing || undefined}>
         {search.data.items.map((item) => (
           <li key={item.mbid} className={rows.row}>
             {render(item)}

@@ -3,13 +3,11 @@ import uuid
 from flask import Blueprint
 
 from app.auth.session import require_user
-from app.http import json_body, optional_text, page_arg
+from app.http import json_body, optional_text, page_arg, parse_kind, parse_mbid
 from app.kinds import Kind
 from app.ratings.service import (
     REVIEW_MAX_LENGTH,
     clear_rating,
-    parse_kind,
-    parse_mbid,
     parse_stars,
     reviews_page,
     save_rating,

@@ -28,7 +28,7 @@ function ReviewListBody({ kind, mbid }: ReviewListProps) {
 
   return (
     <>
-      <ol className={cx(styles.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined}>
+      <ol className={cx(styles.list, refreshing && "refreshing")} aria-busy={refreshing || undefined}>
         {reviews.data.items.map((review) => (
           <li key={review.id} className={styles.review}>
             <div className={styles.meta}>

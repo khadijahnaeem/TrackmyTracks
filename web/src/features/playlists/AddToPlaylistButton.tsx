@@ -1,9 +1,9 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
-import { ApiError, errorMessage } from "../../api/client";
+import { Link } from "react-router";
+import { errorMessage, hasStatus } from "../../api/client";
 import type { Playlist } from "../../api/types";
 import { Button, buttonClassName, Skeleton, TextField } from "../../ui";
-import { loginHref } from "../auth/redirects";
+import { useLoginHref } from "../auth/redirects";
 import { useMe } from "../auth/useMe";
 import { useAddSong, useCreatePlaylist, useUserPlaylists } from "./api";
 import styles from "./AddToPlaylistButton.module.css";
@@ -38,7 +38,7 @@ function Label({ children, title, prefix }: { children: string; title?: string; 
 
 export function AddToPlaylistButton({ mbid, title }: AddToPlaylistButtonProps) {
   const { user, isLoading } = useMe();
-  const location = useLocation();
+  const login = useLoginHref();
 
   if (isLoading) {
     return (
@@ -51,7 +51,7 @@ export function AddToPlaylistButton({ mbid, title }: AddToPlaylistButtonProps) {
   }
   if (!user) {
     return (
-      <Link to={loginHref(location.pathname + location.search)} className={buttonClassName("ghost")}>
+      <Link to={login} className={buttonClassName("ghost")}>
         <Label title={title} prefix="">
           Log in to add
         </Label>
@@ -103,11 +103,7 @@ function PlaylistPicker({ username, mbid, title }: { username: string; mbid: str
       {open && (
         <div id={panelId} role="dialog" aria-label="Add to playlist" className={styles.panel}>
           <PlaylistChoices username={username} mbid={mbid} onStatusChange={setStatusMessage} />
-          <NewPlaylistForm
-            mbid={mbid}
-            onStatusChange={setStatusMessage}
-            onNameChange={() => setStatusMessage(null)}
-          />
+          <NewPlaylistForm mbid={mbid} onStatusChange={setStatusMessage} />
           <p role="status" className={styles.announcement}>
             {statusMessage}
           </p>
@@ -157,8 +153,7 @@ function PlaylistChoices({
         onStatusChange(`Added to ${playlist.name}`);
       })
       .catch((error: unknown) => {
-        const exists = error instanceof ApiError && error.status === 409;
-        if (exists) {
+        if (hasStatus(error, 409)) {
           setStatus(playlist.id, "exists");
           onStatusChange(`Already in ${playlist.name}`);
         } else {
@@ -172,6 +167,7 @@ function PlaylistChoices({
     <ul className={styles.list}>
       {playlists.data.map((playlist) => {
         const status = statuses[playlist.id];
+        const label = status && status !== "pending" ? STATUS_LABELS[status] : null;
         return (
           <li key={playlist.id}>
             <Button
@@ -180,10 +176,10 @@ function PlaylistChoices({
               loading={status === "pending"}
               aria-disabled={status === "added" || status === "exists" || undefined}
               onClick={() => add(playlist)}
-              aria-label={status && status !== "pending" ? `${playlist.name} ${STATUS_LABELS[status]}` : playlist.name}
+              aria-label={label ? `${playlist.name} ${label}` : playlist.name}
             >
               <span className={styles.name}>{playlist.name}</span>
-              {status && status !== "pending" && <span className={styles.status}>{STATUS_LABELS[status]}</span>}
+              {label && <span className={styles.status}>{label}</span>}
             </Button>
           </li>
         );
@@ -195,11 +191,9 @@ function PlaylistChoices({
 function NewPlaylistForm({
   mbid,
   onStatusChange,
-  onNameChange,
 }: {
   mbid: string;
-  onStatusChange: (message: string) => void;
-  onNameChange: () => void;
+  onStatusChange: (message: string | null) => void;
 }) {
   const [name, setName] = useState("");
   const [createdPlaylistId, setCreatedPlaylistId] = useState<number | null>(null);
@@ -236,7 +230,7 @@ function NewPlaylistForm({
         onChange={(event) => {
           setName(event.target.value);
           setCreatedPlaylistId(null);
-          onNameChange();
+          onStatusChange(null);
         }}
         error={error ? errorMessage(error) : undefined}
       />

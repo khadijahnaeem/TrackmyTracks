@@ -1,17 +1,18 @@
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { errorMessage, isNotFound } from "../../api/client";
+import { isNotFound } from "../../api/client";
 import type { PlaylistDetail } from "../../api/types";
 import {
   Button,
-  buttonClassName,
   Card,
   ErrorNotice,
   formatDuration,
+  InlineError,
   NotFoundState,
   Notice,
   PageHeader,
   pluralize,
+  SearchLink,
   Skeleton,
 } from "../../ui";
 import { useMe } from "../auth/useMe";
@@ -20,6 +21,12 @@ import { PlaylistForm } from "./PlaylistForm";
 import styles from "./PlaylistPage.module.css";
 
 type Mode = "view" | "edit" | "confirm-delete";
+type Direction = "up" | "down";
+
+const MOVES: { direction: Direction; offset: -1 | 1; label: string }[] = [
+  { direction: "up", offset: -1, label: "Up" },
+  { direction: "down", offset: 1, label: "Down" },
+];
 
 export function PlaylistPage() {
   const id = Number(useParams().id);
@@ -130,11 +137,7 @@ function DeleteConfirm({ detail, remove, onCancel }: DeleteConfirmProps) {
         Delete playlist?
       </h2>
       <p className={styles.muted}>This can't be undone. The songs stay in the catalog.</p>
-      {remove.isError && (
-        <p role="alert" className={styles.error}>
-          {errorMessage(remove.error)}
-        </p>
-      )}
+      <InlineError error={remove.error} />
       <div className={styles.confirmActions}>
         <Button
           variant="danger"
@@ -169,14 +172,7 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
 
   if (detail.songs.length === 0) {
     return isOwner ? (
-      <Notice
-        title="No songs yet"
-        action={
-          <Link to="/search" className={buttonClassName("primary")}>
-            Find songs
-          </Link>
-        }
-      >
+      <Notice title="No songs yet" action={<SearchLink>Find songs</SearchLink>}>
         Use Add to playlist on any song to build this list.
       </Notice>
     ) : (
@@ -214,7 +210,7 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
     removeSong.mutate(mbid);
   };
 
-  const trackButton = (mbid: string, direction: "up" | "down") => (node: HTMLButtonElement) => {
+  const trackButton = (mbid: string, direction: Direction) => (node: HTMLButtonElement) => {
     moveButtons.current.set(`${mbid}-${direction}`, node);
     return () => {
       moveButtons.current.delete(`${mbid}-${direction}`);
@@ -243,26 +239,19 @@ function SongList({ detail, isOwner }: { detail: PlaylistDetail; isOwner: boolea
             </span>
             {isOwner && (
               <div className={styles.controls}>
-                <Button
-                  ref={trackButton(song.mbid, "up")}
-                  variant="ghost"
-                  aria-label={`Move ${song.title} up`}
-                  aria-disabled={busy || undefined}
-                  disabled={index === 0}
-                  onClick={() => move(index, -1)}
-                >
-                  Up
-                </Button>
-                <Button
-                  ref={trackButton(song.mbid, "down")}
-                  variant="ghost"
-                  aria-label={`Move ${song.title} down`}
-                  aria-disabled={busy || undefined}
-                  disabled={index === last}
-                  onClick={() => move(index, 1)}
-                >
-                  Down
-                </Button>
+                {MOVES.map(({ direction, offset, label }) => (
+                  <Button
+                    key={direction}
+                    ref={trackButton(song.mbid, direction)}
+                    variant="ghost"
+                    aria-label={`Move ${song.title} ${direction}`}
+                    aria-disabled={busy || undefined}
+                    disabled={index + offset < 0 || index + offset > last}
+                    onClick={() => move(index, offset)}
+                  >
+                    {label}
+                  </Button>
+                ))}
                 <Button
                   variant="ghost"
                   aria-label={`Remove ${song.title}`}

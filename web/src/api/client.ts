@@ -16,8 +16,12 @@ export function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : UNREACHABLE;
 }
 
+export function hasStatus(error: unknown, status: number): boolean {
+  return error instanceof ApiError && error.status === status;
+}
+
 export function isNotFound(error: unknown): boolean {
-  return error instanceof ApiError && error.status === 404;
+  return hasStatus(error, 404);
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {

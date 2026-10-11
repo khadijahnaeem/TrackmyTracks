@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash
 from app.catalog.service import get_or_cache_album, get_or_cache_artist
 from app.errors import CatalogUnavailable
 from app.extensions import db
+from app.kinds import RATING_TARGETS, Kind
 from app.models import Album, Playlist, PlaylistSong, Rating, User
 
 # artist and album pairs, Radiohead, Portishead, Daft Punk, Bjork
@@ -64,10 +65,12 @@ def _demo_user(username: str) -> User:
     return db.session.scalar(select(User).filter_by(username=username))
 
 
-def _rate(user: User, kind: str, target_id: int, score: int, review: str | None = None) -> None:
+def _rate(user: User, kind: Kind, target_id: int, score: int, review: str | None = None) -> None:
     db.session.execute(
         insert(Rating)
-        .values(user_id=user.id, score=score, review=review, **{f"{kind}_id": target_id})
+        .values(
+            user_id=user.id, score=score, review=review, **{RATING_TARGETS[kind].key: target_id}
+        )
         .on_conflict_do_nothing()
     )
 

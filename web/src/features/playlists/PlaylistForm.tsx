@@ -1,6 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { errorMessage } from "../../api/client";
-import { Button, TextArea, TextField } from "../../ui";
+import { Button, InlineError, TextArea, TextField } from "../../ui";
 import type { PlaylistFields } from "./api";
 import styles from "./PlaylistForm.module.css";
 
@@ -57,11 +56,7 @@ export function PlaylistForm({
         />
         Public, anyone can see this playlist
       </label>
-      {error ? (
-        <p role="alert" className={styles.error}>
-          {errorMessage(error)}
-        </p>
-      ) : null}
+      <InlineError error={error} />
       <div className={styles.actions}>
         <Button type="submit" variant="primary" loading={pending} disabled={!name.trim()}>
           {submitLabel}
