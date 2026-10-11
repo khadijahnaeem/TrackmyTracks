@@ -1,21 +1,23 @@
-import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { isNotFound } from "../../api/client";
 import type { HistoryEntry, Kind, Page } from "../../api/types";
 import {
-  buttonClassName,
   cx,
   ErrorNotice,
   formatDate,
   Notice,
   PageHeader,
+  pageParam,
   Pagination,
   pluralize,
+  SearchLink,
   SegmentedControl,
   Skeleton,
   Stars,
+  useResultsFocus,
 } from "../../ui";
 import { useMe } from "../auth/useMe";
+import rows from "../catalog/rows.module.css";
 import { useHistory } from "./api";
 import styles from "./HistoryPage.module.css";
 
@@ -37,22 +39,11 @@ export function HistoryPage() {
   const { username = "" } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const kind = parseKind(searchParams.get("kind"));
-  const pageValue = Number(searchParams.get("page"));
-  const page = Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1;
+  const page = pageParam(searchParams);
   const { user, isLoading: meLoading } = useMe();
   const isOwn = user?.username === username;
   const history = useHistory(username, kind, page);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const focusResults = useRef(false);
-
-  // focus the results heading once a page change from the pagination control settles
-  useEffect(() => {
-    if (focusResults.current && !history.isPlaceholderData) {
-      focusResults.current = false;
-      headingRef.current?.focus();
-      headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [history.isPlaceholderData, history.data, history.isError]);
+  const { headingRef, focusOnSettle } = useResultsFocus(history);
 
   const { data } = history;
   const refreshing = history.isPlaceholderData;
@@ -60,7 +51,7 @@ export function HistoryPage() {
   const title = unknownUser ? "User not found" : isOwn ? "Your history" : username;
 
   const handlePageChange = (next: number) => {
-    focusResults.current = true;
+    focusOnSettle();
     setSearchParams((current) => {
       const params = new URLSearchParams(current);
       if (next > 1) params.set("page", String(next));
@@ -104,7 +95,7 @@ export function HistoryPage() {
             <EmptyHistory username={username} isOwn={isOwn} kind={kind} />
           ) : (
             <>
-              <ul className={cx(styles.list, refreshing && styles.refreshing)} aria-busy={refreshing || undefined}>
+              <ul className={cx(rows.list, refreshing && "refreshing")} aria-busy={refreshing || undefined}>
                 {data.items.map((entry) => (
                   <HistoryRow key={entry.id} entry={entry} />
                 ))}
@@ -128,14 +119,6 @@ function settledStatus({ items, total, pages }: Page<HistoryEntry>, page: number
   return `${pluralize(total, "rating")}${pages > 1 ? `, page ${page} of ${pages}` : ""}`;
 }
 
-function SearchLink() {
-  return (
-    <Link to="/search" className={buttonClassName("primary")}>
-      Search music
-    </Link>
-  );
-}
-
 function LoadingHeader() {
   return (
     <div className={styles.loadingHeader}>
@@ -148,7 +131,7 @@ function LoadingHeader() {
 
 function HistorySkeleton() {
   return (
-    <ul aria-busy="true" aria-label="Loading history" className={styles.list}>
+    <ul aria-busy="true" aria-label="Loading history" className={rows.list}>
       {[0, 1, 2, 3, 4].map((i) => (
         <li key={i} className={styles.row}>
           <div className={styles.main}>

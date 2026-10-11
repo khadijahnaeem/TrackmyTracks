@@ -81,6 +81,11 @@ svg {
   }
 }
 
+/* a paged list dims while its next page loads */
+.refreshing {
+  opacity: 0.6;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

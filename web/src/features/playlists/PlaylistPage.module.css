@@ -23,12 +23,6 @@
   line-height: var(--leading-sm);
 }
 
-.error {
-  color: var(--color-danger);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-}
-
 .confirmActions {
   display: flex;
   flex-wrap: wrap;

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { Playlist, PlaylistDetail } from "../../api/types";
 
@@ -24,12 +24,15 @@ export function usePlaylist(id: number) {
   });
 }
 
+// any playlist change can move its count or order in its owner's list
+const invalidateLists = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: ["playlists"] });
+
 // song changes return the whole playlist, so the cache is replaced instead of refetched
 function useStoreDetail() {
   const queryClient = useQueryClient();
   return (detail: PlaylistDetail) => {
     queryClient.setQueryData(["playlist", detail.id], detail);
-    return queryClient.invalidateQueries({ queryKey: ["playlists"] });
+    return invalidateLists(queryClient);
   };
 }
 
@@ -37,7 +40,7 @@ export function useCreatePlaylist() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (fields: PlaylistFields) => api.post<Playlist>("/playlists", fields),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["playlists"] }),
+    onSuccess: () => invalidateLists(queryClient),
   });
 }
 
@@ -50,7 +53,7 @@ export function useUpdatePlaylist(id: number) {
         ["playlist", id],
         (detail) => detail && { ...detail, ...playlist },
       );
-      return queryClient.invalidateQueries({ queryKey: ["playlists"] });
+      return invalidateLists(queryClient);
     },
   });
 }
@@ -61,7 +64,7 @@ export function useDeletePlaylist(id: number) {
     mutationFn: () => api.delete<void>(`/playlists/${id}`),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["playlist", id] });
-      return queryClient.invalidateQueries({ queryKey: ["playlists"] });
+      return invalidateLists(queryClient);
     },
   });
 }

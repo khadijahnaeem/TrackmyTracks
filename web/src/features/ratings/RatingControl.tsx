@@ -1,9 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
-import { errorMessage } from "../../api/client";
+import { Link } from "react-router";
 import type { CommunityRating, Kind, RatingSummary } from "../../api/types";
-import { Button, buttonClassName, Card, formatAverage, pluralize, Stars } from "../../ui";
-import { loginHref } from "../auth/redirects";
+import { Button, buttonClassName, Card, formatAverage, InlineError, pluralize, Stars } from "../../ui";
+import { useLoginHref } from "../auth/redirects";
 import { useMe } from "../auth/useMe";
 import { useClearRating, useSaveRating } from "./api";
 import styles from "./RatingControl.module.css";
@@ -23,27 +22,21 @@ function communityText({ stars, count }: CommunityRating): string {
 
 export function RatingControl({ kind, mbid, rating, title, compact = false }: RatingControlProps) {
   const { user, isLoading } = useMe();
-  const location = useLocation();
+  const login = useLoginHref();
   const target = { kind, mbid };
   const save = useSaveRating(target);
   const clear = useClearRating(target);
   const [view, setView] = useState(rating);
-  const [stars, setStars] = useState(rating.mine?.stars ?? null);
   const [syncedRating, setSyncedRating] = useState(rating);
   const [composing, setComposing] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const wasComposing = useRef(false);
   const explanationId = useId();
 
-  const show = (next: RatingSummary) => {
-    setView(next);
-    setStars(next.mine?.stars ?? null);
-  };
-
-  // fresh server data replaces the optimistic value, but never mid save
+  // fresh server data replaces the shown rating, but never mid save
   if (syncedRating !== rating && !save.isPending && !clear.isPending) {
     setSyncedRating(rating);
-    show(rating);
+    setView(rating);
   }
 
   // closing the composer hands focus back to the button that opened it
@@ -53,27 +46,19 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
   }, [composing]);
 
   const { mine, community } = view;
+  // a pending save shows its stars right away, and a failed one falls back to the saved rating
+  const stars = save.isPending ? save.variables.stars : (mine?.stars ?? null);
   const derived = mine?.is_derived && stars === mine.stars ? mine : null;
-  const error = save.error ?? clear.error;
-  const errorText = error && (
-    <p role="alert" className={styles.error}>
-      {errorMessage(error)}
-    </p>
-  );
+  const errorText = <InlineError error={save.error ?? clear.error} />;
 
   const rate = (next: number) => {
-    const previous = stars;
     clear.reset();
-    setStars(next);
-    save.mutate(
-      { stars: next },
-      { onSuccess: (response) => show(response.rating), onError: () => setStars(previous) },
-    );
+    save.mutate({ stars: next }, { onSuccess: (response) => setView(response.rating) });
   };
 
   const clearRating = () => {
     save.reset();
-    clear.mutate(undefined, { onSuccess: (response) => show(response.rating) });
+    clear.mutate(undefined, { onSuccess: (response) => setView(response.rating) });
   };
 
   if (compact) {
@@ -118,7 +103,7 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
             </div>
           )}
           {!user && !isLoading && (
-            <Link to={loginHref(location.pathname + location.search)} className={buttonClassName("secondary")}>
+            <Link to={login} className={buttonClassName("secondary")}>
               Log in to rate
             </Link>
           )}
@@ -145,7 +130,7 @@ export function RatingControl({ kind, mbid, rating, title, compact = false }: Ra
             stars={derived ? null : stars}
             review={mine?.review ?? null}
             onSaved={(next) => {
-              show(next);
+              setView(next);
               setComposing(false);
             }}
             onCancel={() => setComposing(false)}
