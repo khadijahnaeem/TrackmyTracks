@@ -11,14 +11,16 @@ Read the design before changing anything:
 - `docs/superpowers/specs/001-local-prototype-design.md` is the spec
 - `docs/superpowers/plans/001-local-prototype.md` is the plan index. Its Global Constraints and Contracts, including the JSON shapes and API routes, bind all work, and changing a contract means updating the index in the same pull request
 - `docs/superpowers/plans/001-local-prototype/NN-*.md` are the ten slice plans, now history
-- Specs and plans 002 (home page) and 003 (UI first build order) cover later work
+- Specs and plans 002 (home page), 003 (UI first build order), and 004 (friends) cover later work
 
 ## Current state
 
 - Every slice is merged, including slice 10 integration, so the prototype runs end to end against Flask and Postgres. The browser mock API from 003 has been removed
 - Work now lands as small feature pull requests on top of the prototype, like the search ranking and listen count changes
 - `docker-compose.yml`, `docker/initdb/`, and `.env.example` set up Postgres, `api/` is the Flask API, and `web/` is the React app
-- The home page Trending and Fresh reviews sections still show static sample data from `web/src/features/home/sampleData.ts`, since the API has no trending or recent reviews routes yet
+- Friends are in. Users send, accept, decline, and remove friend requests on the `/friends` page, and the header Friends link shows a count of incoming requests. Each review has a friend button
+- The feed is the friends' ratings, newest first. It shows on the Friends page and on the home page for logged in users in place of Fresh reviews
+- The home page Trending section and the logged out Fresh reviews section still show static sample data from `web/src/features/home/sampleData.ts`, since the API has no trending or recent reviews routes yet
 - `frontend/` and `css/` hold the team's earlier homepage prototype. They predate the plan and are not part of it
 
 ## Commands
@@ -58,7 +60,7 @@ The legacy `frontend/` app runs with `npm run dev` from its own folder.
 ## Architecture
 
 - The browser only talks to Vite on 5173, which proxies `/api` to Flask on 5001, so the session cookie is same-origin with no CORS setup
-- Flask uses an app factory with one Blueprint per feature (`auth`, `catalog`, `ratings`, `playlists`, `history`). Each feature keeps its routes in its own `routes.py`, which keeps four people out of each other's files
+- Flask uses an app factory with one Blueprint per feature (`auth`, `catalog`, `ratings`, `playlists`, `history`, `friends`). Each feature keeps its routes in its own `routes.py`, which keeps four people out of each other's files
 - `app/musicbrainz.py` is the only module that touches the network. It talks to MusicBrainz for catalog data, rate limited to one request per second, and to ListenBrainz with `LISTENBRAINZ_TOKEN` for listen counts. Failures map to `CatalogUnavailable` (502)
 - Song and artist search take the top 100 MusicBrainz matches and page them on the server. Songs are reranked by how many query words they match, then by ListenBrainz listens. Artists with no listens and no credited recording are dropped. Song and artist rows carry `listens`. Each query's ranked window is cached in memory for 10 minutes, so pages stay consistent and only the first page calls out, and a ListenBrainz failure falls back to MusicBrainz order without caching. Album search pages through MusicBrainz directly
 - Artist pages take their top five songs from ListenBrainz popularity

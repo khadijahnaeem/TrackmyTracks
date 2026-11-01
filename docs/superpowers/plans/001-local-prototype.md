@@ -85,7 +85,7 @@ Slices run in parallel, so these names and shapes are fixed. Changing one means 
 | `app/extensions.py` | 02 | `db`, `migrate` |
 | `app/errors.py` | 02 | `ApiError`, `ValidationError`, `Unauthorized`, `NotFound`, `Conflict`, `CatalogUnavailable`, `register_error_handlers(app)` |
 | `app/http.py` | 02 | `json_body()`, `required_text(data, field, max_length)`, `optional_text(data, field, max_length)`, `page_arg()`, `page_payload(items, page, total, per_page)`, `paginate(query, serialize, page, per_page=20)` |
-| `app/models.py` | 02 | `User`, `Artist`, `Album`, `Song`, `AlbumSong`, `ArtistTopSong`, `Rating`, `Playlist`, `PlaylistSong` |
+| `app/models.py` | 02 | `User`, `Artist`, `Album`, `Song`, `AlbumSong`, `ArtistTopSong`, `Rating`, `Playlist`, `PlaylistSong`, `Friendship` (004) |
 | `app/kinds.py` | 02 | `Kind = Literal["song", "album", "artist"]`, `KINDS`, `MODELS: dict[Kind, type]`, `kind_of(entity) -> Kind` |
 | `app/views.py` | 02 | `EFFECTIVE_RATINGS: dict[Kind, Table]` |
 | `app/ratings/queries.py` | 02 | `rating_summaries(user_id: int \| None, kind: Kind, target_ids: Iterable[int]) -> dict[int, dict]` |
@@ -94,10 +94,13 @@ Slices run in parallel, so these names and shapes are fixed. Changing one means 
 | `app/<feature>/routes.py` | 02 | `bp` Blueprint, already registered in `create_app` |
 | `app/auth/serializers.py` | 05 Task 1 | `user_payload(user) -> User`, `public_user(user) -> PublicUser` |
 | `app/history/routes.py` | 09 | `bp` Blueprint `history` at `/api`, registered by slice 09 in `create_app` |
+| `app/friends/routes.py` | 004 | `bp` Blueprint `friends` at `/api`, registered in `create_app` |
+| `app/friends/service.py` | 004 | `friend_ids(user) -> Select`, `friends_payload(user) -> dict`, `send_request(user, target) -> "sent" \| "friends"`, `accept_request(user, requester)`, `remove_friend(user, other)` |
+| `app/ratings/entries.py` | 004 | `rating_entry(rating) -> dict`, the `HistoryEntry` fields shared by history and the feed |
 | `app/musicbrainz.py` | 04 | `MusicBrainzClient` with `search_artists/search_albums/search_songs(query, page) -> SearchResults`, `musicbrainz()`, `SEARCH_PAGE_SIZE = 25`, `ArtistData`, `AlbumData`, `SongData`, `AlbumDetail`, `SearchResults(items, total)` |
 | `app/catalog/service.py` | 04 | `get_or_cache_artist(mbid) -> Artist`, `get_or_cache_album(mbid) -> Album`, `get_or_cache_song(mbid) -> Song`, `get_or_cache(kind, mbid)`, `find_cached(kind, mbid)` with no network |
 
-Blueprints: `auth` at `/api/auth`, `catalog`, `ratings`, and `playlists` at `/api`, plus `history` at `/api` from slice 09 so it never shares a file with slice 07. Feature slices only add routes to their own `routes.py`.
+Blueprints: `auth` at `/api/auth`, `catalog`, `ratings`, and `playlists` at `/api`, plus `history` at `/api` from slice 09 so it never shares a file with slice 07, and `friends` at `/api` from 004. Feature slices only add routes to their own `routes.py`.
 
 ### Test fixtures
 
@@ -146,6 +149,11 @@ Review         { id, user: PublicUser, stars, review, updated_at }
 HistoryEntry   { id, kind: Kind, item: ArtistSummary | AlbumSummary | SongSummary, stars, review, updated_at }
 Playlist       { id, name, description: string | null, is_public, owner: PublicUser, song_count, updated_at }
 PlaylistDetail = Playlist & { songs: SongSummary[] }
+FriendStatus   "none" | "friends" | "sent" | "received"
+Friend         { user: PublicUser, since }
+FriendRequest  { user: PublicUser, sent_at }
+Friends        { friends: Friend[], incoming: FriendRequest[], outgoing: FriendRequest[] }
+FeedEntry      = HistoryEntry & { user: PublicUser }
 ```
 
 Rateable items on detail pages carry `rating: RatingSummary`.
@@ -174,6 +182,12 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `POST /api/playlists/<id>/songs {mbid}` | 08 | 201 `PlaylistDetail` |
 | `DELETE /api/playlists/<id>/songs/<mbid>` | 08 | `PlaylistDetail` |
 | `PUT /api/playlists/<id>/songs {mbids}` | 08 | `PlaylistDetail` |
+| `GET /api/friends` | 004 | `Friends`, friends sorted by username, requests newest first |
+| `POST /api/friends/requests {username}` | 004 | 201 `{status: "sent" \| "friends"}`. Requesting someone who already asked you accepts it and answers `friends`. 409 when already friends or already sent, 422 for yourself |
+| `POST /api/friends/requests/<username>/accept` | 004 | 200 `{status: "friends"}`, 404 when there is no pending request from that user |
+| `DELETE /api/friends/<username>` | 004 | 204. Declines, cancels, or unfriends, 404 when nothing links the two |
+| `GET /api/users?q=` | 004 | `{items: PublicUser[]}`, usernames starting with `q`, never yourself, at most 20. Needs login |
+| `GET /api/feed?page=N` | 004 | `Page<FeedEntry>`, friends' ratings newest first. Needs login |
 
 ### Frontend modules
 
@@ -196,8 +210,13 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/test/render.tsx` | 03 | `renderWithProviders(ui, {path?})` and `renderAt(path)`, both return the render result plus `queryClient` and `router` |
 | `src/features/ratings/RatingControl.tsx` | 07 | `RatingControl({kind, mbid, rating, title?, compact?})`, self-contained, pass `title` on compact rows |
 | `src/features/ratings/ReviewList.tsx` | 07 | `ReviewList({kind, mbid})`, no heading or outer margin, the page wraps it in a Reviews section |
+| `src/features/friends/routes.ts` | 004 | `friendsRoutes`, the `/friends` page |
+| `src/features/friends/api.ts` | 004 | `useFriends()`, `friendStatus(friends, username) -> FriendStatus`, `useSendRequest()`, `useAcceptRequest()`, `useRemoveFriend()`, `useUserSearch(q)`, `useFeed(page)` |
+| `src/features/friends/FriendButton.tsx` | 004 | `FriendButton({username})`, the add, accept, or sent control, renders nothing for yourself or when logged out |
+| `src/features/friends/FriendsActivity.tsx` | 004 | `FriendsActivity()`, the home page section for logged in users in place of Fresh reviews |
+| `src/features/friends/FriendsPage.tsx` | 004 | `FriendsPage()`, requests, friends list, user search, and the feed |
 | `src/features/playlists/AddToPlaylistButton.tsx` | 08 | `AddToPlaylistButton({mbid, title?})`, pass `title` on song rows so each button has a distinct accessible name |
 
-Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08).
+Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08), `/friends` (004).
 
-Query keys: `["me"]`, `["search", type, q, page]`, `["artist", mbid]`, `["album", mbid]`, `["song", mbid]`, `["reviews", kind, mbid, page]`, `["history", username, kind, page]`, `["playlists", username]`, `["playlist", id]`. A rating change invalidates `["artist"]`, `["album"]`, `["song"]`, `["reviews"]`, and `["history"]`.
+Query keys: `["me"]`, `["search", type, q, page]`, `["artist", mbid]`, `["album", mbid]`, `["song", mbid]`, `["reviews", kind, mbid, page]`, `["history", username, kind, page]`, `["playlists", username]`, `["playlist", id]`, `["friends"]`, `["users", q]`, `["feed", page]`. A rating change invalidates `["artist"]`, `["album"]`, `["song"]`, `["reviews"]`, `["history"]`, and `["feed"]`. A friend request, accept, or removal invalidates `["friends"]` and `["feed"]`.

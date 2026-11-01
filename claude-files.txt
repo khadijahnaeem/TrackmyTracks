@@ -98,9 +98,11 @@ docs/superpowers/plans/001-local-prototype/09-history.md
 docs/superpowers/plans/001-local-prototype/10-integration.md
 docs/superpowers/plans/002-home-page.md
 docs/superpowers/plans/003-ui-first.md
+docs/superpowers/plans/004-friends.md
 docs/superpowers/specs/001-local-prototype-design.md
 docs/superpowers/specs/002-home-page-design.md
 docs/superpowers/specs/003-ui-first-design.md
+docs/superpowers/specs/004-friends-design.md
 frontend/.gitignore
 frontend/index.html
 frontend/public/favicon.svg
@@ -167,11 +169,11 @@ web/src/features/catalog/useMbidParam.ts
 web/src/features/friends/FriendButton.module.css
 web/src/features/friends/FriendButton.test.tsx
 web/src/features/friends/FriendButton.tsx
-web/src/features/friends/api.ts
 web/src/features/friends/FriendsActivity.tsx
 web/src/features/friends/FriendsPage.module.css
 web/src/features/friends/FriendsPage.test.tsx
 web/src/features/friends/FriendsPage.tsx
+web/src/features/friends/api.ts
 web/src/features/friends/routes.ts
 web/src/features/history/HistoryPage.module.css
 web/src/features/history/HistoryPage.test.tsx
