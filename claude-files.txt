@@ -249,3 +249,4 @@ web/tsconfig.app.json
 web/tsconfig.json
 web/tsconfig.node.json
 web/vite.config.ts
+web/src/features/friends/FriendsActivity.tsx
