@@ -14,6 +14,7 @@ The app is about discovering music through other people. Today the only way to s
 4. The header shows a Friends link with a count of requests waiting on you
 5. When logged in, the home page shows your friends' latest ratings and reviews, newest first, in place of the sample Fresh Reviews
 6. Logged out visitors see the home page exactly as it is today
+7. When the feed is empty, because you have no friends yet or they have rated nothing, the home page shows the newest reviews from everyone else instead, so a new account never lands on an empty page
 
 ## Non-goals
 
@@ -41,7 +42,8 @@ The app is about discovering music through other people. Today the only way to s
 | Declines and unfriends | Silent, the row is deleted and the other person is not told | Claude's call, standard and simplest |
 | Crossed requests | If B already requested A, A requesting B accepts it | Claude's call, both clearly want it |
 | Status on buttons | Derived in the web app from `GET /api/friends`, so `Review` and other shapes stay unchanged | Anti-goal, no contract changes |
-| Feed empty state | A Notice saying friends' ratings show up here, with a link to the Friends page | Claude's call |
+| Feed empty state | Falls back to community reviews, the newest ratings with review text from everyone but you, under eyebrow "The community" and heading "Fresh Reviews", with a muted line "Add friends to see their activity here" linking to `/friends`. The section switches to Friends' Activity once the feed has anything. If there are no reviews at all, a Notice "Nothing from friends yet" links to `/friends` | Requested, newest first |
+| Logged out home | Keeps the sample Fresh Reviews | Not requested, a later one line change |
 | Simultaneous crossed requests | The request that loses the race on the unique index catches the `IntegrityError`, rereads the row, accepts it when the other side's request is pending and answers `"friends"`, otherwise 409 | Claude's call, keeps the no 500 rule |
 | Seed reruns | "Changes nothing" means no duplicates, so a declined demo request or unfriended demo pair comes back on the next `flask seed`, like the existing seeded ratings | Claude's call |
 | Home while the session loads | Fresh Reviews stays until `useMe` resolves, so guests never see the feed flash | Claude's call, anti-goal |
@@ -89,6 +91,7 @@ FeedEntry      HistoryEntry & { user: PublicUser }
 | `POST /api/friends/requests/<username>/accept` | 200 `{status: "friends"}`. No pending request from that user 404 `Friend request not found` |
 | `DELETE /api/friends/<username>` | 204. Removes the friendship or request between you in either direction, so it is decline, cancel, and unfriend. Nothing to remove 404 |
 | `GET /api/feed?page=N` | 200 `Page<FeedEntry>`, 20 per page, friends' explicit ratings ordered by `updated_at` then `id` descending. No friends gives an empty page |
+| `GET /api/reviews/recent?page=N` | 200 `Page<FeedEntry>`, 20 per page, explicit ratings with non NULL review text from every user except you, same order as the feed. Requires a session like the other friends routes |
 
 `FeedEntry` reuses `_entry` from `app/history/routes.py`, moved to a shared spot so both blueprints call it, plus `user: public_user(rating.user)`. Derived album and artist ratings are not in the feed, same as History.
 

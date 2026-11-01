@@ -215,6 +215,42 @@ it("keeps Fresh Reviews logged out")            // existing heading "Fresh Revie
 
 - [ ] **Step 5: Commit** `feat(web): show friends activity on the home page`
 
+### Task 8: Community reviews when the feed is empty
+
+Added after Task 6 at the user's request, so it runs after Task 7 and updates the plan index itself.
+
+**Files:**
+- Modify: `api/app/friends/routes.py`, `web/src/features/friends/api.ts`, `web/src/features/friends/FriendsActivity.tsx`, `docs/superpowers/plans/001-local-prototype.md`, `claude-files.txt`
+- Test: `api/tests/test_friends_feed.py`, `web/src/features/home/HomePage.test.tsx`
+
+**Interfaces:**
+- Produces: `GET /api/reviews/recent?page=N` per the spec, serialized exactly like feed entries
+- Produces: `useRecentReviews(page: number, enabled: boolean)` with query key `["recent-reviews", page]`, invalidated with `["feed"]` by friend and rating mutations
+
+- [ ] **Step 1: Write failing API tests**
+
+```python
+test_recent_reviews_newest_first_from_everyone_but_me  # strangers and friends included, my own excluded, items carry "user"
+test_recent_reviews_skip_ratings_without_text           # a stars only rating is absent
+test_recent_reviews_require_login
+```
+
+- [ ] **Step 2: Write failing web tests**
+
+```ts
+it("falls back to community reviews when the feed is empty") // heading "Fresh Reviews", eyebrow "The community", @maya card, link "Add friends to see their activity here" to /friends
+it("shows the empty notice when nobody has reviewed")       // "Nothing from friends yet"
+it("does not fetch community reviews when the feed has items")
+```
+
+- [ ] **Step 3: Implement** the route next to `/feed`, sharing the feed's serializer and ordering. `FriendsActivity` requests recent reviews only once page 1 of the feed comes back empty, and reuses the same card markup for both lists
+
+- [ ] **Step 4: Update the plan index** routes table and query keys
+
+- [ ] **Step 5: Run** `pytest -q`, `ruff check .`, `npm test`, `npm run lint`, `npm run build`. Expected: all green
+
+- [ ] **Step 6: Commit** `feat: show community reviews when the friends feed is empty`
+
 ### Task 7: Contracts, docs, and a real run
 
 **Files:**
