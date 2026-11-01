@@ -118,6 +118,7 @@ describe("ReviewList", () => {
 
   it("returns to page 1 when the item changes", async () => {
     const fetchMock = mockFetch({
+      "GET /api/auth/me": { body: { user: null } },
       [FIRST_PAGE]: reviewPage(1, "First page"),
       [SECOND_PAGE]: reviewPage(2, "Second page"),
       [`GET /api/songs/${OTHER}/reviews?page=1`]: reviewPage(1, "Other item"),
@@ -130,6 +131,7 @@ describe("ReviewList", () => {
     await userEvent.click(screen.getByRole("button", { name: "Switch" }));
 
     expect(await screen.findByText("Other item")).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledWith(`/api/songs/${OTHER}/reviews?page=1`, expect.anything());
+    const reviewUrls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => url.includes("/reviews"));
+    expect(reviewUrls.at(-1)).toBe(`/api/songs/${OTHER}/reviews?page=1`);
   });
 });
