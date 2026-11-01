@@ -3,10 +3,12 @@ from datetime import datetime
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
+    Index,
     SmallInteger,
     String,
     UniqueConstraint,
     func,
+    text,
     true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -154,3 +156,29 @@ class PlaylistSong(db.Model):
     added_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     song: Mapped[Song] = relationship(lazy="joined")
+
+
+class Friendship(db.Model):
+    __tablename__ = "friendships"
+    # one row per pair whichever way it started, so crossed requests collide
+    __table_args__ = (
+        CheckConstraint("requester_id <> addressee_id", name="not_self"),
+        Index(
+            "friendships_pair",
+            func.least(text("requester_id"), text("addressee_id")),
+            func.greatest(text("requester_id"), text("addressee_id")),
+            unique=True,
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    requester_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    addressee_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    # null while the request is pending
+    accepted_at: Mapped[datetime | None]
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    requester: Mapped[User] = relationship(foreign_keys=[requester_id], lazy="joined")
+    addressee: Mapped[User] = relationship(foreign_keys=[addressee_id], lazy="joined")
