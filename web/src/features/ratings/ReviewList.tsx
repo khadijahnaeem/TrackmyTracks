@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import type { Kind } from "../../api/types";
 import { cx, ErrorNotice, formatDate, Notice, Pagination, Skeleton, Stars } from "../../ui";
+import { FriendButton } from "../friends/FriendButton";
 import { useReviews } from "./api";
 import styles from "./ReviewList.module.css";
 
@@ -35,6 +36,7 @@ function ReviewListBody({ kind, mbid }: ReviewListProps) {
               <Link to={`/users/${review.user.username}/history`} className={styles.author}>
                 {review.user.username}
               </Link>
+              <FriendButton username={review.user.username} />
               <Stars size="sm" value={review.stars} label={`${review.user.username}'s rating`} />
               <time dateTime={review.updated_at} className={styles.date}>
                 {formatDate(review.updated_at)}

@@ -1,0 +1,9 @@
+.compact {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}

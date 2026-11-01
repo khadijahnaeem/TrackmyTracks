@@ -90,3 +90,23 @@ export interface Playlist {
 export interface PlaylistDetail extends Playlist {
   songs: SongSummary[];
 }
+
+export type FriendStatus = "none" | "friends" | "sent" | "received";
+
+export interface Friend {
+  user: PublicUser;
+  since: string;
+}
+
+export interface FriendRequest {
+  user: PublicUser;
+  sent_at: string;
+}
+
+export interface Friends {
+  friends: Friend[];
+  incoming: FriendRequest[];
+  outgoing: FriendRequest[];
+}
+
+export type FeedEntry = HistoryEntry & { user: PublicUser };

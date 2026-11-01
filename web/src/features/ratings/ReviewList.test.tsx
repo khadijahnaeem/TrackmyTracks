@@ -56,6 +56,17 @@ describe("ReviewList", () => {
     expect(screen.getByText("Oct 2, 2026")).toBeInTheDocument();
   });
 
+  it("offers a logged in viewer an Add friend button beside another reviewer", async () => {
+    mockFetch({
+      "GET /api/auth/me": { body: { user: { id: 1, username: "alex", email: "alex@example.com" } } },
+      "GET /api/friends": { body: { friends: [], incoming: [], outgoing: [] } },
+      [FIRST_PAGE]: reviewPage(1, "Instant classic"),
+    });
+    renderWithProviders(<ReviewList kind="song" mbid={SONG} />);
+
+    expect(await screen.findByRole("button", { name: "Add bob as a friend" })).toBeInTheDocument();
+  });
+
   it("shows an empty state", async () => {
     mockFetch({ [FIRST_PAGE]: { body: { items: [], page: 1, pages: 0, total: 0 } } });
     renderWithProviders(<ReviewList kind="song" mbid={SONG} />);
@@ -119,6 +130,6 @@ describe("ReviewList", () => {
     await userEvent.click(screen.getByRole("button", { name: "Switch" }));
 
     expect(await screen.findByText("Other item")).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenLastCalledWith(`/api/songs/${OTHER}/reviews?page=1`, expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(`/api/songs/${OTHER}/reviews?page=1`, expect.anything());
   });
 });

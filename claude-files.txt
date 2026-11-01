@@ -164,6 +164,10 @@ web/src/features/catalog/routes.ts
 web/src/features/catalog/rows.module.css
 web/src/features/catalog/test-data.ts
 web/src/features/catalog/useMbidParam.ts
+web/src/features/friends/FriendButton.module.css
+web/src/features/friends/FriendButton.test.tsx
+web/src/features/friends/FriendButton.tsx
+web/src/features/friends/api.ts
 web/src/features/history/HistoryPage.module.css
 web/src/features/history/HistoryPage.test.tsx
 web/src/features/history/HistoryPage.tsx
