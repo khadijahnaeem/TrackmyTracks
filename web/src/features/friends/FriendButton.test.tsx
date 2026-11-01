@@ -34,6 +34,27 @@ describe("FriendButton", () => {
     expect(friendLoads).toHaveLength(2);
   });
 
+  it("refetches friends when a mutation fails", async () => {
+    const fetchMock = mockFetch({
+      "GET /api/auth/me": { body: ME },
+      "GET /api/friends": {
+        body: friends({ incoming: [{ user: { username: "sam" }, sent_at: SINCE }] }),
+      },
+      "POST /api/friends/requests/sam/accept": {
+        status: 404,
+        body: { error: { code: "not_found", message: "Friend request not found" } },
+      },
+    });
+    renderWithProviders(<FriendButton username="sam" />);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Accept sam's request" }));
+
+    await waitFor(() => {
+      const friendLoads = fetchMock.mock.calls.filter(([url]) => String(url) === "/api/friends");
+      expect(friendLoads).toHaveLength(2);
+    });
+  });
+
   it("shows Request sent for outgoing", async () => {
     mockFetch({
       "GET /api/auth/me": { body: ME },

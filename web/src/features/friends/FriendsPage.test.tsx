@@ -58,6 +58,30 @@ describe("FriendsPage", () => {
     );
   });
 
+  it("disables a row's buttons while its request is pending", async () => {
+    let finish: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    mockFetch({
+      "GET /api/auth/me": { body: ME },
+      "GET /api/friends": { body: FULL },
+      "POST /api/friends/requests/maya/accept": async () => {
+        await gate;
+        return { body: { status: "friends" } };
+      },
+    });
+    renderAt("/friends");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Accept maya" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Accept maya" })).toBeDisabled());
+    expect(screen.getByRole("button", { name: "Decline maya" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Unfriend sam" })).toBeEnabled();
+    finish();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Decline maya" })).toBeEnabled());
+  });
+
   it("cancels and unfriends", async () => {
     const fetchMock = mockFetch({
       "GET /api/auth/me": { body: ME },

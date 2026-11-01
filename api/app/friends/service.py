@@ -1,4 +1,4 @@
-from sqlalchemy import Select, and_, or_, select
+from sqlalchemy import Select, and_, or_, select, update
 from sqlalchemy.exc import IntegrityError
 
 from app.auth.serializers import public_user
@@ -49,7 +49,15 @@ def friends_payload(user: User) -> dict:
 
 
 def _accept(row: Friendship) -> None:
-    row.accepted_at = db.func.now()
+    # conditional update so a request cancelled mid-flight answers 404, not a stale-row 500
+    result = db.session.execute(
+        update(Friendship)
+        .where(Friendship.id == row.id, Friendship.accepted_at.is_(None))
+        .values(accepted_at=db.func.now())
+    )
+    if result.rowcount == 0:
+        db.session.rollback()
+        raise NotFound("Friend request not found")
     db.session.commit()
 
 

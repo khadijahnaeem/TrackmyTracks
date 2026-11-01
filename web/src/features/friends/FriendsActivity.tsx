@@ -22,7 +22,7 @@ export function FriendsActivity() {
     return (
       <section aria-labelledby={headingId}>
         <SectionHeading id={headingId} eyebrow="The community" title="Fresh Reviews" />
-        <p className={styles.muted}>
+        <p className={`${styles.muted} ${styles.addFriends}`}>
           <Link to="/friends">Add friends to see their activity here</Link>
         </p>
         <ActivityList query={recent} page={recentPage} onPageChange={setRecentPage} errorTitle="Could not load reviews" />

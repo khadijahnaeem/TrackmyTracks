@@ -16,7 +16,7 @@ export function FriendsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Friends" title="Friends" />
+      <PageHeader title="Friends" />
       <div className={styles.page}>
         <FindPeople />
         {friends.isError ? (
@@ -45,7 +45,7 @@ function FindPeople() {
   return (
     <section className={styles.find}>
       <form role="search" className={styles.search} onSubmit={handleSubmit}>
-        <TextField label="Find people" name="q" placeholder="Search by username" maxLength={80} />
+        <TextField label="Find people" name="q" placeholder="Search by username" maxLength={30} />
         <Button variant="primary" type="submit">
           Search
         </Button>
@@ -71,6 +71,8 @@ function FindPeople() {
 function Lists({ friends }: { friends: Friends }) {
   const accept = useAcceptRequest();
   const remove = useRemoveFriend();
+  const isBusy = (username: string) =>
+    (accept.isPending && accept.variables === username) || (remove.isPending && remove.variables === username);
 
   return (
     <div className={styles.columns}>
@@ -89,6 +91,7 @@ function Lists({ friends }: { friends: Friends }) {
                       variant="primary"
                       className={styles.compact}
                       aria-label={`Accept ${user.username}`}
+                      disabled={isBusy(user.username)}
                       onClick={() => accept.mutate(user.username)}
                     >
                       Accept
@@ -96,6 +99,7 @@ function Lists({ friends }: { friends: Friends }) {
                     <Button
                       className={styles.compact}
                       aria-label={`Decline ${user.username}`}
+                      disabled={isBusy(user.username)}
                       onClick={() => remove.mutate(user.username)}
                     >
                       Decline
@@ -118,7 +122,8 @@ function Lists({ friends }: { friends: Friends }) {
                   <Button
                     className={styles.compact}
                     aria-label={`Cancel request to ${user.username}`}
-                    onClick={() => remove.mutate(user.username)}
+                      disabled={isBusy(user.username)}
+                      onClick={() => remove.mutate(user.username)}
                   >
                     Cancel
                   </Button>
@@ -148,7 +153,8 @@ function Lists({ friends }: { friends: Friends }) {
                   <Button
                     className={styles.compact}
                     aria-label={`Unfriend ${user.username}`}
-                    onClick={() => remove.mutate(user.username)}
+                      disabled={isBusy(user.username)}
+                      onClick={() => remove.mutate(user.username)}
                   >
                     Unfriend
                   </Button>

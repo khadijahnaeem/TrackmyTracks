@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
 from app.extensions import db
+from app.friends import service
 from app.models import Friendship
 
 
@@ -123,6 +124,23 @@ def test_only_addressee_can_accept(client, make_user, login):
     assert response.status_code == 404
     assert response.get_json()["error"]["message"] == "Friend request not found"
     assert client.post("/api/friends/requests/Nobody/accept").status_code == 404
+
+
+def test_accept_after_requester_cancels_answers_404(client, make_user, login, monkeypatch):
+    alice, bob = make_user("alice"), make_user("bob")
+    login(alice)
+    _request(client, "bob")
+    login(bob)
+    real_accept = service._accept
+
+    def cancel_then_accept(row):
+        db.session.execute(delete(Friendship).where(Friendship.id == row.id))
+        real_accept(row)
+
+    monkeypatch.setattr(service, "_accept", cancel_then_accept)
+    response = client.post("/api/friends/requests/alice/accept")
+    assert response.status_code == 404
+    assert response.get_json()["error"]["message"] == "Friend request not found"
 
 
 def test_delete_declines_cancels_and_unfriends(client, make_user, login):

@@ -36,7 +36,7 @@ export function useSendRequest() {
   return useMutation({
     mutationFn: (username: string) =>
       api.post<{ status: FriendStatus }>("/friends/requests", { username }),
-    onSuccess: invalidateFriends,
+    onSettled: invalidateFriends,
   });
 }
 
@@ -45,7 +45,7 @@ export function useAcceptRequest() {
   return useMutation({
     mutationFn: (username: string) =>
       api.post<{ status: FriendStatus }>(`/friends/requests/${encodeURIComponent(username)}/accept`),
-    onSuccess: invalidateFriends,
+    onSettled: invalidateFriends,
   });
 }
 
@@ -54,7 +54,7 @@ export function useRemoveFriend() {
   const invalidateFriends = useInvalidateFriends();
   return useMutation({
     mutationFn: (username: string) => api.delete<void>(`/friends/${encodeURIComponent(username)}`),
-    onSuccess: invalidateFriends,
+    onSettled: invalidateFriends,
   });
 }
 
