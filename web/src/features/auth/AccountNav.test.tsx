@@ -17,6 +17,7 @@ describe("AccountNav", () => {
   it("links the user's pages and logs out", async () => {
     mockFetch({
       "GET /api/auth/me": { body: { user: { id: 1, username: "alice", email: "a@b.co" } } },
+      "GET /api/friends": { body: { friends: [], incoming: [], outgoing: [] } },
       "POST /api/auth/logout": { status: 204 },
     });
     renderWithProviders(<AccountNav />);
@@ -30,8 +31,26 @@ describe("AccountNav", () => {
       "/users/alice/playlists",
     );
 
+    expect(screen.getByRole("link", { name: "Friends" })).toHaveAttribute("href", "/friends");
+
     await userEvent.click(screen.getByRole("button", { name: "Log out" }));
 
     expect(await screen.findByRole("link", { name: "Log in" })).toBeInTheDocument();
+  });
+
+  it("badges the Friends link with the incoming request count", async () => {
+    mockFetch({
+      "GET /api/auth/me": { body: { user: { id: 1, username: "alice", email: "a@b.co" } } },
+      "GET /api/friends": {
+        body: {
+          friends: [],
+          incoming: [{ user: { username: "maya" }, sent_at: "2026-10-02T18:30:00+00:00" }],
+          outgoing: [],
+        },
+      },
+    });
+    renderWithProviders(<AccountNav />);
+
+    expect(await screen.findByRole("link", { name: "Friends, 1 request" })).toHaveAttribute("href", "/friends");
   });
 });

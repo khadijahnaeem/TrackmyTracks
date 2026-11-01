@@ -1,6 +1,7 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import { authRoutes } from "../features/auth/routes";
 import { catalogRoutes } from "../features/catalog/routes";
+import { friendsRoutes } from "../features/friends/routes";
 import { historyRoutes } from "../features/history/routes";
 import { homeRoutes } from "../features/home/routes";
 import { playlistsRoutes } from "../features/playlists/routes";
@@ -16,6 +17,7 @@ export const routes: RouteObject[] = [
       ...catalogRoutes,
       ...historyRoutes,
       ...playlistsRoutes,
+      ...friendsRoutes,
       { path: "*", Component: NotFoundPage },
     ],
   },

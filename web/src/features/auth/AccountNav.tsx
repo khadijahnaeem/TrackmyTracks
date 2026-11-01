@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router";
-import { Button, buttonClassName, cx } from "../../ui";
+import { Button, buttonClassName, cx, pluralize } from "../../ui";
+import { useFriends } from "../friends/api";
 import { useLogout } from "./api";
 import styles from "./AccountNav.module.css";
 import { useMe } from "./useMe";
@@ -9,6 +10,7 @@ const navClassName = ({ isActive }: { isActive: boolean }) => cx(styles.link, is
 export function AccountNav() {
   const { user, isLoading } = useMe();
   const logout = useLogout();
+  const incomingCount = useFriends().data?.incoming.length ?? 0;
 
   // nothing until the session is known, so the header never flashes the wrong state
   if (isLoading) return null;
@@ -34,6 +36,18 @@ export function AccountNav() {
         </NavLink>
         <NavLink to={`/users/${user.username}/playlists`} className={navClassName}>
           Playlists
+        </NavLink>
+        <NavLink
+          to="/friends"
+          className={navClassName}
+          aria-label={incomingCount > 0 ? `Friends, ${pluralize(incomingCount, "request")}` : undefined}
+        >
+          Friends
+          {incomingCount > 0 && (
+            <span aria-hidden="true" className={styles.badge}>
+              {incomingCount}
+            </span>
+          )}
         </NavLink>
       </nav>
       <span className={styles.username}>{user.username}</span>

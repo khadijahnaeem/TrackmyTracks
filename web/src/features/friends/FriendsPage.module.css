@@ -1,0 +1,98 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.find {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 32rem;
+}
+
+.search {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+/* the field wrapper grows, the button keeps its width */
+.search > :first-child {
+  flex: 1;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.heading {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.compact {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.historyLink {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+@media (max-width: 640px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+
+  .search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
