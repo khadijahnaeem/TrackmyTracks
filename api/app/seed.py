@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
 import click
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from werkzeug.security import generate_password_hash
 
@@ -9,7 +9,7 @@ from app.catalog.service import get_or_cache_album, get_or_cache_artist
 from app.errors import CatalogUnavailable
 from app.extensions import db
 from app.kinds import RATING_TARGETS, Kind
-from app.models import Album, Playlist, PlaylistSong, Rating, User
+from app.models import Album, Friendship, Playlist, PlaylistSong, Rating, User
 
 # artist and album pairs, Radiohead, Portishead, Daft Punk, Bjork
 CATALOG = (
@@ -48,6 +48,9 @@ def seed(catalog: Iterable[tuple[str, str]]) -> dict[str, int]:
         if user.username in REVIEWS:
             _rate(user, "album", albums[0].id, 9, REVIEWS[user.username])
     _demo_playlist(users[0], albums)
+    alex, sam, jordan = users
+    _demo_friendship(alex, sam, accepted=True)
+    _demo_friendship(jordan, alex, accepted=False)
     db.session.commit()
     return {"artists": len(catalog), "albums": len(albums), "users": len(users)}
 
@@ -87,6 +90,19 @@ def _demo_playlist(owner: User, albums: list[Album]) -> None:
             description="Two openers from every record in the demo catalog.",
             entries=[PlaylistSong(song=song, position=i) for i, song in enumerate(openers, 1)],
         )
+    )
+
+
+def _demo_friendship(requester: User, addressee: User, accepted: bool) -> None:
+    # the pair index is an expression index, so a bare do-nothing matches either direction
+    db.session.execute(
+        insert(Friendship)
+        .values(
+            requester_id=requester.id,
+            addressee_id=addressee.id,
+            accepted_at=func.now() if accepted else None,
+        )
+        .on_conflict_do_nothing()
     )
 
 

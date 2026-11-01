@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 
 from app.extensions import db
-from app.models import Album, Artist, Playlist, PlaylistSong, Rating, User
+from app.models import Album, Artist, Friendship, Playlist, PlaylistSong, Rating, User
 from app.ratings.queries import rating_summaries
 from app.seed import DEMO_USERS, seed
 from tests.fakes import OK_COMPUTER, RADIOHEAD
@@ -50,3 +50,18 @@ def test_seed_cli_reports_demo_login(app, monkeypatch):
 
     assert result.exit_code == 0
     assert "alex@example.com" in result.output
+
+
+def test_seed_adds_demo_friendships():
+    seed(CATALOG)
+    seed(CATALOG)
+    ids = {u.username: u.id for u in db.session.scalars(select(User))}
+
+    rows = {
+        (row.requester_id, row.addressee_id): row.accepted_at
+        for row in db.session.scalars(select(Friendship))
+    }
+
+    assert len(rows) == _count(Friendship) == 2
+    assert rows[(ids["alex"], ids["sam"])] is not None
+    assert rows[(ids["jordan"], ids["alex"])] is None
