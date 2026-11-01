@@ -6,7 +6,7 @@ import styles from "../home/HomePage.module.css";
 import { SectionHeading } from "../home/SectionHeading";
 import { useFeed } from "./api";
 
-const KIND_LABELS = { song: "Song", album: "Album", artist: "Artist" } as const;
+const KIND_LABELS = { album: "Album", artist: "Artist" } as const;
 
 export function FriendsActivity() {
   const headingId = useId();
@@ -70,7 +70,7 @@ function ActivityCard({ entry }: { entry: FeedEntry }) {
       </div>
       <Stars value={entry.stars} label="Rating" size="sm" />
       <div>
-        <p className={styles.muted}>{KIND_LABELS[entry.kind]}</p>
+        {entry.kind !== "song" && <p className={styles.kindPill}>{KIND_LABELS[entry.kind]}</p>}
         <h3>
           <Link to={`/${entry.kind}s/${item.mbid}`}>{title}</Link>
         </h3>

@@ -168,6 +168,7 @@ web/src/features/friends/FriendButton.module.css
 web/src/features/friends/FriendButton.test.tsx
 web/src/features/friends/FriendButton.tsx
 web/src/features/friends/api.ts
+web/src/features/friends/FriendsActivity.tsx
 web/src/features/friends/FriendsPage.module.css
 web/src/features/friends/FriendsPage.test.tsx
 web/src/features/friends/FriendsPage.tsx
@@ -249,4 +250,3 @@ web/tsconfig.app.json
 web/tsconfig.json
 web/tsconfig.node.json
 web/vite.config.ts
-web/src/features/friends/FriendsActivity.tsx

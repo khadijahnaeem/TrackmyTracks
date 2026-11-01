@@ -118,6 +118,7 @@ describe("HomePage", () => {
       expect(within(activity).getByRole("link", { name: "Paranoid Android" })).toHaveAttribute("href", "/songs/s1");
       expect(within(activity).getByRole("link", { name: "Radiohead" })).toHaveAttribute("href", "/artists/a1");
       expect(within(activity).getByText("Three songs in one.")).toBeInTheDocument();
+      expect(within(activity).queryByText("Song")).toBeNull();
       expect(within(activity).getByRole("img", { name: "Rating: 4.5 out of 5" })).toBeInTheDocument();
       expect(screen.queryByRole("region", { name: "Fresh Reviews" })).not.toBeInTheDocument();
     });
