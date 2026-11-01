@@ -214,7 +214,7 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/friends/api.ts` | 004 | `useFriends()`, `friendStatus(friends, username) -> FriendStatus`, `useSendRequest()`, `useAcceptRequest()`, `useRemoveFriend()`, `useUserSearch(q)`, `useFeed(page)` |
 | `src/features/friends/FriendButton.tsx` | 004 | `FriendButton({username})`, the add, accept, or sent control, renders nothing for yourself or when logged out |
 | `src/features/friends/FriendsActivity.tsx` | 004 | `FriendsActivity()`, the home page section for logged in users in place of Fresh reviews |
-| `src/features/friends/FriendsPage.tsx` | 004 | `FriendsPage()`, requests, friends list, user search, and the feed |
+| `src/features/friends/FriendsPage.tsx` | 004 | `FriendsPage()`, requests, sent requests, friends list, and user search |
 | `src/features/playlists/AddToPlaylistButton.tsx` | 08 | `AddToPlaylistButton({mbid, title?})`, pass `title` on song rows so each button has a distinct accessible name |
 
 Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08), `/friends` (004).
