@@ -39,11 +39,11 @@ def friends_payload(user: User) -> dict:
     for row in rows:
         other = row.addressee if row.requester_id == user.id else row.requester
         if row.accepted_at is not None:
-            friends.append({"user": public_user(other), "since": row.accepted_at})
+            friends.append({"user": public_user(other), "since": row.accepted_at.isoformat()})
         elif row.addressee_id == user.id:
-            incoming.append({"user": public_user(other), "sent_at": row.created_at})
+            incoming.append({"user": public_user(other), "sent_at": row.created_at.isoformat()})
         else:
-            outgoing.append({"user": public_user(other), "sent_at": row.created_at})
+            outgoing.append({"user": public_user(other), "sent_at": row.created_at.isoformat()})
     friends.sort(key=lambda friend: friend["user"]["username"])
     return {"friends": friends, "incoming": incoming, "outgoing": outgoing}
 

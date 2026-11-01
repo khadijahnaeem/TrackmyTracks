@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
 
@@ -31,7 +31,7 @@ def test_request_then_accept_makes_friends(client, make_user, login):
 
     bob_view = client.get("/api/friends").get_json()
     assert [f["user"] for f in bob_view["friends"]] == [{"username": "alice"}]
-    assert bob_view["friends"][0]["since"]
+    assert datetime.fromisoformat(bob_view["friends"][0]["since"])
     assert bob_view["incoming"] == []
 
     login(alice)
@@ -67,7 +67,8 @@ def test_lists_are_sorted(client, make_user, login):
     assert [f["user"]["username"] for f in data["friends"]] == ["amy", "zed"]
     assert [r["user"]["username"] for r in data["incoming"]] == ["lou", "kim"]
     assert [r["user"]["username"] for r in data["outgoing"]] == ["third", "other"]
-    assert all(r["sent_at"] for r in data["incoming"])
+    assert all(datetime.fromisoformat(r["sent_at"]) for r in data["incoming"] + data["outgoing"])
+    assert all(datetime.fromisoformat(f["since"]) for f in data["friends"])
 
 
 def test_crossed_request_accepts(client, make_user, login):
