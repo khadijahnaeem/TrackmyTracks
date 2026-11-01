@@ -88,3 +88,43 @@ def test_feed_is_empty_page_without_friends(client, make_user, login):
 def test_search_and_feed_require_login(client):
     assert client.get("/api/users?q=a").status_code == 401
     assert client.get("/api/feed").status_code == 401
+
+
+def test_recent_reviews_newest_first_from_everyone_but_me(
+    client, make_user, login, make_artist, make_song, make_album, rate
+):
+    alice, bob, carol = make_user("alice"), make_user("bob"), make_user("carol")
+    _befriend(alice, bob)
+    artist = make_artist()
+    song, album = make_song(artist), make_album(artist)
+    rate(bob, song, 4.5, "Great")
+    rate(carol, album, 3.0, "Fine")
+    rate(alice, song, 5.0, "Mine")
+    login(alice)
+    body = client.get("/api/reviews/recent").get_json()
+    assert body["total"] == 2
+    first, second = body["items"]
+    assert (first["kind"], first["review"], first["user"]) == (
+        "album",
+        "Fine",
+        {"username": "carol"},
+    )
+    assert (second["kind"], second["review"], second["user"]) == (
+        "song",
+        "Great",
+        {"username": "bob"},
+    )
+    assert second["item"]["title"] == "Airbag"
+
+
+def test_recent_reviews_skip_ratings_without_text(
+    client, make_user, login, make_artist, make_song, rate
+):
+    alice, bob = make_user("alice"), make_user("bob")
+    rate(bob, make_song(make_artist()), 4.0)
+    login(alice)
+    assert client.get("/api/reviews/recent").get_json()["items"] == []
+
+
+def test_recent_reviews_require_login(client):
+    assert client.get("/api/reviews/recent").status_code == 401

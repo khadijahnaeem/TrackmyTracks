@@ -157,11 +157,65 @@ describe("HomePage", () => {
     });
 
     it("shows a notice with no activity", async () => {
-      mockFetch({ "GET /api/auth/me": { body: ME }, "GET /api/feed?page=1": feedPage([]) });
+      mockFetch({
+        "GET /api/auth/me": { body: ME },
+        "GET /api/feed?page=1": feedPage([]),
+        "GET /api/reviews/recent?page=1": feedPage([]),
+      });
       renderAt("/");
 
       expect(await screen.findByText("Nothing from friends yet")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Find friends" })).toHaveAttribute("href", "/friends");
+    });
+
+    it("falls back to community reviews when the feed is empty", async () => {
+      mockFetch({
+        "GET /api/auth/me": { body: ME },
+        "GET /api/feed?page=1": feedPage([]),
+        "GET /api/reviews/recent?page=1": feedPage([
+          {
+            id: 7,
+            kind: "song",
+            item: { mbid: "s1", title: "Paranoid Android", disambiguation: null, length_ms: null, artist: radiohead },
+            stars: 4.5,
+            review: "Three songs in one.",
+            updated_at: "2026-10-02T18:30:00+00:00",
+            user: { username: "maya" },
+          },
+        ]),
+      });
+      renderAt("/");
+
+      expect(await screen.findByRole("link", { name: "@maya" })).toHaveAttribute("href", "/users/maya/history");
+      const community = screen.getByRole("region", { name: "Fresh Reviews" });
+      expect(within(community).getByText("The community")).toBeInTheDocument();
+      expect(within(community).getByText("Three songs in one.")).toBeInTheDocument();
+      expect(within(community).getByRole("link", { name: "Add friends to see their activity here" })).toHaveAttribute(
+        "href",
+        "/friends",
+      );
+      expect(screen.queryByText("Nothing from friends yet")).not.toBeInTheDocument();
+    });
+
+    it("does not fetch community reviews when the feed has items", async () => {
+      const fetchMock = mockFetch({
+        "GET /api/auth/me": { body: ME },
+        "GET /api/feed?page=1": feedPage([
+          {
+            id: 1,
+            kind: "artist",
+            item: radiohead,
+            stars: 4,
+            review: null,
+            updated_at: "2026-10-02T18:30:00+00:00",
+            user: { username: "sam" },
+          },
+        ]),
+      });
+      renderAt("/");
+
+      await screen.findByRole("region", { name: "Friends' Activity" });
+      expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/api/reviews/recent"))).toBe(false);
     });
 
     it("pages through the feed", async () => {

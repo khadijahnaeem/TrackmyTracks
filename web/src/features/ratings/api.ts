@@ -17,7 +17,7 @@ interface SaveRatingInput {
   review?: string;
 }
 
-const RATED_QUERY_KEYS = [["artist"], ["album"], ["song"], ["reviews"], ["history"], ["feed"]];
+const RATED_QUERY_KEYS = [["artist"], ["album"], ["song"], ["reviews"], ["history"], ["feed"], ["recent-reviews"]];
 
 // one mutation per target at a time, so the last click always wins
 const ratingScope = ({ kind, mbid }: Target) => ({ id: `rating:${kind}:${mbid}` });

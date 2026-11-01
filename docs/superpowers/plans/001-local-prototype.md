@@ -188,6 +188,7 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `DELETE /api/friends/<username>` | 004 | 204. Declines, cancels, or unfriends, 404 when nothing links the two |
 | `GET /api/users?q=` | 004 | `{items: PublicUser[]}`, usernames starting with `q`, never yourself, at most 20. Needs login |
 | `GET /api/feed?page=N` | 004 | `Page<FeedEntry>`, friends' ratings newest first. Needs login |
+| `GET /api/reviews/recent?page=N` | 004 | `Page<FeedEntry>`, reviews with text from everyone but you, newest first, same order as the feed. Needs login |
 
 ### Frontend modules
 
@@ -211,7 +212,7 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 | `src/features/ratings/RatingControl.tsx` | 07 | `RatingControl({kind, mbid, rating, title?, compact?})`, self-contained, pass `title` on compact rows |
 | `src/features/ratings/ReviewList.tsx` | 07 | `ReviewList({kind, mbid})`, no heading or outer margin, the page wraps it in a Reviews section |
 | `src/features/friends/routes.ts` | 004 | `friendsRoutes`, the `/friends` page |
-| `src/features/friends/api.ts` | 004 | `useFriends()`, `friendStatus(friends, username) -> FriendStatus`, `useSendRequest()`, `useAcceptRequest()`, `useRemoveFriend()`, `useUserSearch(q)`, `useFeed(page)` |
+| `src/features/friends/api.ts` | 004 | `useFriends()`, `friendStatus(friends, username) -> FriendStatus`, `useSendRequest()`, `useAcceptRequest()`, `useRemoveFriend()`, `useUserSearch(q)`, `useFeed(page)`, `useRecentReviews(page, enabled)` |
 | `src/features/friends/FriendButton.tsx` | 004 | `FriendButton({username})`, the add, accept, or sent control, renders nothing for yourself or when logged out |
 | `src/features/friends/FriendsActivity.tsx` | 004 | `FriendsActivity()`, the home page section for logged in users in place of Fresh reviews |
 | `src/features/friends/FriendsPage.tsx` | 004 | `FriendsPage()`, requests, sent requests, friends list, and user search |
@@ -219,4 +220,4 @@ Rateable items on detail pages carry `rating: RatingSummary`.
 
 Routes: `/login`, `/register` (05), `/` home page (002), `/search`, `/artists/:mbid`, `/albums/:mbid`, `/songs/:mbid` (06), `/users/:username/history` (09), `/users/:username/playlists`, `/playlists/:id` (08), `/friends` (004).
 
-Query keys: `["me"]`, `["search", type, q, page]`, `["artist", mbid]`, `["album", mbid]`, `["song", mbid]`, `["reviews", kind, mbid, page]`, `["history", username, kind, page]`, `["playlists", username]`, `["playlist", id]`, `["friends"]`, `["users", q]`, `["feed", page]`. A rating change invalidates `["artist"]`, `["album"]`, `["song"]`, `["reviews"]`, `["history"]`, and `["feed"]`. A friend request, accept, or removal invalidates `["friends"]` and `["feed"]`.
+Query keys: `["me"]`, `["search", type, q, page]`, `["artist", mbid]`, `["album", mbid]`, `["song", mbid]`, `["reviews", kind, mbid, page]`, `["history", username, kind, page]`, `["playlists", username]`, `["playlist", id]`, `["friends"]`, `["users", q]`, `["feed", page]`, `["recent-reviews", page]`. A rating change invalidates `["artist"]`, `["album"]`, `["song"]`, `["reviews"]`, `["history"]`, `["feed"]`, and `["recent-reviews"]`. A friend request, accept, or removal invalidates `["friends"]`, `["feed"]`, and `["recent-reviews"]`.

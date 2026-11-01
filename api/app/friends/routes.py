@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from sqlalchemy import select
+from sqlalchemy import and_, select
 
 from app.auth.serializers import public_user
 from app.auth.session import require_user, user_or_404
@@ -58,14 +58,19 @@ def search_users():
     return {"items": [public_user(row) for row in rows]}
 
 
-@bp.get("/feed")
-def feed():
-    user = require_user()
-    query = (
-        select(Rating)
-        .where(Rating.user_id.in_(friend_ids(user)))
-        .order_by(Rating.updated_at.desc(), Rating.id.desc())
-    )
+def _feed_page(condition):
+    query = select(Rating).where(condition).order_by(Rating.updated_at.desc(), Rating.id.desc())
     return paginate(
         query, lambda rating: {**rating_entry(rating), "user": public_user(rating.user)}, page_arg()
     )
+
+
+@bp.get("/feed")
+def feed():
+    return _feed_page(Rating.user_id.in_(friend_ids(require_user())))
+
+
+@bp.get("/reviews/recent")
+def recent_reviews():
+    user = require_user()
+    return _feed_page(and_(Rating.review.is_not(None), Rating.user_id != user.id))

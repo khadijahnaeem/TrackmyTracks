@@ -27,6 +27,7 @@ function useInvalidateFriends() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ["friends"] }),
       queryClient.invalidateQueries({ queryKey: ["feed"] }),
+      queryClient.invalidateQueries({ queryKey: ["recent-reviews"] }),
     ]);
 }
 
@@ -71,5 +72,15 @@ export function useFeed(page: number) {
     queryKey,
     queryFn: () => api.get<Page<FeedEntry>>(`/feed?page=${page}`),
     placeholderData: keepPreviousPage(queryKey),
+  });
+}
+
+export function useRecentReviews(page: number, enabled: boolean) {
+  const queryKey = ["recent-reviews", page];
+  return useQuery({
+    queryKey,
+    queryFn: () => api.get<Page<FeedEntry>>(`/reviews/recent?page=${page}`),
+    placeholderData: keepPreviousPage(queryKey),
+    enabled,
   });
 }

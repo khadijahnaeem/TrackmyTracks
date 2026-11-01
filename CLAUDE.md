@@ -19,8 +19,8 @@ Read the design before changing anything:
 - Work now lands as small feature pull requests on top of the prototype, like the search ranking and listen count changes
 - `docker-compose.yml`, `docker/initdb/`, and `.env.example` set up Postgres, `api/` is the Flask API, and `web/` is the React app
 - Friends are in. Users send, accept, decline, and remove friend requests on the `/friends` page, and the header Friends link shows a count of incoming requests. Each review has a friend button
-- The feed is the friends' ratings, newest first. It shows on the home page for logged in users in place of Fresh reviews
-- The home page Trending section and the logged out Fresh reviews section still show static sample data from `web/src/features/home/sampleData.ts`, since the API has no trending or recent reviews routes yet
+- The feed is the friends' ratings, newest first. It shows on the home page for logged in users in place of Fresh reviews. When page 1 of the feed is empty it falls back to other people's reviews from `GET /api/reviews/recent`, newest first, under the heading Fresh Reviews with a link to add friends
+- The home page Trending section and the logged out Fresh reviews section still show static sample data from `web/src/features/home/sampleData.ts`, since the API has no trending route and the recent reviews route requires a login
 - `frontend/` and `css/` hold the team's earlier homepage prototype. They predate the plan and are not part of it
 
 ## Commands
