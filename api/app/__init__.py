@@ -14,6 +14,8 @@ from app.playlists.routes import bp as playlists_bp
 from app.ratings.routes import bp as ratings_bp
 from app.seed import seed_command
 
+from app.reports.routes import bp as reports_bp #adding report_bp
+
 
 def create_app(overrides: dict | None = None) -> Flask:
     app = Flask(__name__)
@@ -32,7 +34,9 @@ def create_app(overrides: dict | None = None) -> Flask:
     app.extensions["musicbrainz"] = MusicBrainzClient(
         app.config["MB_USER_AGENT"], app.config["LISTENBRAINZ_TOKEN"]
     )
-    for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp, history_bp, friends_bp):
+
+    #11/10/26 added the reports_bp here as another bp to be registered
+    for blueprint in (auth_bp, catalog_bp, ratings_bp, playlists_bp, history_bp, friends_bp, reports_bp):
         app.register_blueprint(blueprint)
     app.cli.add_command(seed_command)
     return app
