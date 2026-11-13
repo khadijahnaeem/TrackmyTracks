@@ -170,3 +170,58 @@ def test_create_review_report(client, make_user, login, make_artist, make_song, 
     assert report.reason == "spam"
     assert report.details == "this review contains advertisements"
     assert report.status == "pending"
+
+
+
+#user cannot report their own review
+def test_cannot_report_own_review(client, make_user, login, make_artist, make_song, rate):
+    reviewer = make_user("reviewer")
+    artist = make_artist()
+    song = make_song(artist)
+    rating = rate(reviewer, song, stars=4.0, review="My review")
+
+    login(reviewer) #make sure reviewer is logged in
+
+    response = client.post(
+        REPORTS,
+        json={"rating_id": rating.id, "reason": "Spam"},
+    )
+
+    assert response.status_code == 422
+    assert response.json["error"]["code"] == "validation_error"
+
+
+#can't report a view that doesn't exist - 404 error
+def test_report_nonexistent_review(client, make_user, login):
+    reporter = make_user("reporter")
+    login(reporter)
+
+    response = client.post(
+        REPORTS,
+        json={"rating_id": 99999, "reason": "Spam"},
+    )
+
+    assert response.status_code == 404
+    assert response.json["error"]["code"] == "not_found"
+
+
+#you cannot report only their starred rating w/o a reviwew
+#at that point, it's just reporting because you don't agree with their rating
+#only a written review or a specific user can be reported
+def test_cannot_report_rating_without_review( client, make_user, login, make_artist, make_song, rate):
+    reporter = make_user("reporter")
+    reviewer = make_user("reviewer")
+
+    artist = make_artist()
+    song = make_song(artist)
+    rating = rate(reviewer, song, stars=4.0)
+
+    login(reporter)
+
+    response = client.post(
+        REPORTS,
+        json={"rating_id": rating.id, "reason": "Spam"},
+    )
+
+    assert response.status_code == 422
+    assert response.json["error"]["code"] == "validation_error"
