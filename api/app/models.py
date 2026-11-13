@@ -202,10 +202,11 @@ class Report(db.Model):
 
     reporter_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
-        index=true,
+        index=True,
     )
 
-    reported_user_id: Mapped[int] = mapped_column(
+    # Nullable because a report can target a review instead of a user.
+    reported_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
     )
@@ -231,7 +232,7 @@ class Report(db.Model):
         lazy="joined",
     )
 
-    reported_user: Mapped[User] = relationship(
+    reported_user: Mapped[User | None] = relationship(
         foreign_keys=[reported_user_id],
         lazy="joined",
     )
