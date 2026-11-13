@@ -189,52 +189,42 @@ class Report(db.Model):
     __table_args__ = (
         CheckConstraint(
             "num_nonnulls(reported_user_id, rating_id) = 1",
-            name = "report_one_target",
+            name="report_one_target",
         ),
         CheckConstraint(
             "status IN ('pending', 'reviewed', 'dismissed')",
-            name = "report_valid_status",
+            name="report_valid_status",
         ),
-        CheckConstraint(
-            "reason <> ''",
-            name = "report_reason_not_blank"
-        ),
+        CheckConstraint("reason <> ''", name="report_reason_not_blank"),
     )
 
-    id: Mapped[int] = mapped_column(primary_key= True)
-
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     reporter_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete= "CASCADE"),
-        index = true,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=true,
     )
 
-
     reported_user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete= "CASCADE"),
-        index = True,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
     )
 
     rating_id: Mapped[int | None] = mapped_column(
-        ForeignKey("ratings.id", ondelete= "CASCADE"),
-        index= True,
+        ForeignKey("ratings.id", ondelete="CASCADE"),
+        index=True,
     )
-
 
     reason: Mapped[str] = mapped_column(String(100))
     details: Mapped[str | None] = mapped_column(String(1000))
 
-
     status: Mapped[str] = mapped_column(
         String(20),
-        default= "pending",
-        server_default= "pending",
+        default="pending",
+        server_default="pending",
     )
 
-
-    created_at: Mapped[datetime] = mapped_column(
-        server_default= func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     reporter: Mapped[User] = relationship(
         foreign_keys=[reporter_id],
@@ -242,8 +232,8 @@ class Report(db.Model):
     )
 
     reported_user: Mapped[User] = relationship(
-            foreign_keys=[reported_user_id],
-            lazy="joined",
-        )
+        foreign_keys=[reported_user_id],
+        lazy="joined",
+    )
 
     rating: Mapped[Rating | None] = relationship(lazy="joined")

@@ -1,43 +1,45 @@
+import pytest
+
 from app.extensions import db
 from app.models import Report
-import pytest
 
 REPORTS = "/api/reports"
 
-#testing if creating the report with no invalid args wworks in general
+# testing if creating the report with no invalid args wworks in general
+
 
 def test_create_user_report(client, make_user, login):
 
-    #make the users
+    # make the users
     reporter = make_user("reporter")
     reported_user = make_user("reported")
 
-    #make sure the reporter is logged in
+    # make sure the reporter is logged in
 
     login(reporter)
 
     response = client.post(
         REPORTS,
-        json = {
-            "reported_user_id" : reported_user.id,
-            "reason" : "spam",
-            "details" : "this is a test report",
+        json={
+            "reported_user_id": reported_user.id,
+            "reason": "spam",
+            "details": "this is a test report",
         },
     )
 
-    #make sure the HTTP status code and status of the report is good
+    # make sure the HTTP status code and status of the report is good
     assert response.status_code == 201
     assert response.json["status"] == "pending"
 
     report = db.session.get(Report, response.json["id"])
-    #IMPORTANT sql alchemy queries the Report table and retrieves the id
-    #returned by the api
-    #this db.session.get() retrieves the corresponding Report object with primary key report id
-    #from the db session
+    # IMPORTANT sql alchemy queries the Report table and retrieves the id
+    # returned by the api
+    # this db.session.get() retrieves the corresponding Report object with primary key report id
+    # from the db session
 
-    #other asserts for not none, making sure supposed reporter id on the report matches the variable
+    # Verify the saved report has the correct reporter ID.
 
-    #making sure the reason, details, and status are all as they should be
+    # making sure the reason, details, and status are all as they should be
     assert report is not None
     assert report.reporter_id == reporter.id
     assert report.reported_user_id == reported_user.id
@@ -45,10 +47,12 @@ def test_create_user_report(client, make_user, login):
     assert report.details == "this is a test report"
     assert report.status == "pending"
 
-#testing invalid input/ faulty reports do not get generated with bad args
+
+# testing invalid input/ faulty reports do not get generated with bad args
+
 
 def test_report_requires_login(client, make_user):
-    reported_user = make_user("reported") #user made
+    reported_user = make_user("reported")  # user made
 
     response = client.post(
         REPORTS,
@@ -57,8 +61,8 @@ def test_report_requires_login(client, make_user):
             "reason": "Spam",
         },
     )
-    
-    #BUT really important: reported_user was made, but no one is logged in
+
+    # BUT really important: reported_user was made, but no one is logged in
     assert response.status_code == 401
     assert response.json["error"]["code"] == "unauthorized"
 
@@ -86,9 +90,7 @@ def test_report_nonexistent_user(client, make_user, login):
     response = client.post(
         REPORTS,
         json={
-            "reported_user_id": 99999, #no user created with this id so sqlalchemy is not able to find it
-            #truncate in conftest.py takes care of this issue of a potential 99999 user eexiting by
-            #cleaing out the test db
+            "reported_user_id": 99999,  # This user does not exist
             "reason": "spam",
         },
     )
@@ -96,14 +98,15 @@ def test_report_nonexistent_user(client, make_user, login):
     assert response.status_code == 404
     assert response.json["error"]["code"] == "not_found"
 
+
 @pytest.mark.parametrize(
     "reason",
     [
         "",
         "   ",
-        "x" * 101, #if it's more than 100 chars
-        123, #only number
-        None, #null reason
+        "x" * 101,  # if it's more than 100 chars
+        123,  # only number
+        None,  # null reason
     ],
 )
 def test_report_rejects_invalid_reason(client, make_user, login, reason):
@@ -123,7 +126,8 @@ def test_report_rejects_invalid_reason(client, make_user, login, reason):
     assert response.status_code == 422
     assert response.json["error"]["code"] == "validation_error"
 
-    #test that a rating with a review can be reported
+    # test that a rating with a review can be reported
+
 
 def test_create_review_report(client, make_user, login, make_artist, make_song, rate):
     reporter = make_user("reporter")
@@ -139,7 +143,7 @@ def test_create_review_report(client, make_user, login, make_artist, make_song, 
         review="This is a sample review.",
     )
 
-    login(reporter) #make sure reporter is logged in
+    login(reporter)  # make sure reporter is logged in
 
     response = client.post(
         REPORTS,
@@ -150,37 +154,36 @@ def test_create_review_report(client, make_user, login, make_artist, make_song, 
         },
     )
 
-    #check that the API successfully created the report
+    # check that the API successfully created the report
     assert response.status_code == 201
     assert response.json["status"] == "pending"
 
-    #retrieve the saved report using its primary key
+    # retrieve the saved report using its primary key
     report = db.session.get(Report, response.json["id"])
 
-    #verify the report targets the correct review
+    # verify the report targets the correct review
     assert report is not None
     assert report.reporter_id == reporter.id
     assert report.rating_id == rating.id
     assert report.reported_user_id is None
-    #this last assert is because the report should targt the rating with a review this time
-    #not a user
-    #that has already been tested
+    # this last assert is because the report should targt the rating with a review this time
+    # not a user
+    # that has already been tested
 
-    #verify the report info was saved correctly
+    # verify the report info was saved correctly
     assert report.reason == "spam"
     assert report.details == "this review contains advertisements"
     assert report.status == "pending"
 
 
-
-#user cannot report their own review
+# user cannot report their own review
 def test_cannot_report_own_review(client, make_user, login, make_artist, make_song, rate):
     reviewer = make_user("reviewer")
     artist = make_artist()
     song = make_song(artist)
     rating = rate(reviewer, song, stars=4.0, review="My review")
 
-    login(reviewer) #make sure reviewer is logged in
+    login(reviewer)  # make sure reviewer is logged in
 
     response = client.post(
         REPORTS,
@@ -191,7 +194,7 @@ def test_cannot_report_own_review(client, make_user, login, make_artist, make_so
     assert response.json["error"]["code"] == "validation_error"
 
 
-#can't report a view that doesn't exist - 404 error
+# can't report a view that doesn't exist - 404 error
 def test_report_nonexistent_review(client, make_user, login):
     reporter = make_user("reporter")
     login(reporter)
@@ -205,10 +208,12 @@ def test_report_nonexistent_review(client, make_user, login):
     assert response.json["error"]["code"] == "not_found"
 
 
-#you cannot report only their starred rating w/o a reviwew
-#at that point, it's just reporting because you don't agree with their rating
-#only a written review or a specific user can be reported
-def test_cannot_report_rating_without_review( client, make_user, login, make_artist, make_song, rate):
+# you cannot report only their starred rating w/o a reviwew
+# at that point, it's just reporting because you don't agree with their rating
+# only a written review or a specific user can be reported
+def test_cannot_report_rating_without_review(
+    client, make_user, login, make_artist, make_song, rate
+):
     reporter = make_user("reporter")
     reviewer = make_user("reviewer")
 
