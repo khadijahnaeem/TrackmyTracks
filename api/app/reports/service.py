@@ -1,8 +1,21 @@
+from sqlalchemy import select
+
 from app.errors import NotFound, ValidationError
 from app.extensions import db
 
 # Handle invalid reports, such as missing targets or an empty reason.
 from app.models import Rating, Report, User
+
+
+def report_user_by_username(reporter: User, username: str, reason: str, details: str | None):
+    # find the use who was reported by their username
+    reported_user = db.session.scalar(select(User).where(User.username == username))
+
+    if reported_user is None:
+        raise NotFound("Reported user not found")
+
+    # reuse validation logic to report a user in general below
+    return report_user(reporter, reported_user.id, reason, details)
 
 
 def report_user(reporter: User, reported_user_id: int, reason: str, details: str | None):

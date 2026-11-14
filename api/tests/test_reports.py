@@ -230,3 +230,46 @@ def test_cannot_report_rating_without_review(
 
     assert response.status_code == 422
     assert response.json["error"]["code"] == "validation_error"
+
+
+def test_create_user_report_by_username(client, make_user, login):
+    reporter = make_user("reporter")
+    reported_user = make_user("reported")
+
+    login(reporter)
+
+    response = client.post(
+        REPORTS,
+        json={
+            "reported_username": reported_user.username,
+            "reason": "spam",
+            "details": "Testing username-based reporting",
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json["status"] == "pending"
+
+    # make sure the user id is tied correctly to their username
+    report = db.session.get(Report, response.json["id"])
+
+    assert report is not None
+    assert report.reporter_id == reporter.id
+    assert report.reported_user_id == reported_user.id
+    assert report.reason == "spam"
+    assert report.details == "Testing username-based reporting"
+
+
+def test_cannot_report_yourself_by_username(client, make_user, login):
+    reporter = make_user("reporter")
+    login(reporter)
+
+    response = client.post(
+        REPORTS,
+        json={
+            "reported_username": reporter.username,
+            "reason": "spam",
+        },
+    )
+
+    assert response.status_code == 422

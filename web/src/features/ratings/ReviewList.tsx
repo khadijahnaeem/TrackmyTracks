@@ -1,3 +1,4 @@
+import { ReportButton } from "../reports/ReportButton";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Kind } from "../../api/types";
@@ -43,6 +44,12 @@ function ReviewListBody({ kind, mbid }: ReviewListProps) {
               </time>
             </div>
             <p className={styles.body}>{review.review}</p>
+            {review.review && (
+              <ReportButton
+                ratingId={review.id}
+                authorUsername={review.user.username}
+              />
+            )}
           </li>
         ))}
       </ol>
