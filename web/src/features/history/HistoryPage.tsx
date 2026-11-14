@@ -1,3 +1,4 @@
+import { ReportButton } from "../reports/ReportButton";
 import { Link, useParams, useSearchParams } from "react-router";
 import { isNotFound } from "../../api/client";
 import type { HistoryEntry, Kind, Page } from "../../api/types";
@@ -66,6 +67,9 @@ export function HistoryPage() {
   return (
     <>
       {meLoading ? <LoadingHeader /> : <PageHeader eyebrow="History" title={title} />}
+      {!meLoading && !history.isLoading && user && !isOwn && !unknownUser && (
+        <ReportButton reportedUsername={username} />)
+      }
       <div className={styles.filters}>
         <SegmentedControl label="Filter by kind" options={FILTERS} value={kind ?? "all"} onChange={handleKindChange} />
       </div>

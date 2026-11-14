@@ -1,0 +1,73 @@
+from sqlalchemy import select
+
+from app.errors import NotFound, ValidationError
+from app.extensions import db
+
+# Handle invalid reports, such as missing targets or an empty reason.
+from app.models import Rating, Report, User
+
+
+def report_user_by_username(reporter: User, username: str, reason: str, details: str | None):
+    # find the use who was reported by their username
+    reported_user = db.session.scalar(select(User).where(User.username == username))
+
+    if reported_user is None:
+        raise NotFound("Reported user not found")
+
+    # reuse validation logic to report a user in general below
+    return report_user(reporter, reported_user.id, reason, details)
+
+
+def report_user(reporter: User, reported_user_id: int, reason: str, details: str | None):
+
+    # check the reported user exists
+    reported_user = db.session.get(User, reported_user_id)
+    if reported_user is None:
+        raise NotFound("Reported user not found")
+
+    # prevent users from reporting themselves
+    if reported_user_id == reporter.id:
+        raise ValidationError("You cannot report yourself")
+
+    # if both of the above are clear, create the actual report
+    report = Report(
+        reporter_id=reporter.id,
+        reported_user_id=reported_user.id,
+        reason=reason,
+        details=details,
+        # can be a str or None, it's fine as it is
+    )
+
+    db.session.add(report)
+    db.session.commit()
+
+    return {"id": report.id, "status": report.status}, 201
+
+
+def report_review(reporter: User, rating_id: int, reason: str, details: str | None):
+    # Find the rating/review being reported
+    rating = db.session.get(Rating, rating_id)
+
+    if rating is None:
+        raise NotFound("Review not found")
+
+    # a rating without written text is not a review
+    if not rating.review or not rating.review.strip():
+        raise ValidationError("This rating does not contain a review")
+
+    # prevent users from reporting their own reviews
+    if rating.user_id == reporter.id:
+        raise ValidationError("You cannot report your own review")
+
+    # create a report targeting the review
+    report = Report(
+        reporter_id=reporter.id,
+        rating_id=rating.id,
+        reason=reason,
+        details=details,
+    )
+
+    db.session.add(report)
+    db.session.commit()
+
+    return {"id": report.id, "status": report.status}, 201
