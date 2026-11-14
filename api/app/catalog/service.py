@@ -1,6 +1,8 @@
+from flask import current_app
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 
+from app.errors import CatalogUnavailable
 from app.extensions import db
 from app.kinds import MODELS, Kind
 from app.models import Album, AlbumSong, Artist, ArtistTopSong, Song
@@ -43,9 +45,17 @@ def get_or_cache_artist(mbid: str) -> Artist:
     if artist is not None and artist.fetched_at is not None:
         return artist
     client = musicbrainz()
+
     data = client.get_artist(mbid)
     albums = client.get_artist_albums(data.mbid)
-    top_songs = client.top_songs(data)
+
+    try:
+        top_songs = client.top_songs(data)
+    except CatalogUnavailable:
+        current_app.logger.warning(
+            "ListenBrainz unavailable for artist %s", data.mbid
+        )
+        top_songs = []
 
     artist_id = _upsert_artists([data], fetched_at=func.now())[data.mbid]
     _upsert_albums(albums)
