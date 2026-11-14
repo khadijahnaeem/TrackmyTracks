@@ -98,13 +98,20 @@ def test_unknown_mbid_is_not_found(fake_mb):
         get_or_cache_song("00000000-0000-4000-8000-000000000002")
 
 
-def test_outage_midway_writes_nothing(fake_mb):
+def test_listenbrainz_outage_still_caches_artist(fake_mb):
     top_songs_route = f"/popularity/top-recordings-for-artist/{RADIOHEAD}"
     fake_mb.routes[top_songs_route] = CatalogUnavailable(UNAVAILABLE)
 
-    with pytest.raises(CatalogUnavailable):
-        get_or_cache_artist(RADIOHEAD)
-    assert [_count(model) for model in (Artist, Album, Song)] == [0, 0, 0]
+    artist = get_or_cache_artist(RADIOHEAD)
+
+    assert artist is not None
+    assert artist.mbid == RADIOHEAD
+    assert artist.fetched_at is not None
+    assert len(artist.top_songs) == 0
+
+    assert _count(Artist) >= 1
+    assert _count(Album) >= 1
+    assert _count(Song) == 0
 
 
 def test_a_lost_cache_race_leaves_one_row(fake_mb, monkeypatch):
