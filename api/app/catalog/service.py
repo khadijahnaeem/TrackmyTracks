@@ -52,9 +52,7 @@ def get_or_cache_artist(mbid: str) -> Artist:
     try:
         top_songs = client.top_songs(data)
     except CatalogUnavailable:
-        current_app.logger.warning(
-            "ListenBrainz unavailable for artist %s", data.mbid
-        )
+        current_app.logger.warning("ListenBrainz unavailable for artist %s", data.mbid)
         top_songs = []
 
     artist_id = _upsert_artists([data], fetched_at=func.now())[data.mbid]
